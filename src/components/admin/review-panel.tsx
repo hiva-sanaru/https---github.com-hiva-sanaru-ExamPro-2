@@ -20,6 +20,8 @@ import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { format, setHours, setMinutes } from "date-fns";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { updateSubmission } from "@/services/submissionService";
+import { useRouter } from "next/navigation";
 
 
 interface ReviewPanelProps {
@@ -44,6 +46,7 @@ const minutes = ['00', '15', '30', '45'];
 
 export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps) {
   const { toast } = useToast();
+  const router = useRouter();
   const [gradingResults, setGradingResults] = useState<GradingResult[]>([]);
   const [manualScores, setManualScores] = useState<ManualScore>({});
   const [overallFeedback, setOverallFeedback] = useState("");
@@ -94,7 +97,7 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
     toast({ title: "全問題のAI採点を開始しました...", description: "完了まで数秒お待ちください。" });
 
     const gradingPromises = exam.questions.map(question => {
-        const answerText = getAnswerForQuestion(question.id);
+        const answerText = getAnswerForQuestion(question.id!);
         if (!answerText || answerText === "N/A" || !question.modelAnswer) {
             return Promise.resolve({ questionId: question.id, error: "回答または模範解答がありません" });
         }
@@ -104,8 +107,8 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
             modelAnswer: question.modelAnswer,
             answerText,
             points: question.points,
-        }).then(result => ({ questionId: question.id, ...result }))
-          .catch(error => ({ questionId: question.id, error: error.message }));
+        }).then(result => ({ questionId: question.id!, ...result }))
+          .catch(error => ({ questionId: question.id!, error: error.message }));
     });
 
     const results = await Promise.all(gradingPromises);
@@ -134,26 +137,53 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
     toast({ title: "AI一括採点が完了しました！", description: "各問題のスコアと評価を確認してください。" });
   }
 
-  const handleSubmitReview = () => {
+  const handleSubmitReview = async () => {
     setIsSubmitting(true);
-    // In a real app, you would save this data to your backend.
-    console.log({
-        reviewerRole,
-        submissionId: submission.id,
-        scores: manualScores,
-        totalScore,
-        feedback: overallFeedback,
-        lessonReviewDate1,
-        lessonReviewEndDate1,
-        lessonReviewDate2,
-        lessonReviewEndDate2,
-        finalScore: totalScore
-    });
+    
+    // This should be replaced with actual logged-in user data
+    const mockReviewerName = reviewerRole === '本部' ? '山田 花子' : 'システム管理者';
 
-    setTimeout(() => {
+    let dataToUpdate: Partial<Submission> = {};
+    let newStatus: Submission['status'] = submission.status;
+
+    if (reviewerRole === '本部') {
+        dataToUpdate.hqGrade = {
+            score: totalScore,
+            justification: overallFeedback,
+            reviewer: mockReviewerName,
+            scores: manualScores
+        };
+        newStatus = "Grading";
+    } else { // Personnel Office
+        dataToUpdate.poGrade = {
+            score: totalScore,
+            justification: overallFeedback,
+            reviewer: mockReviewerName,
+            scores: manualScores
+        };
+        dataToUpdate.finalScore = totalScore;
+        newStatus = "Completed";
+    }
+    
+    if (isPassed) {
+        dataToUpdate.lessonReviewDate1 = lessonReviewDate1;
+        dataToUpdate.lessonReviewEndDate1 = lessonReviewEndDate1;
+        dataToUpdate.lessonReviewDate2 = lessonReviewDate2;
+        dataToUpdate.lessonReviewEndDate2 = lessonReviewEndDate2;
+    }
+    
+    dataToUpdate.status = newStatus;
+
+    try {
+        await updateSubmission(submission.id, dataToUpdate);
         toast({ title: `${reviewerRole}のレビューが正常に送信されました！` });
+        router.push('/admin/review');
+    } catch(error) {
+        console.error("Failed to submit review:", error);
+        toast({ title: "送信エラー", description: "レビューの送信中にエラーが発生しました。", variant: "destructive" });
+    } finally {
         setIsSubmitting(false);
-    }, 1500)
+    }
   }
 
   const handleTimeChange = (
@@ -216,7 +246,7 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
 
         {exam.questions.map((question, index) => {
           const result = gradingResults.find((r) => r.questionId === question.id);
-          const hqScore = submission.hqGrade?.scores?.[question.id];
+          const hqScore = submission.hqGrade?.scores?.[question.id!];
 
           return (
             <Card key={question.id} className="overflow-hidden">
@@ -224,7 +254,7 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
                     <div className="flex justify-between w-full items-center">
                         <CardTitle className="text-lg font-semibold text-left text-primary-foreground">問題 {index + 1}: {question.text} ({question.points}点)</CardTitle>
                         <div className="flex items-center gap-2">
-                            {manualScores[question.id] !== undefined && <Badge variant="secondary">{manualScores[question.id]}点</Badge>}
+                            {manualScores[question.id!] !== undefined && <Badge variant="secondary">{manualScores[question.id!]}点</Badge>}
                             {result && !result.isLoading && <Badge variant="secondary">AI採点済み</Badge>}
                             {isBulkGrading && <Loader2 className="h-4 w-4 animate-spin text-primary-foreground" />}
                         </div>
@@ -234,7 +264,7 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
                             <Label className="flex items-center gap-2"><User className="w-4 h-4 text-muted-foreground" />受験者の回答</Label>
-                            <p className="p-3 rounded-md bg-muted text-sm min-h-[100px]">{getAnswerForQuestion(question.id)}</p>
+                            <p className="p-3 rounded-md bg-muted text-sm min-h-[100px]">{getAnswerForQuestion(question.id!)}</p>
                         </div>
                          <div className="space-y-2">
                             <Label className="flex items-center gap-2"><Bot className="w-4 h-4 text-muted-foreground" />AI採点</Label>
@@ -261,8 +291,8 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
                                 className="w-24" 
                                 max={question.points}
                                 min={0}
-                                value={manualScores[question.id] || ''}
-                                onChange={(e) => handleManualScoreChange(question.id, e.target.value)}
+                                value={manualScores[question.id!] || ''}
+                                onChange={(e) => handleManualScoreChange(question.id!, e.target.value)}
                             />
                             <span className="text-muted-foreground">/ {question.points} 点</span>
                         </div>
@@ -297,6 +327,7 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
                                         <Button
                                             variant={"outline"}
                                             className={cn("justify-start text-left font-normal", !lessonReviewDate1 && "text-muted-foreground")}
+                                            disabled={isPersonnelOfficeView}
                                         >
                                             <CalendarIcon className="mr-2 h-4 w-4" />
                                             {lessonReviewDate1 ? format(lessonReviewDate1, "PPP", { locale: ja }) : <span>日付を選択</span>}
@@ -308,11 +339,11 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
                                     <div className="space-y-1">
                                         <Label className="text-xs">開始</Label>
                                         <div className="flex gap-1">
-                                            <Select onValueChange={(val) => handleTimeChange(lessonReviewDate1, setLessonReviewDate1, 'hour', val)} value={lessonReviewDate1?.getHours().toString().padStart(2, '0')}>
+                                            <Select onValueChange={(val) => handleTimeChange(lessonReviewDate1, setLessonReviewDate1, 'hour', val)} value={lessonReviewDate1?.getHours().toString().padStart(2, '0')} disabled={isPersonnelOfficeView}>
                                                 <SelectTrigger><SelectValue /></SelectTrigger>
                                                 <SelectContent>{hours.map(h => <SelectItem key={h} value={h}>{h}</SelectItem>)}</SelectContent>
                                             </Select>
-                                            <Select onValueChange={(val) => handleTimeChange(lessonReviewDate1, setLessonReviewDate1, 'minute', val)} value={lessonReviewDate1?.getMinutes().toString().padStart(2, '0')}>
+                                            <Select onValueChange={(val) => handleTimeChange(lessonReviewDate1, setLessonReviewDate1, 'minute', val)} value={lessonReviewDate1?.getMinutes().toString().padStart(2, '0')} disabled={isPersonnelOfficeView}>
                                                 <SelectTrigger><SelectValue /></SelectTrigger>
                                                 <SelectContent>{minutes.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
                                             </Select>
@@ -321,11 +352,11 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
                                     <div className="space-y-1">
                                         <Label className="text-xs">終了</Label>
                                         <div className="flex gap-1">
-                                             <Select onValueChange={(val) => handleTimeChange(lessonReviewEndDate1, setLessonReviewEndDate1, 'hour', val)} value={lessonReviewEndDate1?.getHours().toString().padStart(2, '0')}>
+                                             <Select onValueChange={(val) => handleTimeChange(lessonReviewEndDate1, setLessonReviewEndDate1, 'hour', val)} value={lessonReviewEndDate1?.getHours().toString().padStart(2, '0')} disabled={isPersonnelOfficeView}>
                                                 <SelectTrigger><SelectValue /></SelectTrigger>
                                                 <SelectContent>{hours.map(h => <SelectItem key={h} value={h}>{h}</SelectItem>)}</SelectContent>
                                             </Select>
-                                            <Select onValueChange={(val) => handleTimeChange(lessonReviewEndDate1, setLessonReviewEndDate1, 'minute', val)} value={lessonReviewEndDate1?.getMinutes().toString().padStart(2, '0')}>
+                                            <Select onValueChange={(val) => handleTimeChange(lessonReviewEndDate1, setLessonReviewEndDate1, 'minute', val)} value={lessonReviewEndDate1?.getMinutes().toString().padStart(2, '0')} disabled={isPersonnelOfficeView}>
                                                 <SelectTrigger><SelectValue /></SelectTrigger>
                                                 <SelectContent>{minutes.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
                                             </Select>
@@ -344,6 +375,7 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
                                         <Button
                                             variant={"outline"}
                                             className={cn("justify-start text-left font-normal", !lessonReviewDate2 && "text-muted-foreground")}
+                                            disabled={isPersonnelOfficeView}
                                         >
                                             <CalendarIcon className="mr-2 h-4 w-4" />
                                             {lessonReviewDate2 ? format(lessonReviewDate2, "PPP", { locale: ja }) : <span>日付を選択</span>}
@@ -355,11 +387,11 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
                                     <div className="space-y-1">
                                         <Label className="text-xs">開始</Label>
                                         <div className="flex gap-1">
-                                            <Select onValueChange={(val) => handleTimeChange(lessonReviewDate2, setLessonReviewDate2, 'hour', val)} value={lessonReviewDate2?.getHours().toString().padStart(2, '0')}>
+                                            <Select onValueChange={(val) => handleTimeChange(lessonReviewDate2, setLessonReviewDate2, 'hour', val)} value={lessonReviewDate2?.getHours().toString().padStart(2, '0')} disabled={isPersonnelOfficeView}>
                                                 <SelectTrigger><SelectValue /></SelectTrigger>
                                                 <SelectContent>{hours.map(h => <SelectItem key={h} value={h}>{h}</SelectItem>)}</SelectContent>
                                             </Select>
-                                            <Select onValueChange={(val) => handleTimeChange(lessonReviewDate2, setLessonReviewDate2, 'minute', val)} value={lessonReviewDate2?.getMinutes().toString().padStart(2, '0')}>
+                                            <Select onValueChange={(val) => handleTimeChange(lessonReviewDate2, setLessonReviewDate2, 'minute', val)} value={lessonReviewDate2?.getMinutes().toString().padStart(2, '0')} disabled={isPersonnelOfficeView}>
                                                 <SelectTrigger><SelectValue /></SelectTrigger>
                                                 <SelectContent>{minutes.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
                                             </Select>
@@ -368,11 +400,11 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
                                     <div className="space-y-1">
                                         <Label className="text-xs">終了</Label>
                                         <div className="flex gap-1">
-                                             <Select onValueChange={(val) => handleTimeChange(lessonReviewEndDate2, setLessonReviewEndDate2, 'hour', val)} value={lessonReviewEndDate2?.getHours().toString().padStart(2, '0')}>
+                                             <Select onValueChange={(val) => handleTimeChange(lessonReviewEndDate2, setLessonReviewEndDate2, 'hour', val)} value={lessonReviewEndDate2?.getHours().toString().padStart(2, '0')} disabled={isPersonnelOfficeView}>
                                                 <SelectTrigger><SelectValue /></SelectTrigger>
                                                 <SelectContent>{hours.map(h => <SelectItem key={h} value={h}>{h}</SelectItem>)}</SelectContent>
                                             </Select>
-                                            <Select onValueChange={(val) => handleTimeChange(lessonReviewEndDate2, setLessonReviewEndDate2, 'minute', val)} value={lessonReviewEndDate2?.getMinutes().toString().padStart(2, '0')}>
+                                            <Select onValueChange={(val) => handleTimeChange(lessonReviewEndDate2, setLessonReviewEndDate2, 'minute', val)} value={lessonReviewEndDate2?.getMinutes().toString().padStart(2, '0')} disabled={isPersonnelOfficeView}>
                                                 <SelectTrigger><SelectValue /></SelectTrigger>
                                                 <SelectContent>{minutes.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
                                             </Select>
@@ -408,5 +440,3 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
     </Card>
   );
 }
-
-    

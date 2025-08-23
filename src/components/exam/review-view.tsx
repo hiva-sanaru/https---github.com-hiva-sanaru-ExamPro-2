@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -7,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ArrowLeft, Send } from "lucide-react";
+import { addSubmission } from "@/services/submissionService";
 
 interface ReviewViewProps {
   exam: Exam;
@@ -29,19 +31,37 @@ export function ReviewView({ exam }: ReviewViewProps) {
     return answers.find(a => a.questionId === questionId)?.value || "回答がありません。";
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      toast({
-        title: "提出完了！",
-        description: "試験が採点のために提出されました。",
-        variant: "default",
-      });
-      localStorage.removeItem(`exam-${exam.id}-answers`);
-      router.push("/login"); // Or a submission confirmation page
-      setIsLoading(false);
-    }, 1500);
+    try {
+        // This should be replaced with actual logged-in user data
+        const mockUserId = "user4";
+        const mockUserHq = "Tokyo";
+
+        await addSubmission({
+            examId: exam.id,
+            examineeId: mockUserId,
+            examineeHeadquarters: mockUserHq,
+            answers: answers,
+        });
+
+        toast({
+            title: "提出完了！",
+            description: "試験が採点のために提出されました。",
+            variant: "default",
+        });
+        localStorage.removeItem(`exam-${exam.id}-answers`);
+        router.push("/admin/dashboard"); // Redirect to dashboard after submission
+    } catch (error) {
+        console.error("Failed to submit exam:", error);
+        toast({
+            title: "提出エラー",
+            description: "試験の提出中にエラーが発生しました。",
+            variant: "destructive",
+        });
+    } finally {
+        setIsLoading(false);
+    }
   };
 
   return (
@@ -56,7 +76,7 @@ export function ReviewView({ exam }: ReviewViewProps) {
             <div key={question.id} className="rounded-lg border bg-card p-4 shadow-sm">
               <p className="font-semibold text-card-foreground">問題 {index + 1}: {question.text}</p>
               <p className="mt-2 text-muted-foreground whitespace-pre-wrap bg-muted p-3 rounded-md">
-                {getAnswerForQuestion(question.id)}
+                {getAnswerForQuestion(question.id!)}
               </p>
             </div>
           ))}

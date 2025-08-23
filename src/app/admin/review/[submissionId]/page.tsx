@@ -1,12 +1,17 @@
+
+'use client';
 import { ReviewPanel } from "@/components/admin/review-panel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { mockExams, mockSubmissions } from "@/lib/data";
-import { notFound } from "next/navigation";
+import { notFound, useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { User, Calendar, CheckCircle, AlertTriangle, ShieldCheck } from "lucide-react";
+import { User, Calendar, CheckCircle, AlertTriangle, ShieldCheck, Loader2 } from "lucide-react";
 import { formatInTimeZone } from 'date-fns-tz';
 import { ja } from 'date-fns/locale';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useState, useEffect } from "react";
+import { getSubmission } from "@/services/submissionService";
+import { getExam } from "@/services/examService";
+import type { Submission, Exam } from "@/lib/types";
 
 // This is a mock of a logged-in user.
 // In a real application, this would come from an authentication context.
@@ -17,14 +22,68 @@ const MOCK_ADMIN_USER = {
 }
 
 export default function AdminReviewPage({ params }: { params: { submissionId: string } }) {
-    const submission = mockSubmissions.find(s => s.id === params.submissionId);
-    if (!submission) {
+    const router = useRouter();
+    const [submission, setSubmission] = useState<Submission | null>(null);
+    const [exam, setExam] = useState<Exam | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchSubmissionAndExam = async () => {
+            setIsLoading(true);
+            try {
+                const sub = await getSubmission(params.submissionId);
+                if (!sub) {
+                    setError("Submission not found.");
+                    return;
+                }
+                const ex = await getExam(sub.examId);
+                if (!ex) {
+                    setError("Exam not found for this submission.");
+                    return;
+                }
+                setSubmission(sub);
+                setExam(ex);
+            } catch (e) {
+                console.error(e);
+                setError("Failed to load submission data.");
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchSubmissionAndExam();
+    }, [params.submissionId]);
+
+    if (isLoading) {
+        return (
+            <div className="flex justify-center items-center h-full">
+                <Loader2 className="h-8 w-8 animate-spin" />
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="space-y-6">
+                <div>
+                    <h1 className="text-3xl font-bold font-headline">エラー</h1>
+                    <p className="text-muted-foreground">データの読み込み中にエラーが発生しました。</p>
+                </div>
+                <Alert variant="destructive">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertTitle>読み込みエラー</AlertTitle>
+                    <AlertDescription>{error}</AlertDescription>
+                </Alert>
+                <Button onClick={() => router.back()}>戻る</Button>
+            </div>
+        );
+    }
+    
+    if (!submission || !exam) {
         notFound();
     }
-    const exam = mockExams.find(e => e.id === submission.examId);
-    if (!exam) {
-        notFound();
-    }
+    
 
     // RBAC check:
     const hasAccess = MOCK_ADMIN_USER.role === 'system_administrator' || 

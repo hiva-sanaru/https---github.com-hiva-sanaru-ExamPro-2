@@ -4,24 +4,33 @@ import { useState, useEffect } from 'react';
 import { SubmissionList } from "@/components/admin/submission-list";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { mockExams, mockSubmissions } from "@/lib/data";
-import { getUsers } from '@/services';
-import type { User } from '@/lib/types';
+import { getExams } from '@/services/examService';
+import { getUsers } from '@/services/userService';
+import { getSubmissions } from '@/services/submissionService';
+import type { User, Submission, Exam } from '@/lib/types';
 import { FileText } from "lucide-react";
 
 export default function ReviewListPage() {
   const [users, setUsers] = useState<User[]>([]);
+  const [exams, setExams] = useState<Exam[]>([]);
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
 
   useEffect(() => {
-    async function fetchUsers() {
+    async function fetchData() {
         try {
-            const fetchedUsers = await getUsers();
+            const [fetchedUsers, fetchedExams, fetchedSubmissions] = await Promise.all([
+                getUsers(),
+                getExams(),
+                getSubmissions()
+            ]);
             setUsers(fetchedUsers);
+            setExams(fetchedExams);
+            setSubmissions(fetchedSubmissions);
         } catch (error) {
-            console.error("Failed to fetch users for export", error);
+            console.error("Failed to fetch data for export", error);
         }
     }
-    fetchUsers();
+    fetchData();
   }, []);
 
   const handleExportSubmissions = () => {
@@ -41,8 +50,8 @@ export default function ReviewListPage() {
             "授業審査希望終了日2"
         ];
         
-        const rows = mockSubmissions.map(submission => {
-            const exam = mockExams.find(e => e.id === submission.examId);
+        const rows = submissions.map(submission => {
+            const exam = exams.find(e => e.id === submission.examId);
             const examinee = users.find(u => u.id === submission.examineeId);
             return [
                 submission.id,
@@ -91,11 +100,9 @@ export default function ReviewListPage() {
           </Button>
         </CardHeader>
         <CardContent>
-          <SubmissionList />
+          <SubmissionList submissions={submissions} exams={exams} users={users} />
         </CardContent>
       </Card>
     </div>
   );
 }
-
-    

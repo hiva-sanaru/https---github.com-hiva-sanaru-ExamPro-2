@@ -50,21 +50,19 @@ export interface Submission {
   examId: string;
   examineeId: string;
   examineeHeadquarters?: string;
-  submittedAt: Date;
+  submittedAt: any; // Firestore Timestamp
   answers: Answer[];
   status: 'In Progress' | 'Submitted' | 'Grading' | 'Completed';
   hqGrade?: Grade;
   poGrade?: Grade;
   finalScore?: number;
-  lessonReviewDate1?: Date;
-  lessonReviewEndDate1?: Date;
-  lessonReviewDate2?: Date;
-  lessonReviewEndDate2?: Date;
+  lessonReviewDate1?: any; // Firestore Timestamp
+  lessonReviewEndDate1?: any; // Firestore Timestamp
+  lessonReviewDate2?: any; // Firestore Timestamp
+  lessonReviewEndDate2?: any; // Firestore Timestamp
 }
 
 export interface Headquarters {
   code: string;
   name: string;
 }
-
-    

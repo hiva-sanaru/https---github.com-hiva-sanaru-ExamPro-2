@@ -2,9 +2,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { mockSubmissions, mockExams } from "@/lib/data";
-import { getUsers } from "@/services/userService";
-import type { User } from "@/lib/types";
+import type { User, Submission, Exam } from "@/lib/types";
 import {
   Table,
   TableBody,
@@ -21,23 +19,21 @@ import { ja } from 'date-fns/locale';
 import Link from "next/link";
 import { Eye, Loader2 } from "lucide-react";
 
-export function SubmissionList() {
-    const [users, setUsers] = useState<User[]>([]);
+interface SubmissionListProps {
+    submissions: Submission[];
+    exams: Exam[];
+    users: User[];
+}
+
+export function SubmissionList({ submissions, exams, users }: SubmissionListProps) {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        async function fetchUsers() {
-            try {
-                const fetchedUsers = await getUsers();
-                setUsers(fetchedUsers);
-            } catch (error) {
-                console.error("Failed to fetch users", error);
-            } finally {
-                setIsLoading(false);
-            }
+        if (submissions.length > 0 && exams.length > 0 && users.length > 0) {
+            setIsLoading(false);
         }
-        fetchUsers();
-    }, []);
+    }, [submissions, exams, users]);
+
 
     const usersMap = useMemo(() => {
         return users.reduce((acc, user) => {
@@ -45,6 +41,13 @@ export function SubmissionList() {
             return acc;
         }, {} as Record<string, User>);
     }, [users]);
+    
+    const examsMap = useMemo(() => {
+        return exams.reduce((acc, exam) => {
+            acc[exam.id] = exam;
+            return acc;
+        }, {} as Record<string, Exam>);
+    }, [exams]);
 
 
     const badgeVariants = cva(
@@ -85,15 +88,21 @@ export function SubmissionList() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {isLoading ? (
+          {isLoading && submissions.length === 0 ? (
             <TableRow>
                 <TableCell colSpan={6} className="h-24 text-center">
                     <Loader2 className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
                 </TableCell>
             </TableRow>
+          ) : submissions.length === 0 ? (
+             <TableRow>
+                <TableCell colSpan={6} className="h-24 text-center">
+                    提出物はまだありません。
+                </TableCell>
+            </TableRow>
           ) : (
-            mockSubmissions.map((submission) => {
-                const exam = mockExams.find(e => e.id === submission.examId);
+            submissions.map((submission) => {
+                const exam = examsMap[submission.examId];
                 const examinee = usersMap[submission.examineeId];
                 return (
                     <TableRow key={submission.id}>

@@ -7,10 +7,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ExamList } from "@/components/admin/exam-list";
 import { PlusCircle, Download } from "lucide-react";
 import Link from "next/link";
-import { mockSubmissions } from "@/lib/data"; // Keep mock submissions for now
 import { getUsers } from "@/services/userService";
 import { getExams } from "@/services/examService";
-import type { User, Exam } from '@/lib/types';
+import { getSubmissions } from "@/services/submissionService";
+import type { User, Exam, Submission } from '@/lib/types';
 
 
 // This is a mock of a logged-in user.
@@ -25,16 +25,19 @@ const MOCK_ADMIN_USER = {
 export default function AdminDashboardPage() {
     const [users, setUsers] = useState<User[]>([]);
     const [exams, setExams] = useState<Exam[]>([]);
+    const [submissions, setSubmissions] = useState<Submission[]>([]);
 
     useEffect(() => {
         async function fetchData() {
             try {
-                const [fetchedUsers, fetchedExams] = await Promise.all([
+                const [fetchedUsers, fetchedExams, fetchedSubmissions] = await Promise.all([
                     getUsers(),
-                    getExams()
+                    getExams(),
+                    getSubmissions(),
                 ]);
                 setUsers(fetchedUsers);
                 setExams(fetchedExams);
+                setSubmissions(fetchedSubmissions);
             } catch (error) {
                 console.error("Failed to fetch data", error);
             }
@@ -46,7 +49,7 @@ export default function AdminDashboardPage() {
         const backupData = {
             users: users,
             exams: exams,
-            submissions: mockSubmissions,
+            submissions: submissions,
             timestamp: new Date().toISOString(),
         };
 
@@ -86,7 +89,7 @@ export default function AdminDashboardPage() {
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" className="h-4 w-4 text-muted-foreground"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">+{mockSubmissions.length}</div>
+                        <div className="text-2xl font-bold">+{submissions.length}</div>
                         <p className="text-xs text-muted-foreground">レビュー待ち</p>
                     </CardContent>
                 </Card>
