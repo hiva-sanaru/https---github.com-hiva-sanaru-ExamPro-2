@@ -83,7 +83,6 @@ const QuestionCard = ({ question, index, answer, onAnswerChange }: { question: Q
 
                 {question.subQuestions && (
                     <div className="space-y-4 border-l-2 border-primary/20 pl-4 ml-2">
-                         <h4 className="font-semibold text-md mt-6">サブ問題:</h4>
                         {question.subQuestions.map(subQ => (
                              <div key={subQ.id}>
                                 <p className="font-medium">{subQ.text} ({subQ.points} 点)</p>
