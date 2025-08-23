@@ -4,7 +4,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ExamList } from "@/components/admin/exam-list";
-import { PlusCircle, Download, FileText } from "lucide-react";
+import { PlusCircle, Download } from "lucide-react";
 import Link from "next/link";
 import { mockExams, mockSubmissions, mockUsers } from "@/lib/data";
 
@@ -39,51 +39,6 @@ export default function AdminDashboardPage() {
         URL.revokeObjectURL(url);
     }
     
-    const handleExportSubmissions = () => {
-        const headers = [
-            "提出ID",
-            "試験名",
-            "受験者名",
-            "受験者本部",
-            "提出日時",
-            "ステータス",
-            "本部スコア",
-            "人事部スコア",
-            "最終スコア",
-            "授業審査希望日1",
-            "授業審査希望日2"
-        ];
-        
-        const rows = mockSubmissions.map(submission => {
-            const exam = mockExams.find(e => e.id === submission.examId);
-            const examinee = mockUsers.find(u => u.id === submission.examineeId);
-            return [
-                submission.id,
-                exam?.title || "N/A",
-                examinee?.name || "N/A",
-                submission.examineeHeadquarters || "N/A",
-                submission.submittedAt.toISOString(),
-                submission.status,
-                submission.hqGrade?.score ?? "N/A",
-                submission.poGrade?.score ?? "N/A",
-                submission.finalScore ?? "N/A",
-                submission.lessonReviewDate1?.toLocaleDateString() ?? "N/A",
-                submission.lessonReviewDate2?.toLocaleDateString() ?? "N/A"
-            ].join(',');
-        });
-
-        const csvString = [headers.join(','), ...rows].join('\n');
-        const blob = new Blob([`\uFEFF${csvString}`], { type: "text/csv;charset=utf-8;" }); // BOM for Excel compatibility
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `sanaru_submissions_export_${new Date().toISOString().split('T')[0]}.csv`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-    }
-
     return (
         <div className="space-y-6">
             <div>
@@ -141,10 +96,6 @@ export default function AdminDashboardPage() {
                         <CardDescription>システム内のすべての試験を作成、編集、表示します。</CardDescription>
                     </div>
                      <div className="flex items-center gap-2">
-                         <Button variant="outline" onClick={handleExportSubmissions}>
-                            <FileText />
-                            提出物をエクスポート
-                        </Button>
                         <Button variant="outline" onClick={handleBackup}>
                             <Download />
                             データをバックアップ
