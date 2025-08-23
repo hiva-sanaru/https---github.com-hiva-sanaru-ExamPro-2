@@ -98,10 +98,10 @@ export default function HeadquartersPage() {
             <div className="rounded-lg border">
                 <Table>
                     <TableHeader>
-                    <TableRow>
-                        <TableHead>本部コード</TableHead>
-                        <TableHead>本部名</TableHead>
-                        <TableHead className="text-right">アクション</TableHead>
+                    <TableRow className="bg-primary hover:bg-primary/90">
+                        <TableHead className="text-primary-foreground">本部コード</TableHead>
+                        <TableHead className="text-primary-foreground">本部名</TableHead>
+                        <TableHead className="text-right text-primary-foreground">アクション</TableHead>
                     </TableRow>
                     </TableHeader>
                     <TableBody>
