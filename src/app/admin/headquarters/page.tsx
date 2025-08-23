@@ -144,7 +144,7 @@ export default function HeadquartersPage() {
                     accept=".csv"
                 />
                 <Button onClick={handleImportClick} disabled={isUploading}>
-                    <Upload className="mr-2 h-4 w-4" />
+                    {isUploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
                     {isUploading ? 'インポート中...' : 'CSVをインポート'}
                 </Button>
             </div>
