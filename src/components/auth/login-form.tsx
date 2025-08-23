@@ -20,7 +20,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { User, KeyRound, ArrowRight } from "lucide-react";
 
 const loginSchema = z.object({
-  email: z.string().email({ message: "無効なメールアドレスです。" }),
+  employeeId: z.string().length(8, { message: "社員番号は8桁である必要があります。"}).regex(/^[0-9]+$/, { message: "社員番号は半角数字でなければなりません。"}),
   password: z.string().min(1, { message: "パスワードは必須です。" }),
 });
 
@@ -33,7 +33,7 @@ export function LoginForm() {
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
+      employeeId: "",
       password: "",
     },
   });
@@ -43,12 +43,8 @@ export function LoginForm() {
     // Simulate API call
     // In a real app, you would verify credentials and get the user's role from the backend
     setTimeout(() => {
-        // For demonstration, we'll check the email to decide the redirect path.
-        if (data.email.includes('admin')) {
-             router.push("/admin/dashboard");
-        } else {
-             router.push("/exam/1");
-        }
+        // For demonstration, we'll assume any valid login is for an admin
+        router.push("/admin/dashboard");
         setIsLoading(false);
     }, 1000);
   };
@@ -64,14 +60,14 @@ export function LoginForm() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
-              name="email"
+              name="employeeId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>メールアドレス</FormLabel>
+                  <FormLabel>社員番号</FormLabel>
                    <div className="relative">
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <FormControl>
-                      <Input placeholder="name@example.com" {...field} className="pl-10" />
+                      <Input placeholder="12345678" {...field} className="pl-10" />
                     </FormControl>
                   </div>
                   <FormMessage />
