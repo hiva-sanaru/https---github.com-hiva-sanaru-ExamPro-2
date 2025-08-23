@@ -1,3 +1,4 @@
+
 "use client";
 
 import { mockExams } from "@/lib/data";
@@ -12,14 +13,18 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { MoreHorizontal, Edit, Trash2, Eye } from "lucide-react";
 import { cva } from "class-variance-authority";
+import Link from "next/link";
+import { useToast } from "@/hooks/use-toast";
 
 interface ExamListProps {
   isAdmin: boolean;
 }
 
 export function ExamList({ isAdmin }: ExamListProps) {
+  const { toast } = useToast();
     const badgeVariants = cva(
         "capitalize",
         {
@@ -32,6 +37,15 @@ export function ExamList({ isAdmin }: ExamListProps) {
           },
         }
       )
+  
+  const handleDelete = (examId: string, examTitle: string) => {
+    console.log(`Deleting exam ${examId}`);
+    // Here you would typically call an API to delete the exam
+    toast({
+      title: "試験が削除されました",
+      description: `「${examTitle}」は正常に削除されました。`,
+    })
+  }
 
   return (
     <div className="rounded-lg border">
@@ -59,24 +73,46 @@ export function ExamList({ isAdmin }: ExamListProps) {
               <TableCell>{exam.totalPoints}</TableCell>
               <TableCell>{exam.duration} 分</TableCell>
               <TableCell className="text-right">
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">アクション</span>
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuItem><Eye />表示</DropdownMenuItem>
-                        {isAdmin && (
-                          <>
-                            <DropdownMenuItem><Edit/>編集</DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-destructive hover:text-destructive focus:text-destructive"><Trash2/>削除</DropdownMenuItem>
-                          </>
-                        )}
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                <AlertDialog>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                                <MoreHorizontal className="h-4 w-4" />
+                                <span className="sr-only">アクション</span>
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem asChild>
+                               <Link href={`/exam/${exam.id}`}><Eye className="mr-2 h-4 w-4"/>表示</Link>
+                            </DropdownMenuItem>
+                            {isAdmin && (
+                              <>
+                                <DropdownMenuItem asChild>
+                                  <Link href={`/admin/create-exam?examId=${exam.id}`}><Edit className="mr-2 h-4 w-4"/>編集</Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <AlertDialogTrigger asChild>
+                                    <DropdownMenuItem className="text-destructive hover:!text-destructive focus:!text-destructive" onSelect={(e) => e.preventDefault()}>
+                                        <Trash2 className="mr-2 h-4 w-4"/>削除
+                                    </DropdownMenuItem>
+                                </AlertDialogTrigger>
+                              </>
+                            )}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>本当に削除しますか？</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                この操作は元に戻すことはできません。試験「{exam.title}」と関連するすべてのデータが完全に削除されます。
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>キャンセル</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleDelete(exam.id, exam.title)} className="bg-destructive hover:bg-destructive/90">削除</AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
               </TableCell>
             </TableRow>
           ))}
