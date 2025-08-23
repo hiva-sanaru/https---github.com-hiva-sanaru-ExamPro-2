@@ -15,10 +15,9 @@ import {
     SidebarInset,
     SidebarTrigger
 } from "@/components/ui/sidebar";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { BookA, LayoutDashboard, FileCheck2, Users, Settings, LogOut, Building } from "lucide-react";
+import { LayoutDashboard, FileCheck2, Users, Settings, LogOut, Building } from "lucide-react";
 
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -36,9 +35,6 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             <Sidebar variant="sidebar" collapsible="icon">
                 <SidebarHeader>
                     <div className="flex items-center gap-2">
-                        <div className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                            <BookA className="size-5" />
-                        </div>
                         <span className="font-headline text-lg font-semibold text-primary-foreground">SANARU</span>
                     </div>
                 </SidebarHeader>
