@@ -24,9 +24,9 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
 
     const menuItems = [
-        { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
-        { href: "/admin/review/sub1", label: "Submissions", icon: FileCheck2 },
-        { href: "/admin/users", label: "Users", icon: Users },
+        { href: "/admin/dashboard", label: "ダッシュボード", icon: LayoutDashboard },
+        { href: "/admin/review/sub1", label: "提出物", icon: FileCheck2 },
+        { href: "/admin/users", label: "ユーザー", icon: Users },
     ]
 
     return (
@@ -63,14 +63,14 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                                 <AvatarFallback>AD</AvatarFallback>
                             </Avatar>
                             <div className="flex flex-col truncate">
-                                <span className="text-sm font-semibold text-sidebar-foreground">Admin User</span>
+                                <span className="text-sm font-semibold text-sidebar-foreground">管理者ユーザー</span>
                                 <span className="text-xs text-sidebar-foreground/70">admin@exampro.com</span>
                             </div>
                         </div>
                         <Link href="/login" legacyBehavior passHref>
                             <Button variant="ghost" className="w-full justify-start gap-2 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:justify-center">
                                 <LogOut className="size-4 shrink-0" />
-                                <span className="group-data-[collapsible=icon]:hidden">Logout</span>
+                                <span className="group-data-[collapsible=icon]:hidden">ログアウト</span>
                             </Button>
                         </Link>
                     </div>

@@ -21,10 +21,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { User, KeyRound, ArrowRight } from "lucide-react";
 
 const loginSchema = z.object({
-  email: z.string().email({ message: "Invalid email address." }),
-  password: z.string().min(1, { message: "Password is required." }),
+  email: z.string().email({ message: "無効なメールアドレスです。" }),
+  password: z.string().min(1, { message: "パスワードは必須です。" }),
   role: z.enum(["examinee", "administrator"], {
-    required_error: "You need to select a role.",
+    required_error: "役割を選択する必要があります。",
   }),
 });
 
@@ -59,8 +59,8 @@ export function LoginForm() {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle className="font-headline text-2xl">Sign In</CardTitle>
-        <CardDescription>Enter your credentials to access your account.</CardDescription>
+        <CardTitle className="font-headline text-2xl">サインイン</CardTitle>
+        <CardDescription>アカウントにアクセスするための情報を入力してください。</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -70,7 +70,7 @@ export function LoginForm() {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>メールアドレス</FormLabel>
                    <div className="relative">
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <FormControl>
@@ -86,7 +86,7 @@ export function LoginForm() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel>パスワード</FormLabel>
                   <div className="relative">
                     <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <FormControl>
@@ -102,7 +102,7 @@ export function LoginForm() {
               name="role"
               render={({ field }) => (
                 <FormItem className="space-y-3">
-                  <FormLabel>Role</FormLabel>
+                  <FormLabel>役割</FormLabel>
                   <FormControl>
                     <RadioGroup
                       onValueChange={field.onChange}
@@ -114,7 +114,7 @@ export function LoginForm() {
                           <RadioGroupItem value="examinee" />
                         </FormControl>
                         <FormLabel className="font-normal">
-                         Examinee
+                         受験者
                         </FormLabel>
                       </FormItem>
                       <FormItem className="flex items-center space-x-3 space-y-0">
@@ -122,7 +122,7 @@ export function LoginForm() {
                           <RadioGroupItem value="administrator" />
                         </FormControl>
                         <FormLabel className="font-normal">
-                          Administrator
+                          管理者
                         </FormLabel>
                       </FormItem>
                     </RadioGroup>
@@ -132,7 +132,7 @@ export function LoginForm() {
               )}
             />
             <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Signing In..." : "Sign In"}
+                {isLoading ? "サインイン中..." : "サインイン"}
                 {!isLoading && <ArrowRight />}
             </Button>
           </form>

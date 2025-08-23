@@ -16,7 +16,7 @@ import { Badge } from "../ui/badge";
 interface ReviewPanelProps {
   exam: Exam;
   submission: Submission;
-  reviewerRole: "Headquarters" | "Personnel Office";
+  reviewerRole: "本部" | "人事部";
 }
 
 interface GradingResult {
@@ -39,7 +39,7 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
   const handleGradeQuestion = async (question: Question) => {
     const answerText = getAnswerForQuestion(question.id);
     if (!answerText || answerText === "N/A") {
-      toast({ title: "No answer provided for this question.", variant: "destructive" });
+      toast({ title: "この問題には回答がありません。", variant: "destructive" });
       return;
     }
 
@@ -51,7 +51,7 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
     try {
       const result = await gradeAnswer({
         answerText,
-        scoringRubric: `Question: ${question.text} (Max points: ${question.points})`,
+        scoringRubric: `問題: ${question.text} (最大配点: ${question.points})`,
       });
       setGradingResults((prev) =>
         prev.map((r) =>
@@ -60,10 +60,10 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
             : r
         )
       );
-      toast({ title: `AI Grading Complete for Q${question.id}` });
+      toast({ title: `Q${question.id}のAI採点が完了しました` });
     } catch (error) {
       console.error(error);
-      toast({ title: "AI Grading Failed", description: "Could not get a response from the AI.", variant: "destructive" });
+      toast({ title: "AI採点に失敗しました", description: "AIから応答を取得できませんでした。", variant: "destructive" });
       setGradingResults((prev) => prev.filter((r) => r.questionId !== question.id));
     }
   };
@@ -71,7 +71,7 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
   const handleSubmitReview = () => {
     setIsSubmitting(true);
     setTimeout(() => {
-        toast({ title: `${reviewerRole} review submitted successfully!` });
+        toast({ title: `${reviewerRole}のレビューが正常に送信されました！` });
         setIsSubmitting(false);
     }, 1500)
   }
@@ -79,9 +79,9 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="font-headline">{reviewerRole} Review</CardTitle>
+        <CardTitle className="font-headline">{reviewerRole}レビュー</CardTitle>
         <CardDescription>
-          Review the examinee's answers, use the AI grader, and provide your final assessment.
+          受験者の回答を確認し、AI採点機能を使用して、最終評価を入力してください。
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -92,39 +92,39 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
               <AccordionItem value={`item-${index}`} key={question.id}>
                 <AccordionTrigger className="hover:no-underline">
                   <div className="flex justify-between w-full pr-4 items-center">
-                    <span className="font-semibold text-left">Question {index + 1}: {question.text}</span>
-                    {result && !result.isLoading && <Badge variant="secondary">AI Graded</Badge>}
+                    <span className="font-semibold text-left">問題 {index + 1}: {question.text}</span>
+                    {result && !result.isLoading && <Badge variant="secondary">AI採点済み</Badge>}
                     {result?.isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <Label className="flex items-center gap-2"><User className="w-4 h-4 text-muted-foreground" />Examinee's Answer</Label>
+                        <Label className="flex items-center gap-2"><User className="w-4 h-4 text-muted-foreground" />受験者の回答</Label>
                         <p className="p-3 rounded-md bg-muted text-sm min-h-[100px]">{getAnswerForQuestion(question.id)}</p>
                     </div>
                     <div className="space-y-2">
-                         <Label className="flex items-center gap-2"><Bot className="w-4 h-4 text-muted-foreground" />AI Grading</Label>
+                         <Label className="flex items-center gap-2"><Bot className="w-4 h-4 text-muted-foreground" />AI採点</Label>
                         {result && !result.isLoading ? (
                             <div className="p-3 rounded-md bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 space-y-2">
-                                <p><strong>Score:</strong> {result.score}/{question.points}</p>
-                                <p><strong>Justification:</strong> {result.justification}</p>
+                                <p><strong>スコア:</strong> {result.score}/{question.points}</p>
+                                <p><strong>根拠:</strong> {result.justification}</p>
                             </div>
                         ) : (
                             <div className="p-3 rounded-md bg-muted/50 border border-dashed flex items-center justify-center min-h-[100px]">
                                 <Button size="sm" onClick={() => handleGradeQuestion(question)} disabled={result?.isLoading}>
                                     <Wand2 className="mr-2 h-4 w-4" />
-                                    {result?.isLoading ? "Grading..." : "Grade with AI"}
+                                    {result?.isLoading ? "採点中..." : "AIで採点"}
                                 </Button>
                             </div>
                         )}
                     </div>
                   </div>
                   <div className="space-y-2 pt-4 border-t">
-                    <Label htmlFor={`feedback-${question.id}`}>Your Assessment</Label>
+                    <Label htmlFor={`feedback-${question.id}`}>あなたの評価</Label>
                     <div className="flex items-start gap-2">
-                        <Input id={`score-${question.id}`} type="number" placeholder="Score" className="w-24" max={question.points} />
-                        <Textarea id={`feedback-${question.id}`} placeholder={`Provide your justification for the score for question ${index+1}...`} />
+                        <Input id={`score-${question.id}`} type="number" placeholder="スコア" className="w-24" max={question.points} />
+                        <Textarea id={`feedback-${question.id}`} placeholder={`問題${index+1}のスコアの根拠を記入してください...`} />
                     </div>
                   </div>
                 </AccordionContent>
@@ -135,17 +135,17 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
       </CardContent>
       <CardFooter className="flex flex-col items-end gap-4">
         <div className="w-full space-y-2">
-            <Label htmlFor="overall-feedback">Overall Feedback</Label>
+            <Label htmlFor="overall-feedback">全体的なフィードバック</Label>
             <Textarea 
                 id="overall-feedback" 
-                placeholder="Provide final comments for this submission..." 
+                placeholder="この提出物に関する最終コメントを記入してください..." 
                 value={overallFeedback}
                 onChange={(e) => setOverallFeedback(e.target.value)}
             />
         </div>
         <Button onClick={handleSubmitReview} disabled={isSubmitting}>
             {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check />}
-            {isSubmitting ? "Submitting..." : "Submit Review"}
+            {isSubmitting ? "送信中..." : "レビューを送信"}
         </Button>
       </CardFooter>
     </Card>

@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { User, Calendar, CheckCircle } from "lucide-react";
 import { format } from "date-fns";
+import { ja } from 'date-fns/locale';
 
 export default function AdminReviewPage({ params }: { params: { submissionId: string } }) {
     const submission = mockSubmissions.find(s => s.id === params.submissionId);
@@ -19,26 +20,26 @@ export default function AdminReviewPage({ params }: { params: { submissionId: st
     return (
         <div className="space-y-6">
             <div>
-                <h1 className="text-3xl font-bold font-headline">Review Submission</h1>
-                <p className="text-muted-foreground">Grading for Exam: "{exam.title}"</p>
+                <h1 className="text-3xl font-bold font-headline">提出物のレビュー</h1>
+                <p className="text-muted-foreground">試験の採点: "{exam.title}"</p>
             </div>
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Submission Details</CardTitle>
+                    <CardTitle>提出詳細</CardTitle>
                 </CardHeader>
                 <CardContent className="grid md:grid-cols-3 gap-4 text-sm">
                     <div className="flex items-center gap-2">
                         <User className="w-4 h-4 text-muted-foreground" />
-                        <strong>Examinee:</strong> <span>Examinee User (ID: {submission.examineeId})</span>
+                        <strong>受験者:</strong> <span>受験者ユーザー (ID: {submission.examineeId})</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <Calendar className="w-4 h-4 text-muted-foreground" />
-                        <strong>Submitted At:</strong> <span>{format(submission.submittedAt, "PPP p")}</span>
+                        <strong>提出日時:</strong> <span>{format(submission.submittedAt, "PPP p", { locale: ja })}</span>
                     </div>
                      <div className="flex items-center gap-2">
                         <CheckCircle className="w-4 h-4 text-muted-foreground" />
-                        <strong>Status:</strong> <span>{submission.status}</span>
+                        <strong>ステータス:</strong> <span>{submission.status}</span>
                     </div>
                 </CardContent>
             </Card>
@@ -46,24 +47,24 @@ export default function AdminReviewPage({ params }: { params: { submissionId: st
             <Tabs defaultValue="hq" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
                     <TabsTrigger value="hq" className="font-headline">
-                        Headquarters Grading
+                        本部採点
                     </TabsTrigger>
                     <TabsTrigger value="po" className="font-headline">
-                        Personnel Office Review
+                        人事部レビュー
                     </TabsTrigger>
                 </TabsList>
                 <TabsContent value="hq">
                    <ReviewPanel
                         exam={exam}
                         submission={submission}
-                        reviewerRole="Headquarters"
+                        reviewerRole="本部"
                     />
                 </TabsContent>
                 <TabsContent value="po">
                     <ReviewPanel
                         exam={exam}
                         submission={submission}
-                        reviewerRole="Personnel Office"
+                        reviewerRole="人事部"
                     />
                 </TabsContent>
             </Tabs>

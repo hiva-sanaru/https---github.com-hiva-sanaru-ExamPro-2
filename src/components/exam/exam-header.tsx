@@ -41,7 +41,7 @@ export function ExamHeader({ title, duration }: ExamHeaderProps) {
             <Timer className="h-4 w-4 text-primary" />
             <span>{formatTime(timeLeft)}</span>
           </div>
-          <Button variant="outline" size="sm">Pause</Button>
+          <Button variant="outline" size="sm">一時停止</Button>
         </div>
       </div>
     </header>

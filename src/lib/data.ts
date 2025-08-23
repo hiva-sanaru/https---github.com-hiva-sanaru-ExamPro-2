@@ -3,48 +3,48 @@ import type { Exam, Submission } from './types';
 export const mockExams: Exam[] = [
   {
     id: '1',
-    title: 'Annual Performance Review Exam 2024',
+    title: '2024年 年次業績評価試験',
     duration: 90,
     totalPoints: 100,
     status: 'Published',
     questions: [
       {
         id: 'q1',
-        text: 'Describe a situation where you demonstrated leadership skills. What was the outcome?',
+        text: 'リーダーシップスキルを発揮した状況を説明してください。その結果はどうでしたか？',
         type: 'descriptive',
         points: 20,
       },
       {
         id: 'q2',
-        text: 'Our company values are Integrity, Innovation, and _____.',
+        text: '当社の価値観は、誠実さ、革新、そして_____です。',
         type: 'fill-in-the-blank',
         points: 10,
       },
       {
         id: 'q3',
-        text: 'What is the primary goal of the new Q3 project initiative?',
+        text: '新しい第3四半期のプロジェクトイニシアチブの主な目標は何ですか？',
         type: 'multiple-choice',
         points: 15,
         options: [
-          'Increase market share by 10%',
-          'Reduce operational costs by 15%',
-          'Enhance customer satisfaction scores',
-          'Launch a new product line',
+          '市場シェアを10%増加させる',
+          '運用コストを15%削減する',
+          '顧客満足度スコアを向上させる',
+          '新製品ラインを立ち上げる',
         ],
       },
       {
         id: 'q4',
-        text: 'Explain the new compliance regulation (GDPR) and its impact on our data handling policies.',
+        text: '新しいコンプライアンス規制（GDPR）と、それが当社のデータ処理ポリシーに与える影響について説明してください。',
         type: 'descriptive',
         points: 25,
         subQuestions: [
-            { id: 'q4a', text: 'What are the penalties for non-compliance?', type: 'descriptive', points: 10 },
-            { id: 'q4b', text: 'How does it affect customer data storage?', type: 'descriptive', points: 15 }
+            { id: 'q4a', text: '不遵守の場合の罰則は何ですか？', type: 'descriptive', points: 10 },
+            { id: 'q4b', text: '顧客データの保存にどのように影響しますか？', type: 'descriptive', points: 15 }
         ]
       },
       {
         id: 'q5',
-        text: 'The project codename "Phoenix" is expected to be completed by _____.',
+        text: 'プロジェクトコードネーム「フェニックス」は、_____までに完了する予定です。',
         type: 'fill-in-the-blank',
         points: 10,
       }
@@ -52,20 +52,20 @@ export const mockExams: Exam[] = [
   },
   {
     id: '2',
-    title: 'New Hire Onboarding Assessment',
+    title: '新入社員オンボーディング評価',
     duration: 45,
     totalPoints: 50,
     status: 'Published',
     questions: [
       {
         id: 'nh1',
-        text: 'List the three main departments you will be interacting with in your role.',
+        text: 'あなたの役割でやり取りする主要な3つの部門を挙げてください。',
         type: 'descriptive',
         points: 15,
       },
       {
         id: 'nh2',
-        text: 'The company was founded in the year _____.',
+        text: '会社は_____年に設立されました。',
         type: 'fill-in-the-blank',
         points: 10,
       },
@@ -73,7 +73,7 @@ export const mockExams: Exam[] = [
   },
   {
     id: '3',
-    title: 'Cybersecurity Best Practices',
+    title: 'サイバーセキュリティのベストプラクティス',
     duration: 60,
     totalPoints: 100,
     status: 'Draft',
@@ -89,18 +89,18 @@ export const mockSubmissions: Submission[] = [
         submittedAt: new Date('2024-07-20T10:30:00Z'),
         status: 'Grading',
         answers: [
-            { questionId: 'q1', value: 'I led a cross-functional team to launch a new feature ahead of schedule, resulting in a 15% increase in user engagement.' },
-            { questionId: 'q2', value: 'Teamwork' },
-            { questionId: 'q3', value: 'Reduce operational costs by 15%' },
+            { questionId: 'q1', value: '私は部門横断チームを率いて、予定より早く新機能をリリースし、その結果、ユーザーエンゲージメントが15%向上しました。' },
+            { questionId: 'q2', value: 'チームワーク' },
+            { questionId: 'q3', value: '運用コストを15%削減する' },
             { 
                 questionId: 'q4', 
-                value: 'GDPR is a European data protection regulation that requires us to be more transparent about data usage.',
+                value: 'GDPRは、ヨーロッパのデータ保護規制であり、データ利用についてより透明性を求めるものです。',
                 subAnswers: [
-                    { questionId: 'q4a', value: 'Fines can be up to 4% of global annual turnover.' },
-                    { questionId: 'q4b', value: 'It requires explicit consent and data encryption.' }
+                    { questionId: 'q4a', value: '罰金は、全世界の年間売上高の最大4%になる可能性があります。' },
+                    { questionId: 'q4b', value: '明示的な同意とデータ暗号化が必要です。' }
                 ]
             },
-            { questionId: 'q5', value: 'Q4 2024' },
+            { questionId: 'q5', value: '2024年第4四半期' },
         ]
     }
 ];

@@ -10,12 +10,12 @@ export default function LoginPage() {
           <h1 className="text-4xl font-bold font-headline">ExamPro-2</h1>
         </div>
         <p className="text-center text-muted-foreground">
-          Welcome back. The AI-Powered Examination Platform for modern teams.
+          おかえりなさい。現代のチームのためのAI搭載試験プラットフォーム。
         </p>
         <LoginForm />
       </div>
        <footer className="absolute bottom-4 text-center text-sm text-muted-foreground">
-        © {new Date().getFullYear()} ExamPro-2. All rights reserved.
+        © {new Date().getFullYear()} ExamPro-2. 無断複写・転載を禁じます。
       </footer>
     </main>
   );

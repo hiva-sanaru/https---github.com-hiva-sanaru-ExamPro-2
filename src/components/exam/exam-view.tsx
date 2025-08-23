@@ -27,14 +27,14 @@ const QuestionCard = ({ question, answer, onAnswerChange }: { question: Question
     return (
         <Card className="h-full flex flex-col">
             <CardHeader>
-                <CardTitle className="font-headline text-xl">Question {question.id.replace('q', '')}</CardTitle>
-                <p className="text-muted-foreground">{question.points} points</p>
+                <CardTitle className="font-headline text-xl">問題 {question.id.replace('q', '')}</CardTitle>
+                <p className="text-muted-foreground">{question.points} 点</p>
             </CardHeader>
             <CardContent className="flex-grow space-y-4">
                 <p className="text-lg">{question.text}</p>
                 {question.type === 'descriptive' && (
                     <Textarea 
-                        placeholder="Your answer..." 
+                        placeholder="あなたの答え..." 
                         rows={8}
                         value={answer?.value || ''}
                         onChange={(e) => onAnswerChange(question.id, e.target.value)}
@@ -42,7 +42,7 @@ const QuestionCard = ({ question, answer, onAnswerChange }: { question: Question
                 )}
                 {question.type === 'fill-in-the-blank' && (
                     <Input 
-                        placeholder="Fill in the blank..." 
+                        placeholder="空欄を埋めてください..." 
                         value={answer?.value || ''}
                         onChange={(e) => onAnswerChange(question.id, e.target.value)}
                     />
@@ -60,12 +60,12 @@ const QuestionCard = ({ question, answer, onAnswerChange }: { question: Question
 
                 {question.subQuestions && (
                     <div className="space-y-4 border-l-2 border-primary/20 pl-4 ml-2">
-                         <h4 className="font-semibold text-md mt-6">Sub-Questions:</h4>
+                         <h4 className="font-semibold text-md mt-6">サブ問題:</h4>
                         {question.subQuestions.map(subQ => (
                              <div key={subQ.id}>
-                                <p className="font-medium">{subQ.text} ({subQ.points} points)</p>
+                                <p className="font-medium">{subQ.text} ({subQ.points} 点)</p>
                                  <Textarea 
-                                    placeholder="Your answer for sub-question..." 
+                                    placeholder="サブ問題へのあなたの答え..." 
                                     rows={3}
                                     className="mt-2"
                                     onChange={(e) => handleSubAnswerChange(subQ.id, e.target.value)}
@@ -125,7 +125,7 @@ export function ExamView({ exam }: ExamViewProps) {
         <div>
             <Progress value={progress} className="h-2" />
             <p className="text-right text-sm text-muted-foreground mt-2">
-                {current} of {count} questions answered
+                {count} 問中 {current} 問解答済み
             </p>
         </div>
       
@@ -147,7 +147,7 @@ export function ExamView({ exam }: ExamViewProps) {
 
       <div className="flex justify-end mt-8">
         <Button onClick={handleReview} size="lg" className="bg-accent hover:bg-accent/90">
-          Review & Submit
+          確認して提出
           <BookCheck />
         </Button>
       </div>

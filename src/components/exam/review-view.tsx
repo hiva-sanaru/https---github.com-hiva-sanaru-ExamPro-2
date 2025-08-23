@@ -26,7 +26,7 @@ export function ReviewView({ exam }: ReviewViewProps) {
   }, [exam.id]);
 
   const getAnswerForQuestion = (questionId: string) => {
-    return answers.find(a => a.questionId === questionId)?.value || "No answer provided.";
+    return answers.find(a => a.questionId === questionId)?.value || "回答がありません。";
   }
 
   const handleSubmit = () => {
@@ -34,8 +34,8 @@ export function ReviewView({ exam }: ReviewViewProps) {
     // Simulate API call
     setTimeout(() => {
       toast({
-        title: "Submission Successful!",
-        description: "Your exam has been submitted for grading.",
+        title: "提出完了！",
+        description: "試験が採点のために提出されました。",
         variant: "default",
       });
       localStorage.removeItem(`exam-${exam.id}-answers`);
@@ -65,10 +65,10 @@ export function ReviewView({ exam }: ReviewViewProps) {
       <div className="flex justify-between items-center mt-8">
         <Button variant="outline" onClick={() => router.back()}>
           <ArrowLeft />
-          Go Back & Edit
+          戻って編集
         </Button>
         <Button onClick={handleSubmit} disabled={isLoading} size="lg">
-          {isLoading ? "Submitting..." : "Submit Final Answers"}
+          {isLoading ? "提出中..." : "最終回答を提出"}
           {!isLoading && <Send />}
         </Button>
       </div>

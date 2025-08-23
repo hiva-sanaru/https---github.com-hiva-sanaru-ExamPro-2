@@ -34,12 +34,12 @@ export function ExamList() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Title</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Questions</TableHead>
-            <TableHead>Total Points</TableHead>
-            <TableHead>Duration</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+            <TableHead>タイトル</TableHead>
+            <TableHead>ステータス</TableHead>
+            <TableHead>問題数</TableHead>
+            <TableHead>合計点</TableHead>
+            <TableHead>時間</TableHead>
+            <TableHead className="text-right">アクション</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -48,24 +48,24 @@ export function ExamList() {
               <TableCell className="font-medium">{exam.title}</TableCell>
               <TableCell>
                 <Badge variant="outline" className={badgeVariants({ status: exam.status })}>
-                  {exam.status}
+                  {exam.status === 'Published' ? '公開済み' : exam.status === 'Draft' ? '下書き' : 'アーカイブ済み'}
                 </Badge>
               </TableCell>
               <TableCell>{exam.questions.length}</TableCell>
               <TableCell>{exam.totalPoints}</TableCell>
-              <TableCell>{exam.duration} mins</TableCell>
+              <TableCell>{exam.duration} 分</TableCell>
               <TableCell className="text-right">
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon">
                             <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Actions</span>
+                            <span className="sr-only">アクション</span>
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem><Eye />View</DropdownMenuItem>
-                        <DropdownMenuItem><Edit/>Edit</DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive hover:text-destructive focus:text-destructive"><Trash2/>Delete</DropdownMenuItem>
+                        <DropdownMenuItem><Eye />表示</DropdownMenuItem>
+                        <DropdownMenuItem><Edit/>編集</DropdownMenuItem>
+                        <DropdownMenuItem className="text-destructive hover:text-destructive focus:text-destructive"><Trash2/>削除</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
               </TableCell>
