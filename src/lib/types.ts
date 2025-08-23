@@ -1,4 +1,4 @@
-export type UserRole = 'administrator' | 'examinee';
+export type UserRole = 'system_administrator' | 'hq_administrator' | 'examinee';
 
 export interface User {
   id: string;
@@ -6,6 +6,7 @@ export interface User {
   email: string;
   role: UserRole;
   avatarUrl: string;
+  headquarters?: string;
 }
 
 export type QuestionType = 'descriptive' | 'fill-in-the-blank' | 'multiple-choice';
@@ -38,6 +39,7 @@ export interface Submission {
   id: string;
   examId: string;
   examineeId: string;
+  examineeHeadquarters?: string;
   submittedAt: Date;
   answers: Answer[];
   status: 'In Progress' | 'Submitted' | 'Grading' | 'Completed';

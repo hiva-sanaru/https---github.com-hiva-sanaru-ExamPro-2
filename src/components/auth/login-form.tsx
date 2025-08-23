@@ -23,7 +23,7 @@ import { User, KeyRound, ArrowRight } from "lucide-react";
 const loginSchema = z.object({
   email: z.string().email({ message: "無効なメールアドレスです。" }),
   password: z.string().min(1, { message: "パスワードは必須です。" }),
-  role: z.enum(["examinee", "administrator"], {
+  role: z.enum(["examinee", "hq_administrator", "system_administrator"], {
     required_error: "役割を選択する必要があります。",
   }),
 });
@@ -47,10 +47,10 @@ export function LoginForm() {
     setIsLoading(true);
     // Simulate API call
     setTimeout(() => {
-      if (data.role === "administrator") {
-        router.push("/admin/dashboard");
-      } else {
+      if (data.role === "examinee") {
         router.push("/exam/1");
+      } else {
+        router.push("/admin/dashboard");
       }
       setIsLoading(false);
     }, 1000);
@@ -119,10 +119,18 @@ export function LoginForm() {
                       </FormItem>
                       <FormItem className="flex items-center space-x-3 space-y-0">
                         <FormControl>
-                          <RadioGroupItem value="administrator" />
+                          <RadioGroupItem value="hq_administrator" />
                         </FormControl>
                         <FormLabel className="font-normal">
-                          管理者
+                          本部管理者
+                        </FormLabel>
+                      </FormItem>
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="system_administrator" />
+                        </FormControl>
+                        <FormLabel className="font-normal">
+                          システム管理者
                         </FormLabel>
                       </FormItem>
                     </RadioGroup>
