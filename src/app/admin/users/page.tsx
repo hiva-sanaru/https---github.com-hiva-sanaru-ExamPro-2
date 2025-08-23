@@ -57,14 +57,15 @@ export default function AdminUsersPage() {
     }), [users, searchTerm, roleFilter, hqFilter]);
 
     const handleUserAdded = (newUser: User) => {
+        // Optimistically add user to the list, then refetch for consistency
         setUsers(prev => [...prev, newUser]);
-        fetchUsersAndHqs(); // Refetch to ensure consistency
-        setAddUserOpen(false);
+        setAddUserOpen(false); 
+        // fetchUsersAndHqs(); // Optional: refetch to ensure data is consistent
     };
 
     const handleUserUpdated = (updatedUser: User) => {
         setUsers(prev => prev.map(u => u.id === updatedUser.id ? updatedUser : u));
-        fetchUsersAndHqs(); // Refetch to ensure consistency
+        // fetchUsersAndHqs(); // Refetch to ensure consistency
     };
 
     const handleUserDeleted = (userId: string) => {
