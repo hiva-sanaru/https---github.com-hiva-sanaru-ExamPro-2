@@ -49,9 +49,9 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
 
 
   useEffect(() => {
-    // If role is PO, initialize scores and feedback from HQ's grade
+    // Initialize scores and feedback based on role and existing data
     if (reviewerRole === "人事部" && submission.hqGrade) {
-        setManualScores(submission.hqGrade.scores || {});
+        setManualScores(submission.poGrade?.scores || submission.hqGrade.scores || {});
         setOverallFeedback(submission.poGrade?.justification || '');
         setFinalScore(submission.finalScore);
     } else {
@@ -62,16 +62,12 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
 
 
   const totalScore = useMemo(() => {
-     if (reviewerRole === '人事部') {
-        return finalScore || submission.hqGrade?.score || 0;
-     }
     return Object.values(manualScores).reduce((acc, score) => acc + (score || 0), 0);
-  }, [manualScores, reviewerRole, finalScore, submission.hqGrade]);
+  }, [manualScores]);
   
   const isPassed = totalScore >= 80;
 
   const handleManualScoreChange = (questionId: string, score: string) => {
-    if (reviewerRole === "人事部") return; // PO cannot change individual scores
     const newScore = Number(score);
     const question = exam.questions.find(q => q.id === questionId);
     if (!question || newScore > question.points) return;
@@ -139,7 +135,7 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
         feedback: overallFeedback,
         lessonReviewDate1,
         lessonReviewDate2,
-        finalScore: reviewerRole === '人事部' ? finalScore : undefined
+        finalScore: totalScore
     });
 
     setTimeout(() => {
@@ -158,7 +154,7 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
                 <CardTitle className="font-headline">{reviewerRole}レビュー</CardTitle>
                 <CardDescription>
                   {isPersonnelOfficeView 
-                    ? "本部採点の結果を確認し、最終評価を承認してください。"
+                    ? "本部採点の結果を確認し、必要に応じてスコアを修正後、最終評価を承認してください。"
                     : "受験者の回答を確認し、AI採点機能を使用して、評価を入力してください。"
                   }
                 </CardDescription>
@@ -182,11 +178,11 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
                 </CardHeader>
                 <CardContent className="space-y-2">
                     <div className="flex justify-between items-center text-xl font-bold">
-                        <span>合計スコア:</span>
+                        <span>当初の合計スコア:</span>
                         <span>{submission.hqGrade.score} / {exam.totalPoints}</span>
                     </div>
                      <div className="space-y-1 pt-2">
-                        <Label>全体フィードバック</Label>
+                        <Label>当初の全体フィードバック</Label>
                         <p className="text-sm p-2 bg-background rounded-md">{submission.hqGrade.justification || "フィードバックはありません。"}</p>
                     </div>
                 </CardContent>
@@ -203,7 +199,7 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
                     <div className="flex justify-between w-full items-center">
                         <CardTitle className="text-lg font-semibold text-left text-primary-foreground">問題 {index + 1}: {question.text} ({question.points}点)</CardTitle>
                         <div className="flex items-center gap-2">
-                            {manualScores[question.id] !== undefined && <Badge variant="secondary">{isPersonnelOfficeView ? `本部採点: ${manualScores[question.id]}` : manualScores[question.id]}点</Badge>}
+                            {manualScores[question.id] !== undefined && <Badge variant="secondary">{manualScores[question.id]}点</Badge>}
                             {result && !result.isLoading && <Badge variant="secondary">AI採点済み</Badge>}
                             {isBulkGrading && <Loader2 className="h-4 w-4 animate-spin text-primary-foreground" />}
                         </div>
@@ -224,30 +220,28 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
                                 </div>
                             ) : (
                                 <div className="p-3 rounded-md bg-muted/50 border border-dashed flex items-center justify-center min-h-[100px]">
-                                    <p className="text-sm text-muted-foreground">{isPersonnelOfficeView ? "AI採点は本部担当者が実施します。" : "「AIで一括採点」ボタンを押してください"}</p>
+                                    <p className="text-sm text-muted-foreground">{isPersonnelOfficeView ? "必要に応じて、下のスコアを直接修正してください。" : "「AIで一括採点」ボタンを押してください"}</p>
                                 </div>
                             )}
                         </div>
                     </div>
-                    {!isPersonnelOfficeView && (
-                        <div className="space-y-2 pt-4 border-t">
-                            <Label htmlFor={`score-${question.id}`}>あなたの評価</Label>
-                            <div className="flex items-center gap-2">
-                                <Input 
-                                    id={`score-${question.id}`} 
-                                    type="number" 
-                                    placeholder="スコア" 
-                                    className="w-24" 
-                                    max={question.points}
-                                    min={0}
-                                    value={manualScores[question.id] || ''}
-                                    onChange={(e) => handleManualScoreChange(question.id, e.target.value)}
-                                    readOnly={isPersonnelOfficeView}
-                                />
-                                <span className="text-muted-foreground">/ {question.points} 点</span>
-                            </div>
+                    
+                    <div className="space-y-2 pt-4 border-t">
+                        <Label htmlFor={`score-${question.id}`}>{isPersonnelOfficeView ? "最終スコア" : "あなたの評価"}</Label>
+                        <div className="flex items-center gap-2">
+                            <Input 
+                                id={`score-${question.id}`} 
+                                type="number" 
+                                placeholder="スコア" 
+                                className="w-24" 
+                                max={question.points}
+                                min={0}
+                                value={manualScores[question.id] || ''}
+                                onChange={(e) => handleManualScoreChange(question.id, e.target.value)}
+                            />
+                            <span className="text-muted-foreground">/ {question.points} 点</span>
                         </div>
-                    )}
+                    </div>
                 </CardContent>
             </Card>
           );
@@ -261,19 +255,6 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
                     合計スコア: {totalScore} / {exam.totalPoints}
                 </div>
             </div>
-
-            {isPersonnelOfficeView && (
-                <div className="space-y-2">
-                    <Label htmlFor="final-score">最終スコア</Label>
-                    <Input
-                        id="final-score"
-                        type="number"
-                        value={finalScore ?? ""}
-                        onChange={(e) => setFinalScore(parseInt(e.target.value, 10))}
-                        placeholder="本部スコアを承認する場合は入力"
-                    />
-                </div>
-            )}
 
             {isPassed && (
                  <Card className="bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800 mt-4">
@@ -292,7 +273,6 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
                                         "w-full justify-start text-left font-normal",
                                         !lessonReviewDate1 && "text-muted-foreground"
                                     )}
-                                    disabled={isPersonnelOfficeView}
                                     >
                                     <CalendarIcon className="mr-2 h-4 w-4" />
                                     {lessonReviewDate1 ? format(lessonReviewDate1, "PPP", { locale: ja }) : <span>日付を選択</span>}
@@ -318,7 +298,6 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
                                         "w-full justify-start text-left font-normal",
                                         !lessonReviewDate2 && "text-muted-foreground"
                                     )}
-                                    disabled={isPersonnelOfficeView}
                                     >
                                     <CalendarIcon className="mr-2 h-4 w-4" />
                                     {lessonReviewDate2 ? format(lessonReviewDate2, "PPP", { locale: ja }) : <span>日付を選択</span>}
