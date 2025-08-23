@@ -134,13 +134,13 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
           const result = gradingResults.find((r) => r.questionId === question.id);
           return (
             <Card key={question.id} className="overflow-hidden">
-                <CardHeader className="bg-muted/50">
+                <CardHeader className="bg-primary text-primary-foreground">
                     <div className="flex justify-between w-full items-center">
-                        <CardTitle className="text-lg font-semibold text-left">問題 {index + 1}: {question.text} ({question.points}点)</CardTitle>
+                        <CardTitle className="text-lg font-semibold text-left text-primary-foreground">問題 {index + 1}: {question.text} ({question.points}点)</CardTitle>
                         <div className="flex items-center gap-2">
-                            {manualScores[question.id] !== undefined && <Badge>{manualScores[question.id]}点</Badge>}
+                            {manualScores[question.id] !== undefined && <Badge variant="secondary">{manualScores[question.id]}点</Badge>}
                             {result && !result.isLoading && <Badge variant="secondary">AI採点済み</Badge>}
-                            {result?.isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+                            {result?.isLoading && <Loader2 className="h-4 w-4 animate-spin text-primary-foreground" />}
                         </div>
                     </div>
                 </CardHeader>
@@ -277,5 +277,7 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
     </Card>
   );
 }
+
+    
 
     
