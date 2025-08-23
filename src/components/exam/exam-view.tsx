@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { Exam, Question, Answer } from "@/lib/types";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -121,6 +121,17 @@ export function ExamView({ exam }: ExamViewProps) {
   const [currentQuestion, setCurrentQuestion] = useState<Question>(exam.questions[0]);
 
 
+  const handleNext = useCallback(() => {
+    if (api) {
+        api.scrollNext();
+    }
+  }, [api])
+
+  const handleReview = useCallback(() => {
+    localStorage.setItem(`exam-${exam.id}-answers`, JSON.stringify(answers));
+    router.push(`/exam/${exam.id}/review`);
+  }, [answers, exam.id, router]);
+
   useEffect(() => {
     if (!api) return
     
@@ -151,21 +162,22 @@ export function ExamView({ exam }: ExamViewProps) {
       return [...prev, { questionId, value }];
     });
   };
-  
-  const handleReview = () => {
-    localStorage.setItem(`exam-${exam.id}-answers`, JSON.stringify(answers));
-    router.push(`/exam/${exam.id}/review`);
-  };
 
-  const handleNext = () => {
-    if (api) {
-        api.scrollNext();
+  const handleTimeUp = () => {
+    if (current < count) {
+        handleNext();
+    } else {
+        handleReview();
     }
   }
 
   return (
     <>
-      <ExamHeader title={exam.title} timeLimit={currentQuestion?.timeLimit || exam.duration * 60} />
+      <ExamHeader 
+        title={exam.title} 
+        timeLimit={currentQuestion?.timeLimit || exam.duration * 60} 
+        onTimeUp={handleTimeUp}
+      />
       <div className="container mx-auto max-w-4xl py-8">
         <div className="space-y-6">
             <div>
@@ -178,6 +190,7 @@ export function ExamView({ exam }: ExamViewProps) {
             <Carousel setApi={setApi} className="w-full" opts={{
                 watchDrag: false,
                 watchKeys: false,
+                draggable: false,
             }}>
                 <CarouselContent>
                     {exam.questions.map((question, index) => (

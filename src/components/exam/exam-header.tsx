@@ -8,9 +8,10 @@ import { Button } from "../ui/button";
 interface ExamHeaderProps {
   title: string;
   timeLimit: number; // in seconds
+  onTimeUp?: () => void;
 }
 
-export function ExamHeader({ title, timeLimit }: ExamHeaderProps) {
+export function ExamHeader({ title, timeLimit, onTimeUp }: ExamHeaderProps) {
   const [timeLeft, setTimeLeft] = useState(timeLimit);
 
   useEffect(() => {
@@ -18,14 +19,17 @@ export function ExamHeader({ title, timeLimit }: ExamHeaderProps) {
   }, [timeLimit]);
 
   useEffect(() => {
-    if (timeLeft <= 0) return;
+    if (timeLeft <= 0) {
+        onTimeUp?.();
+        return;
+    }
 
     const timer = setInterval(() => {
       setTimeLeft((prevTime) => prevTime - 1);
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [timeLeft]);
+  }, [timeLeft, onTimeUp]);
 
   const formatTime = (seconds: number) => {
     const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
