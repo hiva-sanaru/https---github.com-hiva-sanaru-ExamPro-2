@@ -3,112 +3,16 @@
 
 import { useState, useEffect, useCallback } from "react";
 import type { Exam, Question, Answer } from "@/lib/types";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { Progress } from "@/components/ui/progress";
 import { Carousel, CarouselApi, CarouselContent, CarouselItem } from "../ui/carousel";
-import { BookCheck, ArrowRight } from "lucide-react";
+import { BookCheck, ArrowRight, Loader2 } from "lucide-react";
 import { ExamHeader } from "./exam-header";
+import { QuestionCard } from "./question-card";
 
 interface ExamViewProps {
   exam: Exam;
-}
-
-const renderFillInTheBlank = (text: string, value: string, onChange: (value: string) => void) => {
-    const parts = text.split('___');
-    if (parts.length <= 1) {
-        return <Input placeholder="空欄を埋めてください..." value={value} onChange={(e) => onChange(e.target.value)} />;
-    }
-    return (
-        <div className="flex items-center gap-2 flex-wrap">
-            {parts.map((part, index) => (
-                <div key={index} className="flex items-center gap-2">
-                    {part && <p className="text-lg">{part}</p>}
-                    {index < parts.length - 1 && (
-                         <Input 
-                            placeholder="回答" 
-                            className="w-48"
-                            value={value || ''}
-                            onChange={(e) => onChange(e.target.value)}
-                        />
-                    )}
-                </div>
-            ))}
-        </div>
-    )
-}
-
-const QuestionCard = ({ question, index, answer, onAnswerChange }: { question: Question; index: number; answer: Answer | undefined, onAnswerChange: (questionId: string, value: string) => void }) => {
-    
-    const handleSubAnswerChange = (subQuestionId: string, value: string) => {
-        // This part would need a more complex state management, for now we just log it
-        console.log(`Sub-question ${subQuestionId} answer changed to: ${value}`);
-    }
-    
-    const hasSubQuestions = question.subQuestions && question.subQuestions.length > 0;
-
-    return (
-        <Card className="h-full flex flex-col">
-            <CardHeader>
-                <CardTitle className="font-headline text-xl">問題 {index + 1}</CardTitle>
-                <p className="text-muted-foreground">{question.points} 点</p>
-            </CardHeader>
-            <CardContent className="flex-grow space-y-4">
-                {question.type !== 'fill-in-the-blank' && <p className="text-lg whitespace-pre-wrap">{question.text}</p>}
-                
-                {!hasSubQuestions && (
-                    <>
-                        {question.type === 'descriptive' && (
-                            <Textarea 
-                                placeholder="あなたの答え..." 
-                                rows={8}
-                                value={answer?.value || ''}
-                                onChange={(e) => onAnswerChange(question.id!, e.target.value)}
-                            />
-                        )}
-                        {question.type === 'fill-in-the-blank' && (
-                            renderFillInTheBlank(question.text, answer?.value || '', (value) => onAnswerChange(question.id!, value))
-                        )}
-                        {question.type === 'selection' && question.options && (
-                            <RadioGroup value={answer?.value || ''} onValueChange={(value) => onAnswerChange(question.id!, value)}>
-                                {question.options.map((option, index) => (
-                                    <div key={index} className="flex items-center space-x-2">
-                                        <RadioGroupItem value={option} id={`${question.id}-${index}`} />
-                                        <Label htmlFor={`${question.id}-${index}`}>{option}</Label>
-                                    </div>
-                                ))}
-                            </RadioGroup>
-                        )}
-                    </>
-                )}
-
-
-                {hasSubQuestions && (
-                    <div className="space-y-4 border-l-2 border-primary/20 pl-4 ml-2">
-                        {question.subQuestions?.map((subQ, subIndex) => (
-                             <div key={subQ.id}>
-                                <p className="font-medium">({subIndex + 1}) {subQ.text} ({subQ.points} 点)</p>
-                                 <Textarea 
-                                    rows={3}
-                                    className="mt-2"
-                                    onChange={(e) => handleSubAnswerChange(subQ.id!, e.target.value)}
-                                    placeholder="答えを入力..."
-                                />
-                             </div>
-                        ))}
-                    </div>
-                )}
-            </CardContent>
-             <CardFooter>
-                <p className="text-xs text-muted-foreground">問題タイプ: {question.type === 'descriptive' ? '記述式' : question.type === 'fill-in-the-blank' ? '穴埋め' : '選択式'}</p>
-            </CardFooter>
-        </Card>
-    )
 }
 
 export function ExamView({ exam }: ExamViewProps) {
@@ -118,6 +22,31 @@ export function ExamView({ exam }: ExamViewProps) {
   const [current, setCurrent] = useState(0)
   const [count, setCount] = useState(0)
   const [progress, setProgress] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Overall exam timer
+  const [examTimeLeft, setExamTimeLeft] = useState(exam.duration * 60);
+
+  // Load answers from localStorage on mount
+  useEffect(() => {
+    try {
+        const savedAnswers = localStorage.getItem(`exam-${exam.id}-answers`);
+        if (savedAnswers) {
+            setAnswers(JSON.parse(savedAnswers));
+        }
+    } catch (error) {
+        console.error("Failed to parse answers from localStorage", error);
+        // Clear broken data
+        localStorage.removeItem(`exam-${exam.id}-answers`);
+    } finally {
+        setIsLoading(false);
+    }
+  }, [exam.id]);
+  
+  // Save answers to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem(`exam-${exam.id}-answers`, JSON.stringify(answers));
+  }, [answers, exam.id]);
 
   const handleNext = useCallback(() => {
     if (api) {
@@ -126,9 +55,8 @@ export function ExamView({ exam }: ExamViewProps) {
   }, [api])
 
   const handleReview = useCallback(() => {
-    localStorage.setItem(`exam-${exam.id}-answers`, JSON.stringify(answers));
     router.push(`/exam/${exam.id}/review`);
-  }, [answers, exam.id, router]);
+  }, [exam.id, router]);
 
   useEffect(() => {
     if (!api) return
@@ -140,7 +68,7 @@ export function ExamView({ exam }: ExamViewProps) {
       const selectedIndex = api.selectedScrollSnap();
       setCurrent(selectedIndex + 1)
     })
-  }, [api, exam.questions])
+  }, [api])
 
   useEffect(() => {
     const answeredCount = answers.filter(a => a.value && a.value.trim() !== '').length;
@@ -160,16 +88,36 @@ export function ExamView({ exam }: ExamViewProps) {
   };
   
   const handleTimeUp = useCallback(() => {
-    // Time is up, force review and submission
+    // Time is up for the whole exam, force review and submission
+    toast({
+        title: "時間切れ！",
+        description: "試験時間が終了しました。回答の確認ページに移動します。",
+        variant: "destructive"
+    });
     handleReview();
   }, [handleReview]);
+
+  // Exam-wide countdown timer logic
+  useEffect(() => {
+    if (examTimeLeft <= 0) {
+        handleTimeUp();
+        return;
+    }
+    const timer = setInterval(() => {
+        setExamTimeLeft(prev => prev - 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [examTimeLeft, handleTimeUp]);
+
+  if (isLoading) {
+    return <div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>
+  }
 
   return (
     <>
       <ExamHeader 
         title={exam.title} 
-        timeLimit={exam.duration * 60} 
-        onTimeUp={handleTimeUp}
+        timeLeft={examTimeLeft}
       />
       <div className="container mx-auto max-w-4xl py-8">
         <div className="space-y-6">
@@ -184,6 +132,7 @@ export function ExamView({ exam }: ExamViewProps) {
                 watchDrag: false,
                 watchKeys: false,
                 draggable: false,
+                align: "start"
             }}>
                 <CarouselContent>
                     {exam.questions.map((question, index) => (
@@ -193,6 +142,7 @@ export function ExamView({ exam }: ExamViewProps) {
                                 index={index}
                                 answer={answers.find(a => a.questionId === question.id)}
                                 onAnswerChange={handleAnswerChange}
+                                onTimeUp={handleNext} // Auto-advance to next question
                             />
                         </CarouselItem>
                     ))}

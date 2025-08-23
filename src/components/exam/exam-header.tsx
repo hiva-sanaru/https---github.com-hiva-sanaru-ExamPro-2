@@ -1,31 +1,15 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
 import { Timer, BookAIcon } from "lucide-react";
 import { Button } from "../ui/button";
 
 interface ExamHeaderProps {
   title: string;
-  timeLimit: number; // in seconds
-  onTimeUp?: () => void;
+  timeLeft: number; // in seconds
 }
 
-export function ExamHeader({ title, timeLimit, onTimeUp }: ExamHeaderProps) {
-  const [timeLeft, setTimeLeft] = useState(timeLimit);
-
-  useEffect(() => {
-    if (timeLeft <= 0) {
-        onTimeUp?.();
-        return;
-    }
-
-    const timer = setInterval(() => {
-      setTimeLeft((prevTime) => prevTime - 1);
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [timeLeft, onTimeUp]);
+export function ExamHeader({ title, timeLeft }: ExamHeaderProps) {
 
   const formatTime = (seconds: number) => {
     const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
@@ -46,7 +30,6 @@ export function ExamHeader({ title, timeLimit, onTimeUp }: ExamHeaderProps) {
             <Timer className="h-5 w-5" />
             <span className="text-xl font-bold tracking-wider font-code">{formatTime(timeLeft)}</span>
           </div>
-          <Button variant="outline" size="sm">一時停止</Button>
         </div>
       </div>
     </header>

@@ -7,8 +7,10 @@ import type { Exam, Answer } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { ArrowLeft, Send } from "lucide-react";
+import { ArrowLeft, Send, Loader2 } from "lucide-react";
 import { addSubmission } from "@/services/submissionService";
+import { findUserByEmployeeId } from "@/services/userService";
+import type { User } from "@/lib/types";
 
 interface ReviewViewProps {
   exam: Exam;
@@ -19,11 +21,17 @@ export function ReviewView({ exam }: ReviewViewProps) {
   const { toast } = useToast();
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   useEffect(() => {
     const savedAnswers = localStorage.getItem(`exam-${exam.id}-answers`);
     if (savedAnswers) {
       setAnswers(JSON.parse(savedAnswers));
+    }
+    
+    const employeeId = localStorage.getItem('loggedInUserEmployeeId');
+    if (employeeId) {
+      findUserByEmployeeId(employeeId).then(setCurrentUser);
     }
   }, [exam.id]);
 
@@ -32,16 +40,20 @@ export function ReviewView({ exam }: ReviewViewProps) {
   }
 
   const handleSubmit = async () => {
+    if (!currentUser) {
+        toast({
+            title: "エラー",
+            description: "ログインしているユーザーが見つかりません。再度ログインしてください。",
+            variant: "destructive"
+        });
+        return;
+    }
     setIsLoading(true);
     try {
-        // This should be replaced with actual logged-in user data
-        const mockUserId = "user4";
-        const mockUserHq = "Tokyo";
-
         await addSubmission({
             examId: exam.id,
-            examineeId: mockUserId,
-            examineeHeadquarters: mockUserHq,
+            examineeId: currentUser.id,
+            examineeHeadquarters: currentUser.headquarters,
             answers: answers,
         });
 
@@ -51,7 +63,7 @@ export function ReviewView({ exam }: ReviewViewProps) {
             variant: "default",
         });
         localStorage.removeItem(`exam-${exam.id}-answers`);
-        router.push("/admin/dashboard"); // Redirect to dashboard after submission
+        router.push("/"); // Redirect to dashboard after submission
     } catch (error) {
         console.error("Failed to submit exam:", error);
         toast({
@@ -89,8 +101,8 @@ export function ReviewView({ exam }: ReviewViewProps) {
           戻って編集
         </Button>
         <Button onClick={handleSubmit} disabled={isLoading} size="lg">
+          {isLoading ? <Loader2 className="animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
           {isLoading ? "提出中..." : "最終回答を提出"}
-          {!isLoading && <Send className="ml-2 h-4 w-4" />}
         </Button>
       </div>
     </div>
