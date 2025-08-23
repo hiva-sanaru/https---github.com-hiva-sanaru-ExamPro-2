@@ -118,8 +118,6 @@ export function ExamView({ exam }: ExamViewProps) {
   const [current, setCurrent] = useState(0)
   const [count, setCount] = useState(0)
   const [progress, setProgress] = useState(0);
-  const [currentQuestion, setCurrentQuestion] = useState<Question>(exam.questions[0]);
-
 
   const handleNext = useCallback(() => {
     if (api) {
@@ -137,12 +135,10 @@ export function ExamView({ exam }: ExamViewProps) {
     
     setCount(api.scrollSnapList().length)
     setCurrent(api.selectedScrollSnap() + 1)
-    setCurrentQuestion(exam.questions[api.selectedScrollSnap()]);
 
     api.on("select", () => {
       const selectedIndex = api.selectedScrollSnap();
       setCurrent(selectedIndex + 1)
-      setCurrentQuestion(exam.questions[selectedIndex]);
     })
   }, [api, exam.questions])
 
@@ -162,20 +158,17 @@ export function ExamView({ exam }: ExamViewProps) {
       return [...prev, { questionId, value }];
     });
   };
-
-  const handleTimeUp = () => {
-    if (current < count) {
-        handleNext();
-    } else {
-        handleReview();
-    }
-  }
+  
+  const handleTimeUp = useCallback(() => {
+    // Time is up, force review and submission
+    handleReview();
+  }, [handleReview]);
 
   return (
     <>
       <ExamHeader 
         title={exam.title} 
-        timeLimit={currentQuestion?.timeLimit || exam.duration * 60} 
+        timeLimit={exam.duration * 60} 
         onTimeUp={handleTimeUp}
       />
       <div className="container mx-auto max-w-4xl py-8">

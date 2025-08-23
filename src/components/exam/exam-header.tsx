@@ -15,10 +15,6 @@ export function ExamHeader({ title, timeLimit, onTimeUp }: ExamHeaderProps) {
   const [timeLeft, setTimeLeft] = useState(timeLimit);
 
   useEffect(() => {
-    setTimeLeft(timeLimit);
-  }, [timeLimit]);
-
-  useEffect(() => {
     if (timeLeft <= 0) {
         onTimeUp?.();
         return;
