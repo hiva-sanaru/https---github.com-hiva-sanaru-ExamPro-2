@@ -57,15 +57,11 @@ export default function AdminUsersPage() {
     }), [users, searchTerm, roleFilter, hqFilter]);
 
     const handleUserAdded = (newUser: User) => {
-        // Optimistically add user to the list, then refetch for consistency
         setUsers(prev => [...prev, newUser]);
-        setAddUserOpen(false); 
-        // fetchUsersAndHqs(); // Optional: refetch to ensure data is consistent
     };
 
     const handleUserUpdated = (updatedUser: User) => {
         setUsers(prev => prev.map(u => u.id === updatedUser.id ? updatedUser : u));
-        // fetchUsersAndHqs(); // Refetch to ensure consistency
     };
 
     const handleUserDeleted = (userId: string) => {
@@ -100,7 +96,11 @@ export default function AdminUsersPage() {
                                             新しいユーザーの詳細を入力してください。
                                         </DialogDescription>
                                     </DialogHeader>
-                                    <AddUserForm onFinished={handleUserAdded} headquartersList={headquartersList} />
+                                    <AddUserForm 
+                                        onFinished={handleUserAdded} 
+                                        headquartersList={headquartersList}
+                                        onClose={() => setAddUserOpen(false)}
+                                    />
                                 </DialogContent>
                             </Dialog>
                         </div>

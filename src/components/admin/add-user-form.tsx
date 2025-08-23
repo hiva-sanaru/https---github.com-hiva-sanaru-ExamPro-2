@@ -38,10 +38,11 @@ interface AddUserFormProps {
     user?: User; 
     onFinished: (user: User) => void;
     headquartersList: Headquarters[];
+    onClose?: () => void;
 }
 
 
-export function AddUserForm({ user, onFinished, headquartersList }: AddUserFormProps) {
+export function AddUserForm({ user, onFinished, headquartersList, onClose }: AddUserFormProps) {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const isEditing = !!user;
@@ -86,6 +87,7 @@ export function AddUserForm({ user, onFinished, headquartersList }: AddUserFormP
             });
             onFinished(newUser);
         }
+        onClose?.();
     } catch(error) {
         toast({
             title: isEditing ? "更新中にエラーが発生しました" : "作成中にエラーが発生しました",
