@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -43,7 +44,7 @@ export function ExamHeader({ title, timeLimit }: ExamHeaderProps) {
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 rounded-md bg-muted px-3 py-1.5 text-sm font-medium">
             <Timer className="h-4 w-4 text-primary" />
-            <span>のこり時間: {formatTime(timeLeft)}</span>
+            <span>{formatTime(timeLeft)}</span>
           </div>
           <Button variant="outline" size="sm">一時停止</Button>
         </div>
