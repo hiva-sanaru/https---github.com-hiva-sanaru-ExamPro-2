@@ -57,6 +57,7 @@ export function UserList({ users }: UserListProps) {
         <TableHeader>
           <TableRow>
             <TableHead>名前</TableHead>
+            <TableHead>社員番号</TableHead>
             <TableHead>役割</TableHead>
             <TableHead>本部</TableHead>
             <TableHead className="text-right">アクション</TableHead>
@@ -73,10 +74,10 @@ export function UserList({ users }: UserListProps) {
                     </Avatar>
                     <div className="flex flex-col">
                         <span className="font-semibold">{user.name}</span>
-                        <span className="text-xs text-muted-foreground">{user.email}</span>
                     </div>
                 </div>
               </TableCell>
+              <TableCell>{user.employeeId}</TableCell>
               <TableCell>
                 <Badge variant="outline" className={badgeVariants({ role: user.role })}>
                   {getRoleName(user.role)}

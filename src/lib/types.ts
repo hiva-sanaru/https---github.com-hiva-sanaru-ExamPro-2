@@ -3,7 +3,7 @@ export type UserRole = 'system_administrator' | 'hq_administrator' | 'examinee';
 export interface User {
   id: string;
   name: string;
-  email: string;
+  employeeId: string;
   role: UserRole;
   avatarUrl: string;
   headquarters?: string;

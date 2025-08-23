@@ -4,14 +4,14 @@ export const mockUsers: User[] = [
   {
     id: 'user1',
     name: '田中 太郎',
-    email: 'taro.tanaka@example.com',
+    employeeId: '10000001',
     role: 'system_administrator',
     avatarUrl: 'https://placehold.co/40x40.png?text=TT',
   },
   {
     id: 'user2',
     name: '山田 花子',
-    email: 'hanako.yamada@example.com',
+    employeeId: '10000002',
     role: 'hq_administrator',
     headquarters: 'Tokyo',
     avatarUrl: 'https://placehold.co/40x40.png?text=HY',
@@ -19,7 +19,7 @@ export const mockUsers: User[] = [
   {
     id: 'user3',
     name: '佐藤 次郎',
-    email: 'jiro.sato@example.com',
+    employeeId: '10000003',
     role: 'examinee',
     headquarters: 'Osaka',
     avatarUrl: 'https://placehold.co/40x40.png?text=JS',
@@ -27,7 +27,7 @@ export const mockUsers: User[] = [
   {
     id: 'user4',
     name: '鈴木 美穂',
-    email: 'miho.suzuki@example.com',
+    employeeId: '10000004',
     role: 'examinee',
     headquarters: 'Tokyo',
     avatarUrl: 'https://placehold.co/40x40.png?text=MS',
@@ -35,7 +35,7 @@ export const mockUsers: User[] = [
   {
     id: 'user5',
     name: '高橋 学',
-    email: 'manabu.takahashi@example.com',
+    employeeId: '10000005',
     role: 'hq_administrator',
     headquarters: 'Fukuoka',
     avatarUrl: 'https://placehold.co/40x40.png?text=MT',

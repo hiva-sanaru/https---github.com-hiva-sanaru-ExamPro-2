@@ -14,7 +14,7 @@ import type { User } from "@/lib/types";
 
 const userSchema = z.object({
     name: z.string().min(1, { message: "名前は必須です。" }),
-    email: z.string().email({ message: "無効なメールアドレスです。" }),
+    employeeId: z.string().length(8, { message: "社員番号は8桁である必要があります。"}).regex(/^[0-9]+$/, { message: "社員番号は半角数字でなければなりません。"}),
     password: z.string().min(8, { message: "パスワードは8文字以上である必要があります。" }).optional().or(z.literal('')),
     role: z.enum(["system_administrator", "hq_administrator", "examinee"], {
         required_error: "役割を選択する必要があります。",
@@ -47,7 +47,7 @@ export function AddUserForm({ user, onFinished }: AddUserFormProps) {
     resolver: zodResolver(userSchema),
     defaultValues: {
       name: user?.name || "",
-      email: user?.email || "",
+      employeeId: user?.employeeId || "",
       password: "",
       role: user?.role || "examinee",
       headquarters: user?.headquarters || "",
@@ -63,7 +63,7 @@ export function AddUserForm({ user, onFinished }: AddUserFormProps) {
     setTimeout(() => {
         toast({
             title: isEditing ? "ユーザーが正常に更新されました！" : "ユーザーが正常に追加されました！",
-            description: `名前: ${data.name}, メール: ${data.email}`,
+            description: `名前: ${data.name}, 社員番号: ${data.employeeId}`,
         });
       setIsLoading(false);
       onFinished?.();
@@ -88,12 +88,12 @@ export function AddUserForm({ user, onFinished }: AddUserFormProps) {
         />
         <FormField
           control={form.control}
-          name="email"
+          name="employeeId"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>メールアドレス</FormLabel>
+              <FormLabel>社員番号</FormLabel>
               <FormControl>
-                <Input placeholder="name@example.com" {...field} />
+                <Input placeholder="12345678" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
