@@ -10,6 +10,7 @@ import { Carousel, CarouselApi, CarouselContent, CarouselItem } from "../ui/caro
 import { BookCheck, ArrowRight, Loader2 } from "lucide-react";
 import { ExamHeader } from "./exam-header";
 import { QuestionCard } from "./question-card";
+import { useToast } from "@/hooks/use-toast";
 
 interface ExamViewProps {
   exam: Exam;
@@ -17,6 +18,7 @@ interface ExamViewProps {
 
 export function ExamView({ exam }: ExamViewProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [api, setApi] = useState<CarouselApi>()
   const [current, setCurrent] = useState(0)
@@ -27,21 +29,34 @@ export function ExamView({ exam }: ExamViewProps) {
   // Overall exam timer
   const [examTimeLeft, setExamTimeLeft] = useState(exam.duration * 60);
 
-  // Load answers from localStorage on mount
+  // Load answers and initialize timer from localStorage on mount
   useEffect(() => {
     try {
         const savedAnswers = localStorage.getItem(`exam-${exam.id}-answers`);
         if (savedAnswers) {
             setAnswers(JSON.parse(savedAnswers));
         }
+
+        const examEndTime = localStorage.getItem(`exam-${exam.id}-endTime`);
+        if (examEndTime) {
+            const endTime = parseInt(examEndTime, 10);
+            const remaining = Math.max(0, Math.floor((endTime - new Date().getTime()) / 1000));
+            setExamTimeLeft(remaining);
+        } else {
+            const newEndTime = new Date().getTime() + exam.duration * 60 * 1000;
+            localStorage.setItem(`exam-${exam.id}-endTime`, newEndTime.toString());
+            setExamTimeLeft(exam.duration * 60);
+        }
+
     } catch (error) {
-        console.error("Failed to parse answers from localStorage", error);
+        console.error("Failed to parse state from localStorage", error);
         // Clear broken data
         localStorage.removeItem(`exam-${exam.id}-answers`);
+        localStorage.removeItem(`exam-${exam.id}-endTime`);
     } finally {
         setIsLoading(false);
     }
-  }, [exam.id]);
+  }, [exam.id, exam.duration]);
   
   // Save answers to localStorage whenever they change
   useEffect(() => {
@@ -95,7 +110,7 @@ export function ExamView({ exam }: ExamViewProps) {
         variant: "destructive"
     });
     handleReview();
-  }, [handleReview]);
+  }, [handleReview, toast]);
 
   // Exam-wide countdown timer logic
   useEffect(() => {
