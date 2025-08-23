@@ -94,7 +94,6 @@ const QuestionCard = ({ question, index, answer, onAnswerChange }: { question: Q
                              <div key={subQ.id}>
                                 <p className="font-medium">({subIndex + 1}) {subQ.text} ({subQ.points} 点)</p>
                                  <Textarea 
-                                    placeholder="サブ問題へのあなたの答え..." 
                                     rows={3}
                                     className="mt-2"
                                     onChange={(e) => handleSubAnswerChange(subQ.id!, e.target.value)}
@@ -197,5 +196,3 @@ export function ExamView({ exam }: ExamViewProps) {
     </>
   );
 }
-
-    
