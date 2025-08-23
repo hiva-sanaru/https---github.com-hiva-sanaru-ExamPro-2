@@ -42,6 +42,11 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
       toast({ title: "この問題には回答がありません。", variant: "destructive" });
       return;
     }
+    
+    if (!question.modelAnswer) {
+      toast({ title: "この問題には模範解答が登録されていません。", variant: "destructive" });
+      return;
+    }
 
     setGradingResults((prev) => [
       ...prev.filter((r) => r.questionId !== question.id),
@@ -50,8 +55,10 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
 
     try {
       const result = await gradeAnswer({
+        questionText: question.text,
+        modelAnswer: question.modelAnswer,
         answerText,
-        scoringRubric: `問題: ${question.text} (最大配点: ${question.points})`,
+        points: question.points,
       });
       setGradingResults((prev) =>
         prev.map((r) =>
@@ -112,7 +119,7 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
                             </div>
                         ) : (
                             <div className="p-3 rounded-md bg-muted/50 border border-dashed flex items-center justify-center min-h-[100px]">
-                                <Button size="sm" onClick={() => handleGradeQuestion(question)} disabled={result?.isLoading}>
+                                <Button size="sm" onClick={() => handleGradeQuestion(question)} disabled={result?.isLoading || !question.modelAnswer}>
                                     <Wand2 className="mr-2 h-4 w-4" />
                                     {result?.isLoading ? "採点中..." : "AIで採点"}
                                 </Button>

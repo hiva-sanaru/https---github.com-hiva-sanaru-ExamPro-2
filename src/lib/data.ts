@@ -14,6 +14,7 @@ export const mockExams: Exam[] = [
         type: 'descriptive',
         points: 20,
         timeLimit: 600, // 10 minutes
+        modelAnswer: '具体的な状況、自身の行動、そしてその行動がもたらした肯定的な結果（定量的・定性的な指標を含む）について明確に記述している。例えば、プロジェクトの遅延リスクがあった際に、チームを再編成し、新たなマイルストーンを設定。結果としてプロジェクトを期日内に完了させ、コストを5%削減した、など。',
       },
       {
         id: 'q2',
@@ -21,6 +22,7 @@ export const mockExams: Exam[] = [
         type: 'fill-in-the-blank',
         points: 10,
         timeLimit: 120, // 2 minutes
+        modelAnswer: 'チームワーク',
       },
       {
         id: 'q3',
@@ -34,6 +36,7 @@ export const mockExams: Exam[] = [
           '顧客満足度スコアを向上させる',
           '新製品ラインを立ち上げる',
         ],
+        modelAnswer: '運用コストを15%削減する',
       },
       {
         id: 'q4',
@@ -41,9 +44,10 @@ export const mockExams: Exam[] = [
         type: 'descriptive',
         points: 25,
         timeLimit: 900, // 15 minutes
+        modelAnswer: 'GDPR（一般データ保護規則）は、EU内の個人のデータ保護とプライバシーに関する規制である。これにより、当社は顧客からデータ収集・利用に関する明確な同意を得る必要があり、データ処理活動の記録を保持し、データ侵害が発生した際には72時間以内に当局に報告する義務を負う。',
         subQuestions: [
-            { id: 'q4a', text: '不遵守の場合の罰則は何ですか？', type: 'descriptive', points: 10 },
-            { id: 'q4b', text: '顧客データの保存にどのように影響しますか？', type: 'descriptive', points: 15 }
+            { id: 'q4a', text: '不遵守の場合の罰則は何ですか？', type: 'descriptive', points: 10, modelAnswer: '全世界の年間売上高の最大4%または2000万ユーロのいずれか高い方。' },
+            { id: 'q4b', text: '顧客データの保存にどのように影響しますか？', type: 'descriptive', points: 15, modelAnswer: 'データは特定の目的のためにのみ収集・保存され、その目的が達成された後は不要になったデータを削除する必要がある。「忘れられる権利」を尊重し、顧客からの要求に応じて個人データを消去するプロセスを確立しなければならない。' }
         ]
       },
       {
@@ -52,6 +56,7 @@ export const mockExams: Exam[] = [
         type: 'fill-in-the-blank',
         points: 10,
         timeLimit: 120, // 2 minutes
+        modelAnswer: '2024年第4四半期',
       }
     ],
   },
@@ -68,6 +73,7 @@ export const mockExams: Exam[] = [
         type: 'descriptive',
         points: 15,
         timeLimit: 300,
+        modelAnswer: '営業部、マーケティング部、カスタマーサポート部',
       },
       {
         id: 'nh2',
@@ -75,6 +81,7 @@ export const mockExams: Exam[] = [
         type: 'fill-in-the-blank',
         points: 10,
         timeLimit: 60,
+        modelAnswer: '2010',
       },
     ],
   },

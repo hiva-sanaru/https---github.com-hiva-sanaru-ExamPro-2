@@ -18,6 +18,7 @@ export interface Question {
   points: number;
   timeLimit?: number; // in seconds
   options?: string[]; // for multiple-choice
+  modelAnswer?: string; // for grading
   subQuestions?: Question[];
 }
 

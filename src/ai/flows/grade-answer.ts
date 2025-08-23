@@ -11,8 +11,10 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const GradeAnswerInputSchema = z.object({
+  questionText: z.string().describe('The text of the exam question.'),
+  modelAnswer: z.string().describe('The model answer for the exam question.'),
   answerText: z.string().describe('The text of the examinee answer.'),
-  scoringRubric: z.string().describe('The scoring rubric to use for grading the answer.'),
+  points: z.number().describe('The maximum points for the question.'),
 });
 export type GradeAnswerInput = z.infer<typeof GradeAnswerInputSchema>;
 
@@ -32,17 +34,23 @@ const prompt = ai.definePrompt({
   name: 'gradeAnswerPrompt',
   input: {schema: GradeAnswerInputSchema},
   output: {schema: GradeAnswerOutputSchema},
-  prompt: `You are an AI grading assistant. Please grade the following answer based on the provided scoring rubric.
+  prompt: `You are an AI grading assistant. Please grade the following answer based on the provided model answer.
 
-Answer:
+Question:
+{{questionText}}
+
+Maximum Points:
+{{points}}
+
+Model Answer:
+{{modelAnswer}}
+
+Examinee's Answer:
 {{answerText}}
 
-Scoring Rubric:
-{{scoringRubric}}
-
 Provide a score and a justification for the score.
-
-Ensure that the score aligns with the rubric and the justification clearly explains the reasoning behind the assigned score.`,
+The score should be an integer between 0 and the maximum points.
+The justification should clearly explain the reasoning behind the assigned score by comparing the examinee's answer to the model answer.`,
 });
 
 const gradeAnswerFlow = ai.defineFlow(

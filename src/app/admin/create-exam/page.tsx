@@ -25,7 +25,7 @@ export default function CreateExamPage() {
   const [isSaving, setIsSaving] = useState(false);
 
   const handleAddQuestion = () => {
-    setQuestions([...questions, { id: `new${questions.length + 1}`, text: '', type: 'descriptive', points: 10, timeLimit: 300 }]);
+    setQuestions([...questions, { id: `new${questions.length + 1}`, text: '', type: 'descriptive', points: 10, timeLimit: 300, modelAnswer: '' }]);
   };
 
   const handleRemoveQuestion = (index: number) => {
@@ -57,6 +57,7 @@ export default function CreateExamPage() {
                 type: 'descriptive',
                 points: 10,
                 timeLimit: 300,
+                modelAnswer: '',
             }
         }).filter(q => q.text);
 
@@ -117,8 +118,14 @@ export default function CreateExamPage() {
                        <Card key={index} className="p-4">
                            <div className="flex justify-between items-start">
                                <div className="flex-grow space-y-2 pr-4">
-                                   <Label htmlFor={`q-text-${index}`}>問題文</Label>
-                                   <Textarea id={`q-text-${index}`} value={q.text} onChange={(e) => handleQuestionChange(index, 'text', e.target.value)} placeholder={`問題 ${index + 1} の内容を記述...`} />
+                                   <div className="space-y-2">
+                                       <Label htmlFor={`q-text-${index}`}>問題文</Label>
+                                       <Textarea id={`q-text-${index}`} value={q.text} onChange={(e) => handleQuestionChange(index, 'text', e.target.value)} placeholder={`問題 ${index + 1} の内容を記述...`} />
+                                   </div>
+                                    <div className="space-y-2">
+                                       <Label htmlFor={`q-model-answer-${index}`}>模範解答</Label>
+                                       <Textarea id={`q-model-answer-${index}`} value={q.modelAnswer} onChange={(e) => handleQuestionChange(index, 'modelAnswer', e.target.value)} placeholder={`問題 ${index + 1} の模範解答を記述...`} rows={3} />
+                                   </div>
                                    <div className="flex gap-4">
                                         <div className="w-1/3 space-y-2">
                                            <Label htmlFor={`q-type-${index}`}>問題タイプ</Label>
