@@ -142,10 +142,10 @@ export const mockSubmissions: Submission[] = [
     {
         id: 'sub1',
         examId: '1',
-        examineeId: 'user2',
+        examineeId: 'user4', // Changed to a user in Tokyo
         examineeHeadquarters: 'Tokyo',
         submittedAt: new Date('2024-07-20T10:30:00Z'),
-        status: 'Grading',
+        status: 'Completed', // Changed to Completed
         answers: [
             { questionId: 'q1', value: '私は部門横断チームを率いて、予定より早く新機能をリリースし、その結果、ユーザーエンゲージメントが15%向上しました。' },
             { questionId: 'q2', value: 'チームワーク' },
@@ -159,6 +159,26 @@ export const mockSubmissions: Submission[] = [
                 ]
             },
             { questionId: 'q5', value: '2024年第4四半期' },
-        ]
+        ],
+        hqGrade: {
+            score: 85,
+            justification: "全体的に良く理解できている。特にリーダーシップの経験については具体例が秀逸。GDPRの理解も十分。",
+            reviewer: "山田 花子",
+            scores: {
+                'q1': 18,
+                'q2': 10,
+                'q3': 15,
+                'q4': 22,
+                'q5': 10,
+            }
+        },
+        poGrade: {
+            score: 85,
+            justification: "本部の採点結果を承認します。授業審査に進んでください。",
+            reviewer: "システム管理者"
+        },
+        finalScore: 85,
+        lessonReviewDate1: new Date('2024-08-01T10:00:00Z'),
+        lessonReviewDate2: new Date('2024-08-03T14:00:00Z'),
     }
 ];

@@ -37,6 +37,13 @@ export interface Answer {
   subAnswers?: Answer[];
 }
 
+export interface Grade {
+    score: number;
+    justification: string;
+    reviewer: string;
+    scores?: { [questionId: string]: number }; // Individual question scores
+}
+
 export interface Submission {
   id: string;
   examId: string;
@@ -45,8 +52,8 @@ export interface Submission {
   submittedAt: Date;
   answers: Answer[];
   status: 'In Progress' | 'Submitted' | 'Grading' | 'Completed';
-  hqGrade?: { score: number; justification: string; reviewer: string };
-  poGrade?: { score: number; justification: string; reviewer: string };
+  hqGrade?: Grade;
+  poGrade?: Grade;
   finalScore?: number;
   lessonReviewDate1?: Date;
   lessonReviewDate2?: Date;
