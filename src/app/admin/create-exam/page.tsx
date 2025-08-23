@@ -23,6 +23,7 @@ export default function CreateExamPage() {
   const [examId, setExamId] = useState<string | null>(null);
   const [title, setTitle] = useState('');
   const [duration, setDuration] = useState(60);
+  const [status, setStatus] = useState<Exam['status']>('Draft');
   const [questions, setQuestions] = useState<Partial<Question>[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -37,6 +38,7 @@ export default function CreateExamPage() {
           if (examData) {
             setTitle(examData.title);
             setDuration(examData.duration);
+            setStatus(examData.status);
             // Ensure questions have unique IDs for the form key
             const questionsWithIds = examData.questions.map(q => ({...q, id: q.id || uuidv4()}));
             setQuestions(questionsWithIds);
@@ -110,14 +112,18 @@ export default function CreateExamPage() {
   
   const handleSaveExam = async () => {
       setIsSaving(true);
-      const totalPoints = questions.reduce((acc, q) => acc + (q.points || 0), 0);
+      const totalPoints = questions.reduce((acc, q) => {
+        const mainPoints = q.points || 0;
+        const subPoints = q.subQuestions?.reduce((subAcc, subQ) => subAcc + (subQ.points || 0), 0) || 0;
+        return acc + mainPoints + subPoints;
+    }, 0);
       
-      const examData: Omit<Exam, 'id'> = {
+      const examData: Partial<Exam> = {
         title,
         duration,
         questions: questions as Question[],
         totalPoints,
-        status: 'Draft', // Default status
+        status,
       };
 
       try {
@@ -125,7 +131,7 @@ export default function CreateExamPage() {
           await updateExam(examId, examData);
           toast({ title: '試験が正常に更新されました！' });
         } else {
-          await addExam(examData);
+          await addExam(examData as Omit<Exam, 'id'>);
           toast({ title: '試験が正常に作成されました！' });
         }
         router.push('/admin/dashboard');
@@ -157,13 +163,29 @@ export default function CreateExamPage() {
                 <CardTitle>試験詳細</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-                <div className="space-y-2">
-                    <Label htmlFor="exam-title">試験タイトル</Label>
-                    <Input id="exam-title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="例: 2024年下期 昇進試験" />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-2 md:col-span-2">
+                        <Label htmlFor="exam-title">試験タイトル</Label>
+                        <Input id="exam-title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="例: 2024年下期 昇進試験" />
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="exam-duration">試験時間（分）</Label>
+                        <Input id="exam-duration" type="number" value={duration} onChange={(e) => setDuration(Number(e.target.value))} />
+                    </div>
                 </div>
-                <div className="space-y-2">
-                    <Label htmlFor="exam-duration">試験時間（分）</Label>
-                    <Input id="exam-duration" type="number" value={duration} onChange={(e) => setDuration(Number(e.target.value))} />
+                 <div className="space-y-2">
+                    <Label htmlFor="exam-status">試験ステータス</Label>
+                    <Select value={status} onValueChange={(value: Exam['status']) => setStatus(value)}>
+                        <SelectTrigger id="exam-status" className="w-[200px]">
+                            <SelectValue placeholder="ステータスを選択" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="Draft">下書き</SelectItem>
+                            <SelectItem value="Published">公開済み</SelectItem>
+                            <SelectItem value="Archived">アーカイブ済み</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground">「公開済み」に設定すると、受験者が試験を受けられるようになります。</p>
                 </div>
             </CardContent>
         </Card>
