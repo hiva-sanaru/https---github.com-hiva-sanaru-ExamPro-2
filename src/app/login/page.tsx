@@ -9,9 +9,6 @@ export default function LoginPage() {
           <BookAIcon className="h-10 w-10" />
           <h1 className="whitespace-nowrap text-3xl font-bold font-headline">SANARUスタッフ昇給試験サイト</h1>
         </div>
-        <p className="text-center text-muted-foreground">
-          おかえりなさい。現代のチームのためのAI搭載試験プラットフォーム。
-        </p>
         <LoginForm />
       </div>
        <footer className="absolute bottom-4 text-center text-sm text-muted-foreground">
