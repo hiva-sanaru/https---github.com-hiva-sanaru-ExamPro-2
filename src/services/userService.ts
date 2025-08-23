@@ -39,11 +39,11 @@ export async function addUser(user: Omit<User, 'id'>): Promise<string> {
 export async function updateUser(userId: string, userData: Partial<User>): Promise<void> {
     const docRef = doc(db, 'users', userId);
     // The employeeId should not be part of the update data as it's used as an immutable identifier in some parts of the logic.
-    const { employeeId, ...updateData } = userData;
+    const { employeeId, password, ...updateData } = userData;
 
     // Only include password in the update if it's explicitly provided and not an empty string
-    if (userData.password === '' || userData.password === null || userData.password === undefined) {
-        delete updateData.password;
+    if (password) {
+        (updateData as Partial<User>).password = password;
     }
     
     await setDoc(docRef, updateData, { merge: true });
