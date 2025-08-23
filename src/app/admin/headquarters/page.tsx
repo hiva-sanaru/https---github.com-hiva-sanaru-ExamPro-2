@@ -56,35 +56,35 @@ export default function HeadquartersPage() {
       header: true,
       skipEmptyLines: true,
       complete: async (results) => {
-        const parsedData = results.data.filter(item => item.code && item.name);
-        
-        const newHqs = parsedData.filter(newItem => 
-            !headquarters.some(hq => hq.code === newItem.code)
-        );
+        try {
+          const parsedData = results.data.filter(item => item.code && item.name);
+          
+          const newHqs = parsedData.filter(newItem => 
+              !headquarters.some(hq => hq.code === newItem.code)
+          );
 
-        if (newHqs.length > 0) {
-            try {
-                await addHeadquartersBatch(newHqs);
-                toast({
-                  title: 'CSVが正常にインポートされました',
-                  description: `${newHqs.length}件の本部が新しく追加されました。`,
-                });
-                fetchHeadquarters(); // Refresh list from firestore
-            } catch (error) {
-                 toast({
-                    title: 'データベースへの保存中にエラーが発生しました',
-                    description: (error as Error).message,
-                    variant: 'destructive',
-                });
-            }
-        } else {
-             toast({
-                title: 'インポートする新しいデータがありません',
-                description: 'CSV内のすべての本部は既に存在します。',
-            });
+          if (newHqs.length > 0) {
+              await addHeadquartersBatch(newHqs);
+              toast({
+                title: 'CSVが正常にインポートされました',
+                description: `${newHqs.length}件の本部が新しく追加されました。`,
+              });
+              fetchHeadquarters(); // Refresh list from firestore
+          } else {
+               toast({
+                  title: 'インポートする新しいデータがありません',
+                  description: 'CSV内のすべての本部は既に存在します。',
+              });
+          }
+        } catch (error) {
+           toast({
+              title: 'データベースへの保存中にエラーが発生しました',
+              description: (error as Error).message,
+              variant: 'destructive',
+          });
+        } finally {
+          setIsUploading(false);
         }
-
-        setIsUploading(false);
       },
       error: (error) => {
         toast({
