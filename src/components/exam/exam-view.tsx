@@ -49,6 +49,8 @@ const QuestionCard = ({ question, index, answer, onAnswerChange }: { question: Q
         // This part would need a more complex state management, for now we just log it
         console.log(`Sub-question ${subQuestionId} answer changed to: ${value}`);
     }
+    
+    const hasSubQuestions = question.subQuestions && question.subQuestions.length > 0;
 
     return (
         <Card className="h-full flex flex-col">
@@ -57,35 +59,40 @@ const QuestionCard = ({ question, index, answer, onAnswerChange }: { question: Q
                 <p className="text-muted-foreground">{question.points} 点</p>
             </CardHeader>
             <CardContent className="flex-grow space-y-4">
-                {question.type !== 'fill-in-the-blank' && <p className="text-lg">{question.text}</p>}
+                {question.type !== 'fill-in-the-blank' && <p className="text-lg whitespace-pre-wrap">{question.text}</p>}
                 
-                {question.type === 'descriptive' && (
-                    <Textarea 
-                        placeholder="あなたの答え..." 
-                        rows={8}
-                        value={answer?.value || ''}
-                        onChange={(e) => onAnswerChange(question.id!, e.target.value)}
-                    />
-                )}
-                {question.type === 'fill-in-the-blank' && (
-                    renderFillInTheBlank(question.text, answer?.value || '', (value) => onAnswerChange(question.id!, value))
-                )}
-                {question.type === 'selection' && question.options && (
-                    <RadioGroup value={answer?.value || ''} onValueChange={(value) => onAnswerChange(question.id!, value)}>
-                        {question.options.map((option, index) => (
-                            <div key={index} className="flex items-center space-x-2">
-                                <RadioGroupItem value={option} id={`${question.id}-${index}`} />
-                                <Label htmlFor={`${question.id}-${index}`}>{option}</Label>
-                            </div>
-                        ))}
-                    </RadioGroup>
+                {!hasSubQuestions && (
+                    <>
+                        {question.type === 'descriptive' && (
+                            <Textarea 
+                                placeholder="あなたの答え..." 
+                                rows={8}
+                                value={answer?.value || ''}
+                                onChange={(e) => onAnswerChange(question.id!, e.target.value)}
+                            />
+                        )}
+                        {question.type === 'fill-in-the-blank' && (
+                            renderFillInTheBlank(question.text, answer?.value || '', (value) => onAnswerChange(question.id!, value))
+                        )}
+                        {question.type === 'selection' && question.options && (
+                            <RadioGroup value={answer?.value || ''} onValueChange={(value) => onAnswerChange(question.id!, value)}>
+                                {question.options.map((option, index) => (
+                                    <div key={index} className="flex items-center space-x-2">
+                                        <RadioGroupItem value={option} id={`${question.id}-${index}`} />
+                                        <Label htmlFor={`${question.id}-${index}`}>{option}</Label>
+                                    </div>
+                                ))}
+                            </RadioGroup>
+                        )}
+                    </>
                 )}
 
-                {question.subQuestions && (
+
+                {hasSubQuestions && (
                     <div className="space-y-4 border-l-2 border-primary/20 pl-4 ml-2">
-                        {question.subQuestions.map(subQ => (
+                        {question.subQuestions?.map((subQ, subIndex) => (
                              <div key={subQ.id}>
-                                <p className="font-medium">{subQ.text} ({subQ.points} 点)</p>
+                                <p className="font-medium">({subIndex + 1}) {subQ.text} ({subQ.points} 点)</p>
                                  <Textarea 
                                     placeholder="サブ問題へのあなたの答え..." 
                                     rows={3}
@@ -190,3 +197,5 @@ export function ExamView({ exam }: ExamViewProps) {
     </>
   );
 }
+
+    
