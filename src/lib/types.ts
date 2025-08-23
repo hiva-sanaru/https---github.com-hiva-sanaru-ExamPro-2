@@ -48,4 +48,6 @@ export interface Submission {
   hqGrade?: { score: number; justification: string; reviewer: string };
   poGrade?: { score: number; justification: string; reviewer: string };
   finalScore?: number;
+  lessonReviewDate1?: Date;
+  lessonReviewDate2?: Date;
 }

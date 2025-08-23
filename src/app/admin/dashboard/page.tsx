@@ -49,7 +49,9 @@ export default function AdminDashboardPage() {
             "ステータス",
             "本部スコア",
             "人事部スコア",
-            "最終スコア"
+            "最終スコア",
+            "授業審査希望日1",
+            "授業審査希望日2"
         ];
         
         const rows = mockSubmissions.map(submission => {
@@ -65,6 +67,8 @@ export default function AdminDashboardPage() {
                 submission.hqGrade?.score ?? "N/A",
                 submission.poGrade?.score ?? "N/A",
                 submission.finalScore ?? "N/A",
+                submission.lessonReviewDate1?.toLocaleDateString() ?? "N/A",
+                submission.lessonReviewDate2?.toLocaleDateString() ?? "N/A"
             ].join(',');
         });
 
