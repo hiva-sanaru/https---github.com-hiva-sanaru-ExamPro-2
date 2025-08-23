@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,11 +15,42 @@ interface Headquarters {
   name: string;
 }
 
+const STORAGE_KEY = 'sanaru-headquarters';
+
 export default function HeadquartersPage() {
   const { toast } = useToast();
   const [headquarters, setHeadquarters] = useState<Headquarters[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    try {
+      const savedData = localStorage.getItem(STORAGE_KEY);
+      if (savedData) {
+        setHeadquarters(JSON.parse(savedData));
+      }
+    } catch (error) {
+      console.error("Failed to load headquarters from localStorage", error);
+      toast({
+        title: 'データの読み込みに失敗しました',
+        variant: 'destructive',
+      });
+    }
+  }, [toast]);
+
+  const updateHeadquarters = (newHeadquarters: Headquarters[]) => {
+    setHeadquarters(newHeadquarters);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(newHeadquarters));
+    } catch (error) {
+       console.error("Failed to save headquarters to localStorage", error);
+       toast({
+        title: 'データの保存に失敗しました',
+        description: 'ストレージの容量がいっぱいか、ブラウザの設定で無効になっている可能性があります。',
+        variant: 'destructive',
+      });
+    }
+  }
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -32,10 +63,21 @@ export default function HeadquartersPage() {
       skipEmptyLines: true,
       complete: (results) => {
         const parsedData = results.data.filter(item => item.code && item.name);
-        setHeadquarters(prev => [...prev, ...parsedData]);
+        const updatedHqs = [...headquarters];
+        let addedCount = 0;
+        
+        parsedData.forEach(newItem => {
+            if(!updatedHqs.some(hq => hq.code === newItem.code)) {
+                updatedHqs.push(newItem);
+                addedCount++;
+            }
+        });
+
+        updateHeadquarters(updatedHqs);
+        
         toast({
           title: 'CSVが正常にインポートされました',
-          description: `${parsedData.length}件の本部が追加されました。`,
+          description: `${addedCount}件の本部が新しく追加されました。`,
         });
         setIsLoading(false);
       },
@@ -60,7 +102,8 @@ export default function HeadquartersPage() {
   };
 
   const handleRemoveHeadquarters = (code: string) => {
-    setHeadquarters(headquarters.filter(hq => hq.code !== code));
+    const newHeadquarters = headquarters.filter(hq => hq.code !== code);
+    updateHeadquarters(newHeadquarters);
     toast({
         title: '本部が削除されました',
     });
