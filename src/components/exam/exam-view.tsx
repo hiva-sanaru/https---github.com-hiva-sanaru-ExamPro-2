@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { Progress } from "@/components/ui/progress";
 import { Carousel, CarouselApi, CarouselContent, CarouselItem } from "../ui/carousel";
-import { BookCheck } from "lucide-react";
+import { BookCheck, ArrowRight } from "lucide-react";
 import { ExamHeader } from "./exam-header";
 
 interface ExamViewProps {
@@ -157,6 +157,12 @@ export function ExamView({ exam }: ExamViewProps) {
     router.push(`/exam/${exam.id}/review`);
   };
 
+  const handleNext = () => {
+    if (api) {
+        api.scrollNext();
+    }
+  }
+
   return (
     <>
       <ExamHeader title={exam.title} timeLimit={currentQuestion?.timeLimit || exam.duration * 60} />
@@ -169,7 +175,10 @@ export function ExamView({ exam }: ExamViewProps) {
                 </p>
             </div>
           
-            <Carousel setApi={setApi} className="w-full">
+            <Carousel setApi={setApi} className="w-full" opts={{
+                watchDrag: false,
+                watchKeys: false,
+            }}>
                 <CarouselContent>
                     {exam.questions.map((question, index) => (
                         <CarouselItem key={question.id}>
@@ -185,10 +194,17 @@ export function ExamView({ exam }: ExamViewProps) {
             </Carousel>
 
           <div className="flex justify-end mt-8">
-            <Button onClick={handleReview} size="lg" className="bg-accent hover:bg-accent/90">
-              確認して提出
-              <BookCheck className="ml-2 h-4 w-4" />
-            </Button>
+            {current < count ? (
+                <Button onClick={handleNext} size="lg">
+                    次の問題へ
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+            ) : (
+                <Button onClick={handleReview} size="lg" className="bg-accent hover:bg-accent/90">
+                    確認して提出
+                    <BookCheck className="ml-2 h-4 w-4" />
+                </Button>
+            )}
           </div>
         </div>
       </div>
