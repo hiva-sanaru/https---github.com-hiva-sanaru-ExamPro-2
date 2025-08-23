@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import {
   Table,
   TableBody,
@@ -12,15 +13,23 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { MoreHorizontal, Edit, Trash2 } from "lucide-react";
 import type { User } from "@/lib/types";
 import { cva } from "class-variance-authority";
+import { AddUserForm } from "./add-user-form";
 
 interface UserListProps {
   users: User[];
 }
 
 export function UserList({ users }: UserListProps) {
+    const [openDialogs, setOpenDialogs] = React.useState<Record<string, boolean>>({});
+
+    const handleDialogChange = (userId: string, open: boolean) => {
+        setOpenDialogs(prev => ({ ...prev, [userId]: open }));
+    };
+
     const badgeVariants = cva(
         "capitalize",
         {
@@ -75,19 +84,32 @@ export function UserList({ users }: UserListProps) {
               </TableCell>
               <TableCell>{user.headquarters || 'N/A'}</TableCell>
               <TableCell className="text-right">
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">アクション</span>
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuItem><Edit className="mr-2 h-4 w-4" />編集</DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive hover:text-destructive focus:text-destructive"><Trash2 className="mr-2 h-4 w-4" />削除</DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                <Dialog open={openDialogs[user.id] || false} onOpenChange={(open) => handleDialogChange(user.id, open)}>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                                <MoreHorizontal className="h-4 w-4" />
+                                <span className="sr-only">アクション</span>
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DialogTrigger asChild>
+                                <DropdownMenuItem onSelect={(e) => e.preventDefault()}><Edit className="mr-2 h-4 w-4" />編集</DropdownMenuItem>
+                            </DialogTrigger>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem className="text-destructive hover:text-destructive focus:text-destructive"><Trash2 className="mr-2 h-4 w-4" />削除</DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                     <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                            <DialogTitle>ユーザーを編集</DialogTitle>
+                            <DialogDescription>
+                                ユーザーの詳細を更新します。
+                            </DialogDescription>
+                        </DialogHeader>
+                        <AddUserForm user={user} onFinished={() => handleDialogChange(user.id, false)} />
+                    </DialogContent>
+                </Dialog>
               </TableCell>
             </TableRow>
           ))}

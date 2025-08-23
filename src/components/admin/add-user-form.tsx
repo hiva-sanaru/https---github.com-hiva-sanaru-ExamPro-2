@@ -10,11 +10,12 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import type { User } from "@/lib/types";
 
 const userSchema = z.object({
     name: z.string().min(1, { message: "名前は必須です。" }),
     email: z.string().email({ message: "無効なメールアドレスです。" }),
-    password: z.string().min(8, { message: "パスワードは8文字以上である必要があります。" }),
+    password: z.string().min(8, { message: "パスワードは8文字以上である必要があります。" }).optional().or(z.literal('')),
     role: z.enum(["system_administrator", "hq_administrator", "examinee"], {
         required_error: "役割を選択する必要があります。",
     }),
@@ -31,18 +32,25 @@ const userSchema = z.object({
 
 type UserFormValues = z.infer<typeof userSchema>;
 
-export function AddUserForm() {
+interface AddUserFormProps {
+    user?: User; // Make user optional for creating new users
+    onFinished?: () => void;
+}
+
+
+export function AddUserForm({ user, onFinished }: AddUserFormProps) {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const isEditing = !!user;
 
   const form = useForm<UserFormValues>({
     resolver: zodResolver(userSchema),
     defaultValues: {
-      name: "",
-      email: "",
+      name: user?.name || "",
+      email: user?.email || "",
       password: "",
-      role: "examinee",
-      headquarters: "",
+      role: user?.role || "examinee",
+      headquarters: user?.headquarters || "",
     },
   });
   
@@ -50,15 +58,15 @@ export function AddUserForm() {
 
   const onSubmit = (data: UserFormValues) => {
     setIsLoading(true);
-    console.log("New user data:", data);
+    console.log("User data:", data);
     // Simulate API call
     setTimeout(() => {
         toast({
-            title: "ユーザーが正常に追加されました！",
+            title: isEditing ? "ユーザーが正常に更新されました！" : "ユーザーが正常に追加されました！",
             description: `名前: ${data.name}, メール: ${data.email}`,
         });
-      // Here you would typically close the dialog and refresh the user list
       setIsLoading(false);
+      onFinished?.();
     }, 1500);
   };
 
@@ -98,7 +106,7 @@ export function AddUserForm() {
             <FormItem>
               <FormLabel>パスワード</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="••••••••" {...field} />
+                <Input type="password" placeholder={isEditing ? "変更する場合のみ入力" : "••••••••"} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -154,7 +162,7 @@ export function AddUserForm() {
         <div className="flex justify-end pt-4">
             <Button type="submit" disabled={isLoading}>
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isLoading ? "作成中..." : "ユーザーを作成"}
+                {isLoading ? (isEditing ? "更新中..." : "作成中...") : (isEditing ? "変更を保存" : "ユーザーを作成")}
             </Button>
         </div>
       </form>
