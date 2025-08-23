@@ -37,7 +37,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                         <div className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                             <BookA className="size-5" />
                         </div>
-                        <span className="font-headline text-lg font-semibold text-primary-foreground">ExamPro-2</span>
+                        <span className="font-headline text-lg font-semibold text-primary-foreground">SANARU</span>
                     </div>
                 </SidebarHeader>
                 <SidebarContent>

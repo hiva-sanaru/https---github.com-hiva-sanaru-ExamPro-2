@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: 'ExamPro-2',
+  title: 'SANARUスタッフ昇給試験サイト',
   description: 'AI搭載の試験プラットフォーム',
 };
 
