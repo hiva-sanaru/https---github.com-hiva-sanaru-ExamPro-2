@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { PlusCircle, Trash2, Loader2, Save } from 'lucide-react';
+import { PlusCircle, Trash2, Loader2, Save, CornerDownLeft } from 'lucide-react';
 import type { Question } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -22,22 +22,55 @@ export default function CreateExamPage() {
   const [isSaving, setIsSaving] = useState(false);
 
   const handleAddQuestion = () => {
-    setQuestions([...questions, { id: `new${questions.length + 1}`, text: '', type: 'descriptive', points: 10, timeLimit: 300, modelAnswer: '', options: [] }]);
+    setQuestions([...questions, { id: `new${questions.length + 1}`, text: '', type: 'descriptive', points: 10, timeLimit: 300, modelAnswer: '', options: [], subQuestions: [] }]);
   };
+  
+  const handleAddSubQuestion = (parentIndex: number) => {
+    const newQuestions = [...questions];
+    const parentQuestion = newQuestions[parentIndex];
+    if (!parentQuestion.subQuestions) {
+        parentQuestion.subQuestions = [];
+    }
+    parentQuestion.subQuestions.push({
+        id: `${parentQuestion.id}-sub${parentQuestion.subQuestions.length + 1}`,
+        text: '',
+        type: 'descriptive',
+        points: 5,
+        modelAnswer: '',
+    });
+    setQuestions(newQuestions);
+  }
+
 
   const handleRemoveQuestion = (index: number) => {
     setQuestions(questions.filter((_, i) => i !== index));
   };
+  
+  const handleRemoveSubQuestion = (parentIndex: number, subIndex: number) => {
+    const newQuestions = [...questions];
+    newQuestions[parentIndex].subQuestions?.splice(subIndex, 1);
+    setQuestions(newQuestions);
+  }
 
   const handleQuestionChange = (index: number, field: keyof Question, value: any) => {
     const newQuestions = [...questions];
+    const question = newQuestions[index] as Question;
     if (field === 'options') {
-        (newQuestions[index] as any)[field] = value.split('\n');
+        question[field] = value.split('\n');
     } else {
-        (newQuestions[index] as any)[field] = value;
+        (question as any)[field] = value;
     }
     setQuestions(newQuestions);
   };
+  
+  const handleSubQuestionChange = (parentIndex: number, subIndex: number, field: keyof Question, value: any) => {
+      const newQuestions = [...questions];
+      const subQuestion = newQuestions[parentIndex].subQuestions?.[subIndex] as Question;
+      if (subQuestion) {
+          (subQuestion as any)[field] = value;
+          setQuestions(newQuestions);
+      }
+  }
   
   const handleSaveExam = () => {
       setIsSaving(true);
@@ -81,14 +114,14 @@ export default function CreateExamPage() {
             </CardHeader>
             <CardContent className="space-y-4">
                {questions.map((q, index) => (
-                   <Card key={index} className="p-4">
+                   <Card key={index} className="p-4 bg-muted/30">
                        <div className="flex justify-between items-start">
-                           <div className="flex-grow space-y-2 pr-4">
+                           <div className="flex-grow space-y-4 pr-4">
                                <div className="space-y-2">
-                                   <Label htmlFor={`q-text-${index}`}>問題文</Label>
+                                   <Label htmlFor={`q-text-${index}`}>問題文 {index + 1}</Label>
                                    <Textarea id={`q-text-${index}`} value={q.text} onChange={(e) => handleQuestionChange(index, 'text', e.target.value)} placeholder={`問題 ${index + 1} の内容を記述...`} />
                                </div>
-                                {q.type === 'multiple-choice' && (
+                                {q.type === 'selection' && (
                                   <div className="space-y-2">
                                       <Label htmlFor={`q-options-${index}`}>選択肢 (改行で区切る)</Label>
                                       <Textarea 
@@ -114,7 +147,7 @@ export default function CreateExamPage() {
                                             <SelectContent>
                                                 <SelectItem value="descriptive">記述式</SelectItem>
                                                 <SelectItem value="fill-in-the-blank">穴埋め</SelectItem>
-                                                <SelectItem value="multiple-choice">選択式</SelectItem>
+                                                <SelectItem value="selection">選択式</SelectItem>
                                             </SelectContent>
                                         </Select>
                                    </div>
@@ -127,9 +160,59 @@ export default function CreateExamPage() {
                                        <Input id={`q-time-${index}`} type="number" value={q.timeLimit} onChange={(e) => handleQuestionChange(index, 'timeLimit', Number(e.target.value))} placeholder="例: 300" />
                                    </div>
                                </div>
+
+                               {/* Sub Questions */}
+                               {q.subQuestions && q.subQuestions.length > 0 && (
+                                   <div className="space-y-4 pl-6 border-l-2 border-primary/20">
+                                       <h4 className="font-bold text-md text-muted-foreground pt-2">サブ問題</h4>
+                                       {q.subQuestions.map((subQ, subIndex) => (
+                                           <Card key={subIndex} className="p-4 bg-background">
+                                                <div className="flex justify-between items-start">
+                                                    <div className="flex-grow space-y-4 pr-4">
+                                                        <div className="space-y-2">
+                                                            <Label htmlFor={`subq-text-${index}-${subIndex}`}>サブ問題文 {subIndex + 1}</Label>
+                                                            <Textarea id={`subq-text-${index}-${subIndex}`} value={subQ.text} onChange={(e) => handleSubQuestionChange(index, subIndex, 'text', e.target.value)} placeholder={`サブ問題 ${subIndex + 1} の内容...`} />
+                                                        </div>
+                                                        <div className="space-y-2">
+                                                            <Label htmlFor={`subq-model-answer-${index}-${subIndex}`}>模範解答</Label>
+                                                            <Textarea id={`subq-model-answer-${index}-${subIndex}`} value={subQ.modelAnswer} onChange={(e) => handleSubQuestionChange(index, subIndex, 'modelAnswer', e.target.value)} placeholder={`サブ問題 ${subIndex + 1} の模範解答...`} rows={2} />
+                                                        </div>
+                                                        <div className="flex gap-4">
+                                                            <div className="w-1/2 space-y-2">
+                                                                <Label htmlFor={`subq-type-${index}-${subIndex}`}>問題タイプ</Label>
+                                                                <Select value={subQ.type} onValueChange={(value) => handleSubQuestionChange(index, subIndex, 'type', value)}>
+                                                                    <SelectTrigger id={`subq-type-${index}-${subIndex}`}>
+                                                                        <SelectValue placeholder="タイプを選択" />
+                                                                    </SelectTrigger>
+                                                                    <SelectContent>
+                                                                        <SelectItem value="descriptive">記述式</SelectItem>
+                                                                        <SelectItem value="fill-in-the-blank">穴埋め</SelectItem>
+                                                                        <SelectItem value="selection">選択式</SelectItem>
+                                                                    </SelectContent>
+                                                                </Select>
+                                                            </div>
+                                                            <div className="w-1/2 space-y-2">
+                                                                <Label htmlFor={`subq-points-${index}-${subIndex}`}>配点</Label>
+                                                                <Input id={`subq-points-${index}-${subIndex}`} type="number" value={subQ.points} onChange={(e) => handleSubQuestionChange(index, subIndex, 'points', Number(e.target.value))} placeholder="例: 5" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <Button variant="ghost" size="icon" onClick={() => handleRemoveSubQuestion(index, subIndex)}>
+                                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                                    </Button>
+                                                </div>
+                                            </Card>
+                                       ))}
+                                   </div>
+                               )}
+                               <Button variant="outline" size="sm" onClick={() => handleAddSubQuestion(index)}>
+                                   <CornerDownLeft className="mr-2 h-4 w-4" />
+                                   サブ問題を追加
+                               </Button>
+
                            </div>
                            <Button variant="ghost" size="icon" onClick={() => handleRemoveQuestion(index)}>
-                                <Trash2 className="h-4 w-4 text-destructive" />
+                                <Trash2 className="h-5 w-5 text-destructive" />
                            </Button>
                        </div>
                    </Card>

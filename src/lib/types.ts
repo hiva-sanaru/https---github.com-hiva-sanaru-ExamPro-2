@@ -10,7 +10,7 @@ export interface User {
   headquarters?: string;
 }
 
-export type QuestionType = 'descriptive' | 'fill-in-the-blank' | 'multiple-choice';
+export type QuestionType = 'descriptive' | 'fill-in-the-blank' | 'selection';
 
 export interface Question {
   id: string;
