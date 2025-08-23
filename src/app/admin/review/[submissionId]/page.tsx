@@ -76,6 +76,10 @@ export default function AdminReviewPage({ params }: { params: { submissionId: st
                         <User className="w-4 h-4 text-muted-foreground" />
                         <strong>受験者:</strong> <span>受験者ユーザー (ID: {submission.examineeId})</span>
                     </div>
+                     <div className="flex items-center gap-2">
+                        <User className="w-4 h-4 text-muted-foreground" />
+                        <strong>本部:</strong> <span>{submission.examineeHeadquarters}</span>
+                    </div>
                     <div className="flex items-center gap-2">
                         <Calendar className="w-4 h-4 text-muted-foreground" />
                         <strong>提出日時:</strong> <span>{format(submission.submittedAt, "PPP p", { locale: ja })}</span>

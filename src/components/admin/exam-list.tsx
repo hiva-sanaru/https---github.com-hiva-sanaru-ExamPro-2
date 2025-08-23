@@ -11,11 +11,15 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, Edit, Trash2, Eye } from "lucide-react";
 import { cva } from "class-variance-authority";
 
-export function ExamList() {
+interface ExamListProps {
+  isAdmin: boolean;
+}
+
+export function ExamList({ isAdmin }: ExamListProps) {
     const badgeVariants = cva(
         "capitalize",
         {
@@ -64,8 +68,13 @@ export function ExamList() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                         <DropdownMenuItem><Eye />表示</DropdownMenuItem>
-                        <DropdownMenuItem><Edit/>編集</DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive hover:text-destructive focus:text-destructive"><Trash2/>削除</DropdownMenuItem>
+                        {isAdmin && (
+                          <>
+                            <DropdownMenuItem><Edit/>編集</DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem className="text-destructive hover:text-destructive focus:text-destructive"><Trash2/>削除</DropdownMenuItem>
+                          </>
+                        )}
                     </DropdownMenuContent>
                 </DropdownMenu>
               </TableCell>

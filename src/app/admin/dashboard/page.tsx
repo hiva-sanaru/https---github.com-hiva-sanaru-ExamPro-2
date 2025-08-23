@@ -3,6 +3,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ExamList } from "@/components/admin/exam-list";
 import { PlusCircle } from "lucide-react";
 
+// This is a mock of a logged-in user.
+// In a real application, this would come from an authentication context.
+const MOCK_ADMIN_USER = {
+    id: 'admin1',
+    role: 'hq_administrator', // Try changing this to 'system_administrator'
+    headquarters: 'Tokyo' 
+}
+
+
 export default function AdminDashboardPage() {
     return (
         <div className="space-y-6">
@@ -60,13 +69,15 @@ export default function AdminDashboardPage() {
                         <CardTitle className="font-headline text-xl">試験の管理</CardTitle>
                         <CardDescription>システム内のすべての試験を作成、編集、表示します。</CardDescription>
                     </div>
-                    <Button>
-                        <PlusCircle />
-                        試験を作成
-                    </Button>
+                     {MOCK_ADMIN_USER.role === 'system_administrator' && (
+                        <Button>
+                            <PlusCircle />
+                            試験を作成
+                        </Button>
+                    )}
                 </CardHeader>
                 <CardContent>
-                    <ExamList />
+                    <ExamList isAdmin={MOCK_ADMIN_USER.role === 'system_administrator'} />
                 </CardContent>
             </Card>
         </div>
