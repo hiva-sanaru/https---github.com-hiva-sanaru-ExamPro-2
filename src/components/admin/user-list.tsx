@@ -55,12 +55,12 @@ export function UserList({ users }: UserListProps) {
     <div className="rounded-lg border">
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead>名前</TableHead>
-            <TableHead>社員番号</TableHead>
-            <TableHead>役割</TableHead>
-            <TableHead>本部</TableHead>
-            <TableHead className="text-right">アクション</TableHead>
+          <TableRow className="bg-primary hover:bg-primary/90">
+            <TableHead className="text-primary-foreground">名前</TableHead>
+            <TableHead className="text-primary-foreground">社員番号</TableHead>
+            <TableHead className="text-primary-foreground">役割</TableHead>
+            <TableHead className="text-primary-foreground">本部</TableHead>
+            <TableHead className="text-right text-primary-foreground">アクション</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
