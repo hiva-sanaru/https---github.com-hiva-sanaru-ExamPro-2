@@ -5,42 +5,46 @@ import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ExamList } from "@/components/admin/exam-list";
-import { PlusCircle, Download } from "lucide-react";
+import { PlusCircle, Download, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { getUsers } from "@/services/userService";
+import { getUsers, findUserByEmployeeId } from "@/services/userService";
 import { getExams } from "@/services/examService";
 import { getSubmissions } from "@/services/submissionService";
 import type { User, Exam, Submission } from '@/lib/types';
-
-
-// This is a mock of a logged-in user.
-// In a real application, this would come from an authentication context.
-const MOCK_ADMIN_USER = {
-    id: 'admin1',
-    name: '田中 太郎',
-    role: 'system_administrator', // Try changing this to 'hq_administrator'
-    headquarters: 'Tokyo' 
-}
 
 
 export default function AdminDashboardPage() {
     const [users, setUsers] = useState<User[]>([]);
     const [exams, setExams] = useState<Exam[]>([]);
     const [submissions, setSubmissions] = useState<Submission[]>([]);
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         async function fetchData() {
             try {
-                const [fetchedUsers, fetchedExams, fetchedSubmissions] = await Promise.all([
+                const employeeId = localStorage.getItem('loggedInUserEmployeeId');
+                let userPromise: Promise<User | null> = Promise.resolve(null);
+                if (employeeId) {
+                    userPromise = findUserByEmployeeId(employeeId);
+                }
+
+                const [fetchedUsers, fetchedExams, fetchedSubmissions, loggedInUser] = await Promise.all([
                     getUsers(),
                     getExams(),
                     getSubmissions(),
+                    userPromise,
                 ]);
+                
                 setUsers(fetchedUsers);
                 setExams(fetchedExams);
                 setSubmissions(fetchedSubmissions);
+                setCurrentUser(loggedInUser);
+
             } catch (error) {
                 console.error("Failed to fetch data", error);
+            } finally {
+                setIsLoading(false);
             }
         }
         fetchData();
@@ -70,7 +74,11 @@ export default function AdminDashboardPage() {
         <div className="space-y-6">
             <div>
                 <h1 className="text-3xl font-bold font-headline">管理者ダッシュボード</h1>
-                <p className="text-muted-foreground">おかえりなさい、{MOCK_ADMIN_USER.name}さん！ここで試験とユーザーを管理します。</p>
+                 {isLoading ? (
+                    <div className="h-6 w-48 bg-muted rounded animate-pulse" />
+                ) : (
+                    <p className="text-muted-foreground">おかえりなさい、{currentUser?.name || 'ゲスト'}さん！ここで試験とユーザーを管理します。</p>
+                )}
             </div>
             
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -126,7 +134,7 @@ export default function AdminDashboardPage() {
                             <Download />
                             データをバックアップ
                         </Button>
-                        {MOCK_ADMIN_USER.role === 'system_administrator' && (
+                        {currentUser?.role === 'system_administrator' && (
                             <Link href="/admin/create-exam" passHref>
                                 <Button>
                                     <PlusCircle />
@@ -137,7 +145,7 @@ export default function AdminDashboardPage() {
                     </div>
                 </CardHeader>
                 <CardContent>
-                    <ExamList isAdmin={MOCK_ADMIN_USER.role === 'system_administrator'} />
+                    <ExamList isAdmin={currentUser?.role === 'system_administrator'} />
                 </CardContent>
             </Card>
         </div>
