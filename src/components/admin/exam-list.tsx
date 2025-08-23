@@ -1,7 +1,7 @@
 
 "use client";
 
-import { mockExams } from "@/lib/data";
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Table,
   TableBody,
@@ -14,10 +14,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { MoreHorizontal, Edit, Trash2, Eye } from "lucide-react";
+import { MoreHorizontal, Edit, Trash2, Eye, Loader2 } from "lucide-react";
 import { cva } from "class-variance-authority";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
+import { getExams, deleteExam } from '@/services/examService';
+import type { Exam } from '@/lib/types';
 
 interface ExamListProps {
   isAdmin: boolean;
@@ -25,26 +27,63 @@ interface ExamListProps {
 
 export function ExamList({ isAdmin }: ExamListProps) {
   const { toast } = useToast();
-    const badgeVariants = cva(
-        "capitalize",
-        {
-          variants: {
-            status: {
-              Published: "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-700/40",
-              Draft: "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-300 dark:border-yellow-700/40",
-              Archived: "bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-900/20 dark:text-gray-400 dark:border-gray-700/40",
-            },
+  const [exams, setExams] = useState<Exam[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchExams = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const fetchedExams = await getExams();
+      setExams(fetchedExams);
+    } catch (error) {
+      console.error("Failed to fetch exams", error);
+      toast({ title: "Error", description: "Failed to load exams.", variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [toast]);
+
+  useEffect(() => {
+    fetchExams();
+  }, [fetchExams]);
+
+  const badgeVariants = cva(
+      "capitalize",
+      {
+        variants: {
+          status: {
+            Published: "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-700/40",
+            Draft: "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-300 dark:border-yellow-700/40",
+            Archived: "bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-900/20 dark:text-gray-400 dark:border-gray-700/40",
           },
-        }
-      )
+        },
+      }
+    )
   
-  const handleDelete = (examId: string, examTitle: string) => {
-    console.log(`Deleting exam ${examId}`);
-    // Here you would typically call an API to delete the exam
-    toast({
-      title: "試験が削除されました",
-      description: `「${examTitle}」は正常に削除されました。`,
-    })
+  const handleDelete = async (examId: string, examTitle: string) => {
+    try {
+      await deleteExam(examId);
+      toast({
+        title: "試験が削除されました",
+        description: `「${examTitle}」は正常に削除されました。`,
+      });
+      fetchExams(); // Refresh the list
+    } catch (error) {
+      console.error(`Failed to delete exam ${examId}`, error);
+      toast({
+        title: "削除エラー",
+        description: "試験の削除中にエラーが発生しました。",
+        variant: "destructive"
+      });
+    }
+  }
+
+  if (isLoading) {
+    return (
+        <div className="flex justify-center items-center h-48">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+    );
   }
 
   return (
@@ -61,7 +100,7 @@ export function ExamList({ isAdmin }: ExamListProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {mockExams.map((exam) => (
+          {exams.map((exam) => (
             <TableRow key={exam.id}>
               <TableCell className="font-medium">{exam.title}</TableCell>
               <TableCell>

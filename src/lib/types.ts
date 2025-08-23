@@ -13,12 +13,12 @@ export interface User {
 export type QuestionType = 'descriptive' | 'fill-in-the-blank' | 'selection';
 
 export interface Question {
-  id: string;
+  id?: string; // Optional for new questions
   text: string;
   type: QuestionType;
   points: number;
   timeLimit?: number; // in seconds
-  options?: string[]; // for multiple-choice
+  options?: string[]; // for selection
   modelAnswer?: string; // for grading
   subQuestions?: Question[];
 }

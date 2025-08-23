@@ -7,9 +7,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ExamList } from "@/components/admin/exam-list";
 import { PlusCircle, Download } from "lucide-react";
 import Link from "next/link";
-import { mockExams, mockSubmissions } from "@/lib/data";
+import { mockSubmissions } from "@/lib/data"; // Keep mock submissions for now
 import { getUsers } from "@/services/userService";
-import type { User } from '@/lib/types';
+import { getExams } from "@/services/examService";
+import type { User, Exam } from '@/lib/types';
 
 
 // This is a mock of a logged-in user.
@@ -23,23 +24,28 @@ const MOCK_ADMIN_USER = {
 
 export default function AdminDashboardPage() {
     const [users, setUsers] = useState<User[]>([]);
+    const [exams, setExams] = useState<Exam[]>([]);
 
     useEffect(() => {
-        async function fetchUsers() {
+        async function fetchData() {
             try {
-                const fetchedUsers = await getUsers();
+                const [fetchedUsers, fetchedExams] = await Promise.all([
+                    getUsers(),
+                    getExams()
+                ]);
                 setUsers(fetchedUsers);
+                setExams(fetchedExams);
             } catch (error) {
-                console.error("Failed to fetch users", error);
+                console.error("Failed to fetch data", error);
             }
         }
-        fetchUsers();
+        fetchData();
     }, []);
 
     const handleBackup = () => {
         const backupData = {
             users: users,
-            exams: mockExams,
+            exams: exams,
             submissions: mockSubmissions,
             timestamp: new Date().toISOString(),
         };
@@ -70,8 +76,8 @@ export default function AdminDashboardPage() {
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" className="h-4 w-4 text-muted-foreground"><path d="M15 21v-4.37a2 2 0 0 0-1.09-1.79l-1.83-1.1-3.18 3.2Z"></path><path d="m9.13 11.3-3.18 3.2 2.74 1.79A2 2 0 0 0 10 18.63V21"></path><path d="M12 3v5.88"></path><path d="M12 21v-5.88"></path><path d="M4.22 10.22 12 18l7.78-7.78"></path><path d="M19.78 10.22 12 18l-7.78-7.78"></path></svg>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">3</div>
-                        <p className="text-xs text-muted-foreground">先月から+1</p>
+                        <div className="text-2xl font-bold">{exams.length}</div>
+                        <p className="text-xs text-muted-foreground">下書きを含む</p>
                     </CardContent>
                 </Card>
                  <Card>
@@ -80,8 +86,8 @@ export default function AdminDashboardPage() {
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" className="h-4 w-4 text-muted-foreground"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">+125</div>
-                        <p className="text-xs text-muted-foreground">過去24時間</p>
+                        <div className="text-2xl font-bold">+{mockSubmissions.length}</div>
+                        <p className="text-xs text-muted-foreground">レビュー待ち</p>
                     </CardContent>
                 </Card>
                  <Card>

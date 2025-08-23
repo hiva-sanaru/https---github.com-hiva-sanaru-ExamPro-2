@@ -1,8 +1,8 @@
 
 "use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,19 +10,55 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { PlusCircle, Trash2, Loader2, Save, CornerDownLeft } from 'lucide-react';
-import type { Question } from '@/lib/types';
+import type { Question, Exam } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { addExam, getExam, updateExam } from '@/services/examService';
+import { v4 as uuidv4 } from 'uuid';
+
 
 export default function CreateExamPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
+  const [examId, setExamId] = useState<string | null>(null);
   const [title, setTitle] = useState('');
   const [duration, setDuration] = useState(60);
   const [questions, setQuestions] = useState<Partial<Question>[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const id = searchParams.get('examId');
+    if (id) {
+      setExamId(id);
+      const fetchExamData = async () => {
+        try {
+          const examData = await getExam(id);
+          if (examData) {
+            setTitle(examData.title);
+            setDuration(examData.duration);
+            // Ensure questions have unique IDs for the form key
+            const questionsWithIds = examData.questions.map(q => ({...q, id: q.id || uuidv4()}));
+            setQuestions(questionsWithIds);
+          } else {
+            toast({ title: "エラー", description: "試験が見つかりませんでした。", variant: "destructive" });
+            router.push('/admin/dashboard');
+          }
+        } catch (error) {
+          console.error("Failed to fetch exam", error);
+          toast({ title: "エラー", description: "試験データの読み込みに失敗しました。", variant: "destructive" });
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      fetchExamData();
+    } else {
+      setIsLoading(false);
+    }
+  }, [searchParams, router, toast]);
 
   const handleAddQuestion = () => {
-    setQuestions([...questions, { id: `new${questions.length + 1}`, text: '', type: 'descriptive', points: 10, timeLimit: 300, modelAnswer: '', options: [], subQuestions: [] }]);
+    setQuestions([...questions, { id: uuidv4(), text: '', type: 'descriptive', points: 10, timeLimit: 300, modelAnswer: '', options: [], subQuestions: [] }]);
   };
   
   const handleAddSubQuestion = (parentIndex: number) => {
@@ -32,7 +68,7 @@ export default function CreateExamPage() {
         parentQuestion.subQuestions = [];
     }
     parentQuestion.subQuestions.push({
-        id: `${parentQuestion.id}-sub${parentQuestion.subQuestions.length + 1}`,
+        id: uuidv4(),
         text: '',
         type: 'descriptive',
         points: 5,
@@ -72,21 +108,46 @@ export default function CreateExamPage() {
       }
   }
   
-  const handleSaveExam = () => {
+  const handleSaveExam = async () => {
       setIsSaving(true);
-      // Here you would typically save the exam data to your backend/database
-      console.log({ title, duration, questions });
-      setTimeout(() => {
-          toast({ title: '試験が正常に保存されました！' });
-          router.push('/admin/dashboard');
-          setIsSaving(false);
-      }, 1500);
+      const totalPoints = questions.reduce((acc, q) => acc + (q.points || 0), 0);
+      
+      const examData: Omit<Exam, 'id'> = {
+        title,
+        duration,
+        questions: questions as Question[],
+        totalPoints,
+        status: 'Draft', // Default status
+      };
+
+      try {
+        if(examId) {
+          await updateExam(examId, examData);
+          toast({ title: '試験が正常に更新されました！' });
+        } else {
+          await addExam(examData);
+          toast({ title: '試験が正常に作成されました！' });
+        }
+        router.push('/admin/dashboard');
+      } catch(error) {
+        console.error("Failed to save exam", error);
+        toast({ title: "保存エラー", description: "試験の保存中にエラーが発生しました。", variant: "destructive" });
+        setIsSaving(false);
+      }
+  }
+
+  if (isLoading) {
+    return (
+        <div className="flex justify-center items-center h-full">
+            <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+    );
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold font-headline">新しい試験を作成</h1>
+        <h1 className="text-3xl font-bold font-headline">{examId ? '試験を編集' : '新しい試験を作成'}</h1>
         <p className="text-muted-foreground">試験の詳細を入力し、問題を追加してください。</p>
       </div>
 
@@ -114,7 +175,7 @@ export default function CreateExamPage() {
             </CardHeader>
             <CardContent className="space-y-4">
                {questions.map((q, index) => (
-                   <Card key={index} className="p-4 bg-muted/30">
+                   <Card key={q.id || index} className="p-4 bg-muted/30">
                        <div className="flex justify-between items-start">
                            <div className="flex-grow space-y-4 pr-4">
                                <div className="space-y-2">
@@ -166,7 +227,7 @@ export default function CreateExamPage() {
                                    <div className="space-y-4 pl-6 border-l-2 border-primary/20">
                                        <h4 className="font-bold text-md text-muted-foreground pt-2">サブ問題</h4>
                                        {q.subQuestions.map((subQ, subIndex) => (
-                                           <Card key={subIndex} className="p-4 bg-background">
+                                           <Card key={subQ.id || subIndex} className="p-4 bg-background">
                                                 <div className="flex justify-between items-start">
                                                     <div className="flex-grow space-y-4 pr-4">
                                                         <div className="space-y-2">
