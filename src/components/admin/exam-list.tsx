@@ -51,13 +51,13 @@ export function ExamList({ isAdmin }: ExamListProps) {
     <div className="rounded-lg border">
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead>タイトル</TableHead>
-            <TableHead>ステータス</TableHead>
-            <TableHead>問題数</TableHead>
-            <TableHead>合計点</TableHead>
-            <TableHead>時間</TableHead>
-            <TableHead className="text-right">アクション</TableHead>
+          <TableRow className="bg-primary hover:bg-primary/90">
+            <TableHead className="text-primary-foreground">タイトル</TableHead>
+            <TableHead className="text-primary-foreground">ステータス</TableHead>
+            <TableHead className="text-primary-foreground">問題数</TableHead>
+            <TableHead className="text-primary-foreground">合計点</TableHead>
+            <TableHead className="text-primary-foreground">時間</TableHead>
+            <TableHead className="text-right text-primary-foreground">アクション</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
