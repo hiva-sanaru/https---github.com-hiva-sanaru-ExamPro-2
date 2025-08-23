@@ -1,9 +1,10 @@
+
 import { ExamView } from "@/components/exam/exam-view";
-import { mockExams } from "@/lib/data";
+import { getExam } from "@/services/examService";
 import { notFound } from "next/navigation";
 
-export default function ExamPage({ params }: { params: { examId: string } }) {
-  const exam = mockExams.find((e) => e.id === params.examId);
+export default async function ExamPage({ params }: { params: { examId: string } }) {
+  const exam = await getExam(params.examId);
 
   if (!exam) {
     notFound();

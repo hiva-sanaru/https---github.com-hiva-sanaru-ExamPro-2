@@ -1,17 +1,19 @@
 import { ExamHeader } from "@/components/exam/exam-header";
-import { mockExams } from "@/lib/data";
+import { getExam } from "@/services/examService";
+import { notFound } from "next/navigation";
 
-export default function ExamLayout({
+export default async function ExamLayout({
   children,
   params,
 }: {
   children: React.ReactNode;
   params: { examId: string };
 }) {
-  const exam = mockExams.find((e) => e.id === params.examId);
+  const exam = await getExam(params.examId);
 
   if (!exam) {
-    return <div>Exam not found</div>;
+    notFound();
+    return null; // or a more graceful fallback
   }
 
   return (
