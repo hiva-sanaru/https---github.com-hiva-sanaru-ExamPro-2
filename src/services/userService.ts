@@ -39,10 +39,10 @@ export async function addUser(user: Omit<User, 'id'>): Promise<string> {
 export async function updateUser(userId: string, userData: Partial<User>): Promise<void> {
     const docRef = doc(db, 'users', userId);
     
-    const dataToUpdate: Partial<User> = { ...userData };
+    const dataToUpdate: { [key: string]: any } = { ...userData };
 
     // Do not allow employeeId to be updated
-    delete (dataToUpdate as any).employeeId;
+    delete dataToUpdate.employeeId;
 
     // Only include password in the update if it's explicitly provided and not an empty string
     if (!userData.password) {
