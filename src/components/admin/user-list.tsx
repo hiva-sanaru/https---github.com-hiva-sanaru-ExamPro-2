@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from "react";
@@ -9,7 +10,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
@@ -67,15 +67,7 @@ export function UserList({ users }: UserListProps) {
           {users.map((user) => (
             <TableRow key={user.id}>
               <TableCell className="font-medium">
-                <div className="flex items-center gap-3">
-                    <Avatar className="h-8 w-8 border">
-                        <AvatarImage src={user.avatarUrl} alt={user.name} data-ai-hint="person avatar" />
-                        <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col">
-                        <span className="font-semibold">{user.name}</span>
-                    </div>
-                </div>
+                {user.name}
               </TableCell>
               <TableCell>{user.employeeId}</TableCell>
               <TableCell>
