@@ -7,7 +7,7 @@ const headquartersCollection = collection(db, 'headquarters');
 
 export async function getHeadquarters(): Promise<Headquarters[]> {
     const snapshot = await getDocs(headquartersCollection);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Headquarters));
+    return snapshot.docs.map(doc => ({ ...doc.data(), code: doc.id } as Headquarters));
 }
 
 export async function addHeadquartersBatch(newHqs: Omit<Headquarters, 'id'>[]): Promise<void> {
