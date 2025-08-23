@@ -1,4 +1,47 @@
-import type { Exam, Submission } from './types';
+import type { Exam, Submission, User } from './types';
+
+export const mockUsers: User[] = [
+  {
+    id: 'user1',
+    name: '田中 太郎',
+    email: 'taro.tanaka@example.com',
+    role: 'system_administrator',
+    avatarUrl: 'https://placehold.co/40x40.png?text=TT',
+  },
+  {
+    id: 'user2',
+    name: '山田 花子',
+    email: 'hanako.yamada@example.com',
+    role: 'hq_administrator',
+    headquarters: 'Tokyo',
+    avatarUrl: 'https://placehold.co/40x40.png?text=HY',
+  },
+  {
+    id: 'user3',
+    name: '佐藤 次郎',
+    email: 'jiro.sato@example.com',
+    role: 'examinee',
+    headquarters: 'Osaka',
+    avatarUrl: 'https://placehold.co/40x40.png?text=JS',
+  },
+  {
+    id: 'user4',
+    name: '鈴木 美穂',
+    email: 'miho.suzuki@example.com',
+    role: 'examinee',
+    headquarters: 'Tokyo',
+    avatarUrl: 'https://placehold.co/40x40.png?text=MS',
+  },
+  {
+    id: 'user5',
+    name: '高橋 学',
+    email: 'manabu.takahashi@example.com',
+    role: 'hq_administrator',
+    headquarters: 'Fukuoka',
+    avatarUrl: 'https://placehold.co/40x40.png?text=MT',
+  },
+];
+
 
 export const mockExams: Exam[] = [
   {
