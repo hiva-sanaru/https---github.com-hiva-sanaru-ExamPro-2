@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { Progress } from "@/components/ui/progress";
-import { Carousel, CarouselApi, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "../ui/carousel";
+import { Carousel, CarouselApi, CarouselContent, CarouselItem } from "../ui/carousel";
 import { BookCheck } from "lucide-react";
 import { ExamHeader } from "./exam-header";
 
@@ -97,6 +97,7 @@ const QuestionCard = ({ question, index, answer, onAnswerChange }: { question: Q
                                     rows={3}
                                     className="mt-2"
                                     onChange={(e) => handleSubAnswerChange(subQ.id!, e.target.value)}
+                                    placeholder="答えを入力..."
                                 />
                              </div>
                         ))}
@@ -181,8 +182,6 @@ export function ExamView({ exam }: ExamViewProps) {
                         </CarouselItem>
                     ))}
                 </CarouselContent>
-                <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2 md:-left-12" />
-                <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2 md:-right-12" />
             </Carousel>
 
           <div className="flex justify-end mt-8">
