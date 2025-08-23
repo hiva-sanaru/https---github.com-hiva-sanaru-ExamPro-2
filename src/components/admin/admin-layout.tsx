@@ -18,6 +18,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { LayoutDashboard, FileCheck2, Users, Settings, LogOut, Building } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -75,9 +76,23 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                 <header className="flex h-14 items-center justify-between border-b bg-background px-4 md:justify-end">
                     <SidebarTrigger className="md:hidden" />
                     <div className="flex items-center gap-4">
-                        <Button variant="outline" size="icon">
-                            <Settings className="h-4 w-4" />
-                        </Button>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="outline" size="icon">
+                                    <Settings className="h-4 w-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>マイアカウント</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem>プロフィール</DropdownMenuItem>
+                                <DropdownMenuItem>設定</DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                 <DropdownMenuItem asChild>
+                                    <Link href="/login">ログアウト</Link>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
                 </header>
                 <main className="flex-1 overflow-y-auto p-4 md:p-6">
