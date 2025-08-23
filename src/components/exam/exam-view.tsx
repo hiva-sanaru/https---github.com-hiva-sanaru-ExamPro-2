@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -77,7 +78,7 @@ const QuestionCard = ({ question, answer, onAnswerChange }: { question: Question
                 )}
             </CardContent>
              <CardFooter>
-                <p className="text-xs text-muted-foreground">問題タイプ: {question.type === 'descriptive' ? '記述式' : question.type === 'fill-in-the-blank' ? '穴埋め' : '多肢選択式'}</p>
+                <p className="text-xs text-muted-foreground">問題タイプ: {question.type === 'descriptive' ? '記述式' : question.type === 'fill-in-the-blank' ? '穴埋め' : '選択式'}</p>
             </CardFooter>
         </Card>
     )

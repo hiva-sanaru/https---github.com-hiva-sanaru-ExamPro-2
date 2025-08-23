@@ -114,7 +114,7 @@ export default function CreateExamPage() {
                                             <SelectContent>
                                                 <SelectItem value="descriptive">記述式</SelectItem>
                                                 <SelectItem value="fill-in-the-blank">穴埋め</SelectItem>
-                                                <SelectItem value="multiple-choice">多肢選択式</SelectItem>
+                                                <SelectItem value="multiple-choice">選択式</SelectItem>
                                             </SelectContent>
                                         </Select>
                                    </div>
