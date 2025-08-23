@@ -1,40 +1,75 @@
 
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { AddUserForm } from "@/components/admin/add-user-form";
 import { UserList } from "@/components/admin/user-list";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { mockUsers } from "@/lib/data";
-import type { User, UserRole } from "@/lib/types";
-import { PlusCircle, Search } from "lucide-react";
+import { getUsers, getHeadquarters } from "@/services"; // Assuming barrel file for services
+import type { User, UserRole, Headquarters } from "@/lib/types";
+import { PlusCircle, Search, Loader2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-const headquartersList = ["Tokyo", "Osaka", "Fukuoka", "Hokkaido"];
+import { useToast } from "@/hooks/use-toast";
 
 export default function AdminUsersPage() {
+    const { toast } = useToast();
+    const [users, setUsers] = useState<User[]>([]);
+    const [headquartersList, setHeadquartersList] = useState<Headquarters[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [roleFilter, setRoleFilter] = useState("all");
     const [hqFilter, setHqFilter] = useState("all");
+    const [isAddUserOpen, setAddUserOpen] = useState(false);
 
-    const filteredUsers = mockUsers.filter((user: User) => {
+    const fetchUsersAndHqs = useCallback(async () => {
+        setIsLoading(true);
+        try {
+            const [fetchedUsers, fetchedHqs] = await Promise.all([
+                getUsers(),
+                getHeadquarters()
+            ]);
+            setUsers(fetchedUsers);
+            setHeadquartersList(fetchedHqs);
+        } catch (error) {
+            console.error("Failed to load data:", error);
+            toast({
+                title: 'データの読み込みに失敗しました',
+                description: 'データベースへの接続に問題がある可能性があります。',
+                variant: 'destructive',
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    }, [toast]);
+
+    useEffect(() => {
+        fetchUsersAndHqs();
+    }, [fetchUsersAndHqs]);
+    
+    const filteredUsers = useMemo(() => users.filter((user: User) => {
         const nameMatch = user.name.toLowerCase().includes(searchTerm.toLowerCase());
         const roleMatch = roleFilter === 'all' || user.role === roleFilter;
         const hqMatch = hqFilter === 'all' || user.headquarters === hqFilter;
         return nameMatch && roleMatch && hqMatch;
-    });
+    }), [users, searchTerm, roleFilter, hqFilter]);
 
-    const getRoleName = (role: UserRole) => {
-        switch(role) {
-            case 'system_administrator': return 'システム管理者';
-            case 'hq_administrator': return '本部管理者';
-            case 'examinee': return '受験者';
-        }
+    const handleUserAdded = (newUser: User) => {
+        setUsers(prev => [...prev, newUser]);
+        fetchUsersAndHqs(); // Refetch to ensure consistency
+        setAddUserOpen(false);
+    };
+
+    const handleUserUpdated = (updatedUser: User) => {
+        setUsers(prev => prev.map(u => u.id === updatedUser.id ? updatedUser : u));
+        fetchUsersAndHqs(); // Refetch to ensure consistency
+    };
+
+    const handleUserDeleted = (userId: string) => {
+        setUsers(prev => prev.filter(u => u.id !== userId));
     }
-
 
     return (
         <div className="space-y-6">
@@ -47,7 +82,7 @@ export default function AdminUsersPage() {
                     <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-4">
                         <div>
                             <CardTitle className="font-headline text-xl">ユーザーリスト</CardTitle>
-                            <CardDescription>{filteredUsers.length}人のユーザーが見つかりました。</CardDescription>
+                             {!isLoading && <CardDescription>{filteredUsers.length}人のユーザーが見つかりました。</CardDescription>}
                         </div>
                         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
                             <div className="relative w-full sm:w-auto">
@@ -77,11 +112,11 @@ export default function AdminUsersPage() {
                                 <SelectContent>
                                     <SelectItem value="all">すべての本部</SelectItem>
                                     {headquartersList.map(hq => (
-                                        <SelectItem key={hq} value={hq}>{hq}</SelectItem>
+                                        <SelectItem key={hq.code} value={hq.name}>{hq.name}</SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
-                            <Dialog>
+                            <Dialog open={isAddUserOpen} onOpenChange={setAddUserOpen}>
                                 <DialogTrigger asChild>
                                     <Button className="w-full sm:w-auto">
                                         <PlusCircle className="mr-2 h-4 w-4" />
@@ -95,14 +130,20 @@ export default function AdminUsersPage() {
                                             新しいユーザーの詳細を入力してください。
                                         </DialogDescription>
                                     </DialogHeader>
-                                    <AddUserForm />
+                                    <AddUserForm onFinished={handleUserAdded} headquartersList={headquartersList} />
                                 </DialogContent>
                             </Dialog>
                         </div>
                     </div>
                 </CardHeader>
                 <CardContent>
-                    <UserList users={filteredUsers} />
+                    {isLoading ? (
+                         <div className="flex justify-center items-center h-48">
+                            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                        </div>
+                    ) : (
+                        <UserList users={filteredUsers} onUserDeleted={handleUserDeleted} onUserUpdated={handleUserUpdated} headquartersList={headquartersList} />
+                    )}
                 </CardContent>
             </Card>
         </div>

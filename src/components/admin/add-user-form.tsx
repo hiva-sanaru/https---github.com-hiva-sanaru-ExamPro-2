@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -10,7 +11,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
-import type { User } from "@/lib/types";
+import type { User, Headquarters } from "@/lib/types";
+import { addUser, updateUser } from "@/services/userService";
 
 const userSchema = z.object({
     name: z.string().min(1, { message: "名前は必須です。" }),
@@ -21,7 +23,7 @@ const userSchema = z.object({
     }),
     headquarters: z.string().optional(),
 }).refine(data => {
-    if (data.role === 'hq_administrator' && !data.headquarters) {
+    if ((data.role === 'hq_administrator' || data.role === 'examinee') && !data.headquarters) {
         return false;
     }
     return true;
@@ -33,12 +35,13 @@ const userSchema = z.object({
 type UserFormValues = z.infer<typeof userSchema>;
 
 interface AddUserFormProps {
-    user?: User; // Make user optional for creating new users
-    onFinished?: () => void;
+    user?: User; 
+    onFinished: (user: User) => void;
+    headquartersList: Headquarters[];
 }
 
 
-export function AddUserForm({ user, onFinished }: AddUserFormProps) {
+export function AddUserForm({ user, onFinished, headquartersList }: AddUserFormProps) {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const isEditing = !!user;
@@ -56,18 +59,41 @@ export function AddUserForm({ user, onFinished }: AddUserFormProps) {
   
   const role = form.watch("role");
 
-  const onSubmit = (data: UserFormValues) => {
+  const onSubmit = async (data: UserFormValues) => {
     setIsLoading(true);
-    console.log("User data:", data);
-    // Simulate API call
-    setTimeout(() => {
+    try {
+        const userData = {
+            name: data.name,
+            employeeId: data.employeeId,
+            role: data.role,
+            headquarters: (data.role === 'hq_administrator' || data.role === 'examinee') ? data.headquarters : '',
+            avatarUrl: `https://placehold.co/40x40.png?text=${data.name.substring(0,2).toUpperCase()}`
+        };
+
+        if (isEditing && user) {
+            await updateUser(user.id, userData);
+            toast({
+                title: "ユーザーが正常に更新されました！",
+                description: `名前: ${data.name}, 社員番号: ${data.employeeId}`,
+            });
+            onFinished({ ...user, ...userData });
+        } else {
+            const newUserId = await addUser(userData);
+            toast({
+                title: "ユーザーが正常に追加されました！",
+                description: `名前: ${data.name}, 社員番号: ${data.employeeId}`,
+            });
+            onFinished({ id: newUserId, ...userData });
+        }
+    } catch(error) {
         toast({
-            title: isEditing ? "ユーザーが正常に更新されました！" : "ユーザーが正常に追加されました！",
-            description: `名前: ${data.name}, 社員番号: ${data.employeeId}`,
-        });
-      setIsLoading(false);
-      onFinished?.();
-    }, 1500);
+            title: isEditing ? "更新中にエラーが発生しました" : "作成中にエラーが発生しました",
+            description: (error as Error).message,
+            variant: "destructive"
+        })
+    } finally {
+        setIsLoading(false);
+    }
   };
 
   return (
@@ -93,7 +119,7 @@ export function AddUserForm({ user, onFinished }: AddUserFormProps) {
             <FormItem>
               <FormLabel>社員番号</FormLabel>
               <FormControl>
-                <Input placeholder="12345678" {...field} />
+                <Input placeholder="12345678" {...field} disabled={isEditing} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -148,10 +174,9 @@ export function AddUserForm({ user, onFinished }: AddUserFormProps) {
                     </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                        <SelectItem value="Tokyo">Tokyo</SelectItem>
-                        <SelectItem value="Osaka">Osaka</SelectItem>
-                        <SelectItem value="Fukuoka">Fukuoka</SelectItem>
-                        <SelectItem value="Hokkaido">Hokkaido</SelectItem>
+                        {headquartersList.map(hq => (
+                            <SelectItem key={hq.code} value={hq.name}>{hq.name}</SelectItem>
+                        ))}
                     </SelectContent>
                 </Select>
                 <FormMessage />

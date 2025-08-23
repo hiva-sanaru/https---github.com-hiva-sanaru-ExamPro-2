@@ -1,7 +1,10 @@
 
 "use client";
 
-import { mockSubmissions, mockExams, mockUsers } from "@/lib/data";
+import React, { useState, useEffect, useMemo } from 'react';
+import { mockSubmissions, mockExams } from "@/lib/data";
+import { getUsers } from "@/services/userService";
+import type { User } from "@/lib/types";
 import {
   Table,
   TableBody,
@@ -16,9 +19,34 @@ import { cva } from "class-variance-authority";
 import { formatInTimeZone } from 'date-fns-tz';
 import { ja } from 'date-fns/locale';
 import Link from "next/link";
-import { Eye } from "lucide-react";
+import { Eye, Loader2 } from "lucide-react";
 
 export function SubmissionList() {
+    const [users, setUsers] = useState<User[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        async function fetchUsers() {
+            try {
+                const fetchedUsers = await getUsers();
+                setUsers(fetchedUsers);
+            } catch (error) {
+                console.error("Failed to fetch users", error);
+            } finally {
+                setIsLoading(false);
+            }
+        }
+        fetchUsers();
+    }, []);
+
+    const usersMap = useMemo(() => {
+        return users.reduce((acc, user) => {
+            acc[user.id] = user;
+            return acc;
+        }, {} as Record<string, User>);
+    }, [users]);
+
+
     const badgeVariants = cva(
         "capitalize",
         {
@@ -57,31 +85,39 @@ export function SubmissionList() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {mockSubmissions.map((submission) => {
-            const exam = mockExams.find(e => e.id === submission.examId);
-            const examinee = mockUsers.find(u => u.id === submission.examineeId);
-            return (
-                <TableRow key={submission.id}>
-                    <TableCell className="font-medium">{exam?.title || 'N/A'}</TableCell>
-                    <TableCell>{examinee?.name || 'N/A'}</TableCell>
-                    <TableCell>{submission.examineeHeadquarters}</TableCell>
-                    <TableCell>{formatInTimeZone(submission.submittedAt, 'Asia/Tokyo', "PPP p", { locale: ja })}</TableCell>
-                    <TableCell>
-                        <Badge variant="outline" className={badgeVariants({ status: submission.status as any })}>
-                            {getStatusName(submission.status)}
-                        </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                        <Link href={`/admin/review/${submission.id}`} passHref>
-                             <Button variant="outline" size="sm">
-                                <Eye className="mr-2 h-4 w-4" />
-                                レビューする
-                            </Button>
-                        </Link>
-                    </TableCell>
-                </TableRow>
-            )
-          })}
+          {isLoading ? (
+            <TableRow>
+                <TableCell colSpan={6} className="h-24 text-center">
+                    <Loader2 className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
+                </TableCell>
+            </TableRow>
+          ) : (
+            mockSubmissions.map((submission) => {
+                const exam = mockExams.find(e => e.id === submission.examId);
+                const examinee = usersMap[submission.examineeId];
+                return (
+                    <TableRow key={submission.id}>
+                        <TableCell className="font-medium">{exam?.title || 'N/A'}</TableCell>
+                        <TableCell>{examinee?.name || 'N/A'}</TableCell>
+                        <TableCell>{submission.examineeHeadquarters}</TableCell>
+                        <TableCell>{formatInTimeZone(submission.submittedAt, 'Asia/Tokyo', "PPP p", { locale: ja })}</TableCell>
+                        <TableCell>
+                            <Badge variant="outline" className={badgeVariants({ status: submission.status as any })}>
+                                {getStatusName(submission.status)}
+                            </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                            <Link href={`/admin/review/${submission.id}`} passHref>
+                                 <Button variant="outline" size="sm">
+                                    <Eye className="mr-2 h-4 w-4" />
+                                    レビューする
+                                </Button>
+                            </Link>
+                        </TableCell>
+                    </TableRow>
+                )
+            })
+          )}
         </TableBody>
       </Table>
     </div>

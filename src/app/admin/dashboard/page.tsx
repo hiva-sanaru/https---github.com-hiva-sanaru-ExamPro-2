@@ -1,12 +1,16 @@
 
 'use client';
 
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ExamList } from "@/components/admin/exam-list";
 import { PlusCircle, Download } from "lucide-react";
 import Link from "next/link";
-import { mockExams, mockSubmissions, mockUsers } from "@/lib/data";
+import { mockExams, mockSubmissions } from "@/lib/data";
+import { getUsers } from "@/services/userService";
+import type { User } from '@/lib/types';
+
 
 // This is a mock of a logged-in user.
 // In a real application, this would come from an authentication context.
@@ -18,10 +22,23 @@ const MOCK_ADMIN_USER = {
 
 
 export default function AdminDashboardPage() {
+    const [users, setUsers] = useState<User[]>([]);
+
+    useEffect(() => {
+        async function fetchUsers() {
+            try {
+                const fetchedUsers = await getUsers();
+                setUsers(fetchedUsers);
+            } catch (error) {
+                console.error("Failed to fetch users", error);
+            }
+        }
+        fetchUsers();
+    }, []);
 
     const handleBackup = () => {
         const backupData = {
-            users: mockUsers,
+            users: users,
             exams: mockExams,
             submissions: mockSubmissions,
             timestamp: new Date().toISOString(),
@@ -83,8 +100,8 @@ export default function AdminDashboardPage() {
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" className="h-4 w-4 text-muted-foreground"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">+256</div>
-                        <p className="text-xs text-muted-foreground">オンライン中</p>
+                        <div className="text-2xl font-bold">+{users.length}</div>
+                        <p className="text-xs text-muted-foreground">登録済み</p>
                     </CardContent>
                 </Card>
             </div>

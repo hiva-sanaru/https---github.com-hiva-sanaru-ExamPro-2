@@ -1,13 +1,29 @@
 
 'use client';
-
+import { useState, useEffect } from 'react';
 import { SubmissionList } from "@/components/admin/submission-list";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { mockExams, mockSubmissions, mockUsers } from "@/lib/data";
+import { mockExams, mockSubmissions } from "@/lib/data";
+import { getUsers } from '@/services';
+import type { User } from '@/lib/types';
 import { FileText } from "lucide-react";
 
 export default function ReviewListPage() {
+  const [users, setUsers] = useState<User[]>([]);
+
+  useEffect(() => {
+    async function fetchUsers() {
+        try {
+            const fetchedUsers = await getUsers();
+            setUsers(fetchedUsers);
+        } catch (error) {
+            console.error("Failed to fetch users for export", error);
+        }
+    }
+    fetchUsers();
+  }, []);
+
   const handleExportSubmissions = () => {
         const headers = [
             "提出ID",
@@ -25,7 +41,7 @@ export default function ReviewListPage() {
         
         const rows = mockSubmissions.map(submission => {
             const exam = mockExams.find(e => e.id === submission.examId);
-            const examinee = mockUsers.find(u => u.id === submission.examineeId);
+            const examinee = users.find(u => u.id === submission.examineeId);
             return [
                 submission.id,
                 exam?.title || "N/A",
