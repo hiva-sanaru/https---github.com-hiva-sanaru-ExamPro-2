@@ -18,7 +18,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Calendar } from "../ui/calendar";
 import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
-import { format } from "date-fns";
+import { format, setHours, setMinutes } from "date-fns";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+
 
 interface ReviewPanelProps {
   exam: Exam;
@@ -37,6 +39,9 @@ interface ManualScore {
     [questionId: string]: number;
 }
 
+const hours = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0'));
+const minutes = ['00', '15', '30', '45'];
+
 export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps) {
   const { toast } = useToast();
   const [gradingResults, setGradingResults] = useState<GradingResult[]>([]);
@@ -44,8 +49,12 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
   const [overallFeedback, setOverallFeedback] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isBulkGrading, setIsBulkGrading] = useState(false);
+  
   const [lessonReviewDate1, setLessonReviewDate1] = useState<Date | undefined>(submission.lessonReviewDate1);
+  const [lessonReviewEndDate1, setLessonReviewEndDate1] = useState<Date | undefined>(submission.lessonReviewEndDate1);
   const [lessonReviewDate2, setLessonReviewDate2] = useState<Date | undefined>(submission.lessonReviewDate2);
+  const [lessonReviewEndDate2, setLessonReviewEndDate2] = useState<Date | undefined>(submission.lessonReviewEndDate2);
+
   const [finalScore, setFinalScore] = useState<number | undefined>(submission.finalScore);
 
 
@@ -135,7 +144,9 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
         totalScore,
         feedback: overallFeedback,
         lessonReviewDate1,
+        lessonReviewEndDate1,
         lessonReviewDate2,
+        lessonReviewEndDate2,
         finalScore: totalScore
     });
 
@@ -143,6 +154,19 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
         toast({ title: `${reviewerRole}のレビューが正常に送信されました！` });
         setIsSubmitting(false);
     }, 1500)
+  }
+
+  const handleTimeChange = (
+    date: Date | undefined, 
+    setDate: (d: Date | undefined) => void,
+    type: 'hour' | 'minute', 
+    value: string
+  ) => {
+      if (!date) return;
+      const newDate = type === 'hour' 
+          ? setHours(date, parseInt(value))
+          : setMinutes(date, parseInt(value));
+      setDate(newDate);
   }
 
   const isPersonnelOfficeView = reviewerRole === "人事部";
@@ -261,59 +285,103 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
                  <Card className="bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800 mt-4">
                     <CardHeader>
                          <CardTitle className="text-green-800 dark:text-green-300">合格 - 授業審査へ</CardTitle>
-                         <CardDescription>合計スコアが80点以上です。授業審査の希望日時を入力してください。</CardDescription>
+                         <CardDescription>合計スコアが80点以上です。授業審査の希望日時と時間を選択してください。</CardDescription>
                     </CardHeader>
-                    <CardContent className="grid md:grid-cols-2 gap-4">
+                    <CardContent className="space-y-6">
+                        {/* --- First Choice --- */}
                         <div className="space-y-2">
-                             <Label htmlFor="date1">第一希望日時</Label>
-                             <Popover>
-                                <PopoverTrigger asChild>
-                                    <Button
-                                    variant={"outline"}
-                                    className={cn(
-                                        "w-full justify-start text-left font-normal",
-                                        !lessonReviewDate1 && "text-muted-foreground"
-                                    )}
-                                    >
-                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                    {lessonReviewDate1 ? format(lessonReviewDate1, "PPP", { locale: ja }) : <span>日付を選択</span>}
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0">
-                                    <Calendar
-                                        mode="single"
-                                        selected={lessonReviewDate1}
-                                        onSelect={setLessonReviewDate1}
-                                        initialFocus
-                                    />
-                                </PopoverContent>
-                            </Popover>
+                            <Label>第一希望日時</Label>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant={"outline"}
+                                            className={cn("justify-start text-left font-normal", !lessonReviewDate1 && "text-muted-foreground")}
+                                        >
+                                            <CalendarIcon className="mr-2 h-4 w-4" />
+                                            {lessonReviewDate1 ? format(lessonReviewDate1, "PPP", { locale: ja }) : <span>日付を選択</span>}
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={lessonReviewDate1} onSelect={setLessonReviewDate1} initialFocus /></PopoverContent>
+                                </Popover>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <div className="space-y-1">
+                                        <Label className="text-xs">開始</Label>
+                                        <div className="flex gap-1">
+                                            <Select onValueChange={(val) => handleTimeChange(lessonReviewDate1, setLessonReviewDate1, 'hour', val)} value={lessonReviewDate1?.getHours().toString().padStart(2, '0')}>
+                                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                                <SelectContent>{hours.map(h => <SelectItem key={h} value={h}>{h}</SelectItem>)}</SelectContent>
+                                            </Select>
+                                            <Select onValueChange={(val) => handleTimeChange(lessonReviewDate1, setLessonReviewDate1, 'minute', val)} value={lessonReviewDate1?.getMinutes().toString().padStart(2, '0')}>
+                                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                                <SelectContent>{minutes.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
+                                            </Select>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <Label className="text-xs">終了</Label>
+                                        <div className="flex gap-1">
+                                             <Select onValueChange={(val) => handleTimeChange(lessonReviewEndDate1, setLessonReviewEndDate1, 'hour', val)} value={lessonReviewEndDate1?.getHours().toString().padStart(2, '0')}>
+                                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                                <SelectContent>{hours.map(h => <SelectItem key={h} value={h}>{h}</SelectItem>)}</SelectContent>
+                                            </Select>
+                                            <Select onValueChange={(val) => handleTimeChange(lessonReviewEndDate1, setLessonReviewEndDate1, 'minute', val)} value={lessonReviewEndDate1?.getMinutes().toString().padStart(2, '0')}>
+                                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                                <SelectContent>{minutes.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
+                                            </Select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
+                        {/* --- Second Choice --- */}
                         <div className="space-y-2">
-                             <Label htmlFor="date2">第二希望日時</Label>
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                    <Button
-                                    variant={"outline"}
-                                    className={cn(
-                                        "w-full justify-start text-left font-normal",
-                                        !lessonReviewDate2 && "text-muted-foreground"
-                                    )}
-                                    >
-                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                    {lessonReviewDate2 ? format(lessonReviewDate2, "PPP", { locale: ja }) : <span>日付を選択</span>}
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0">
-                                    <Calendar
-                                        mode="single"
-                                        selected={lessonReviewDate2}
-                                        onSelect={setLessonReviewDate2}
-                                        initialFocus
-                                    />
-                                </PopoverContent>
-                            </Popover>
+                            <Label>第二希望日時</Label>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant={"outline"}
+                                            className={cn("justify-start text-left font-normal", !lessonReviewDate2 && "text-muted-foreground")}
+                                        >
+                                            <CalendarIcon className="mr-2 h-4 w-4" />
+                                            {lessonReviewDate2 ? format(lessonReviewDate2, "PPP", { locale: ja }) : <span>日付を選択</span>}
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={lessonReviewDate2} onSelect={setLessonReviewDate2} initialFocus /></PopoverContent>
+                                </Popover>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <div className="space-y-1">
+                                        <Label className="text-xs">開始</Label>
+                                        <div className="flex gap-1">
+                                            <Select onValueChange={(val) => handleTimeChange(lessonReviewDate2, setLessonReviewDate2, 'hour', val)} value={lessonReviewDate2?.getHours().toString().padStart(2, '0')}>
+                                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                                <SelectContent>{hours.map(h => <SelectItem key={h} value={h}>{h}</SelectItem>)}</SelectContent>
+                                            </Select>
+                                            <Select onValueChange={(val) => handleTimeChange(lessonReviewDate2, setLessonReviewDate2, 'minute', val)} value={lessonReviewDate2?.getMinutes().toString().padStart(2, '0')}>
+                                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                                <SelectContent>{minutes.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
+                                            </Select>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <Label className="text-xs">終了</Label>
+                                        <div className="flex gap-1">
+                                             <Select onValueChange={(val) => handleTimeChange(lessonReviewEndDate2, setLessonReviewEndDate2, 'hour', val)} value={lessonReviewEndDate2?.getHours().toString().padStart(2, '0')}>
+                                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                                <SelectContent>{hours.map(h => <SelectItem key={h} value={h}>{h}</SelectItem>)}</SelectContent>
+                                            </Select>
+                                            <Select onValueChange={(val) => handleTimeChange(lessonReviewEndDate2, setLessonReviewEndDate2, 'minute', val)} value={lessonReviewEndDate2?.getMinutes().toString().padStart(2, '0')}>
+                                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                                <SelectContent>{minutes.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
+                                            </Select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
                     </CardContent>
                 </Card>
             )}
@@ -340,3 +408,5 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
     </Card>
   );
 }
+
+    

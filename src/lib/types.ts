@@ -57,10 +57,14 @@ export interface Submission {
   poGrade?: Grade;
   finalScore?: number;
   lessonReviewDate1?: Date;
+  lessonReviewEndDate1?: Date;
   lessonReviewDate2?: Date;
+  lessonReviewEndDate2?: Date;
 }
 
 export interface Headquarters {
   code: string;
   name: string;
 }
+
+    

@@ -1,3 +1,4 @@
+
 import type { Exam, Submission, User } from './types';
 
 export const mockUsers: User[] = [
@@ -179,6 +180,10 @@ export const mockSubmissions: Submission[] = [
         },
         finalScore: 85,
         lessonReviewDate1: new Date('2024-08-01T10:00:00Z'),
+        lessonReviewEndDate1: new Date('2024-08-01T11:00:00Z'),
         lessonReviewDate2: new Date('2024-08-03T14:00:00Z'),
+        lessonReviewEndDate2: new Date('2024-08-03T15:00:00Z'),
     }
 ];
+
+    

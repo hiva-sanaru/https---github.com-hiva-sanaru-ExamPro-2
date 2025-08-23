@@ -36,7 +36,9 @@ export default function ReviewListPage() {
             "人事部スコア",
             "最終スコア",
             "授業審査希望日1",
-            "授業審査希望日2"
+            "授業審査希望終了日1",
+            "授業審査希望日2",
+            "授業審査希望終了日2"
         ];
         
         const rows = mockSubmissions.map(submission => {
@@ -52,8 +54,10 @@ export default function ReviewListPage() {
                 submission.hqGrade?.score ?? "N/A",
                 submission.poGrade?.score ?? "N/A",
                 submission.finalScore ?? "N/A",
-                submission.lessonReviewDate1?.toLocaleDateString() ?? "N/A",
-                submission.lessonReviewDate2?.toLocaleDateString() ?? "N/A"
+                submission.lessonReviewDate1?.toISOString() ?? "N/A",
+                submission.lessonReviewEndDate1?.toISOString() ?? "N/A",
+                submission.lessonReviewDate2?.toISOString() ?? "N/A",
+                submission.lessonReviewEndDate2?.toISOString() ?? "N/A"
             ].join(',');
         });
 
@@ -93,3 +97,5 @@ export default function ReviewListPage() {
     </div>
   );
 }
+
+    
