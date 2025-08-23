@@ -1,6 +1,6 @@
 
 "use client"
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -17,12 +17,30 @@ import {
 } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, FileCheck2, Users, Settings, LogOut, Building } from "lucide-react";
+import { LayoutDashboard, FileCheck2, Users, Settings, LogOut, Building, Loader2 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { findUserByEmployeeId } from "@/services/userService";
+import type { User } from "@/lib/types";
 
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const employeeId = localStorage.getItem('loggedInUserEmployeeId');
+        if (employeeId) {
+            findUserByEmployeeId(employeeId)
+                .then(user => {
+                    setCurrentUser(user);
+                })
+                .catch(console.error)
+                .finally(() => setIsLoading(false));
+        } else {
+            setIsLoading(false);
+        }
+    }, []);
 
     const menuItems = [
         { href: "/admin/dashboard", label: "ダッシュボード", icon: LayoutDashboard },
@@ -58,8 +76,18 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                     <div className="flex flex-col gap-2 p-2">
                          <div className="flex items-center gap-2 overflow-hidden group-data-[collapsible=icon]:w-8">
                             <div className="flex flex-col truncate">
-                                <span className="text-sm font-semibold text-sidebar-foreground">管理者ユーザー</span>
-                                <span className="text-xs text-sidebar-foreground/70">admin@exampro.com</span>
+                                {isLoading ? (
+                                    <div className="flex items-center justify-center h-10">
+                                        <Loader2 className="h-4 w-4 animate-spin text-sidebar-foreground" />
+                                    </div>
+                                ) : currentUser ? (
+                                    <>
+                                        <span className="text-sm font-semibold text-sidebar-foreground">{currentUser.name}</span>
+                                        <span className="text-xs text-sidebar-foreground/70">{currentUser.employeeId}</span>
+                                    </>
+                                ) : (
+                                    <span className="text-sm font-semibold text-sidebar-foreground">ゲストユーザー</span>
+                                )}
                             </div>
                         </div>
                         <Link href="/login">

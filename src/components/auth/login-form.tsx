@@ -57,6 +57,9 @@ export function LoginForm() {
             return;
         }
 
+        localStorage.setItem('loggedInUserEmployeeId', user.employeeId);
+
+
         if (user.role === 'system_administrator' || user.role === 'hq_administrator') {
             router.push("/admin/dashboard");
         } else if (user.role === 'examinee') {
