@@ -42,9 +42,9 @@ export function ExamHeader({ title, timeLimit }: ExamHeaderProps) {
           <h1 className="text-lg font-semibold font-headline md:text-xl">{title}</h1>
         </div>
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 rounded-lg bg-primary/10 px-4 py-2 text-primary">
+          <div className="flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-primary">
             <Timer className="h-5 w-5" />
-            <span className="text-lg font-bold tracking-wider font-code">{formatTime(timeLeft)}</span>
+            <span className="text-xl font-bold tracking-wider font-code">{formatTime(timeLeft)}</span>
           </div>
           <Button variant="outline" size="sm">一時停止</Button>
         </div>
