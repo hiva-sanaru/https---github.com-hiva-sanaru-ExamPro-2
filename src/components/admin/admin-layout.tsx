@@ -1,3 +1,4 @@
+
 "use client"
 import React from "react";
 import Link from 'next/link';
@@ -60,7 +61,6 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                     <div className="flex flex-col gap-2 p-2">
                          <div className="flex items-center gap-2 overflow-hidden group-data-[collapsible=icon]:w-8">
                             <Avatar>
-                                <AvatarImage src="https://placehold.co/40x40.png" alt="Admin" data-ai-hint="person avatar" />
                                 <AvatarFallback>AD</AvatarFallback>
                             </Avatar>
                             <div className="flex flex-col truncate">
