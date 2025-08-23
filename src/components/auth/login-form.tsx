@@ -46,7 +46,8 @@ export function LoginForm() {
     try {
         const user = await findUserByEmployeeId(data.employeeId);
 
-        if (!user || user.password !== data.password) {
+        // User not found OR user has a password and it doesn't match
+        if (!user || (user.password && user.password !== data.password)) {
             toast({
                 title: "ログイン失敗",
                 description: "社員番号またはパスワードが正しくありません。",
