@@ -22,7 +22,7 @@ export default function CreateExamPage() {
   const [isSaving, setIsSaving] = useState(false);
 
   const handleAddQuestion = () => {
-    setQuestions([...questions, { id: `new${questions.length + 1}`, text: '', type: 'descriptive', points: 10, timeLimit: 300, modelAnswer: '' }]);
+    setQuestions([...questions, { id: `new${questions.length + 1}`, text: '', type: 'descriptive', points: 10, timeLimit: 300, modelAnswer: '', options: [] }]);
   };
 
   const handleRemoveQuestion = (index: number) => {
@@ -31,7 +31,11 @@ export default function CreateExamPage() {
 
   const handleQuestionChange = (index: number, field: keyof Question, value: any) => {
     const newQuestions = [...questions];
-    (newQuestions[index] as any)[field] = value;
+    if (field === 'options') {
+        (newQuestions[index] as any)[field] = value.split('\n');
+    } else {
+        (newQuestions[index] as any)[field] = value;
+    }
     setQuestions(newQuestions);
   };
   
@@ -84,6 +88,18 @@ export default function CreateExamPage() {
                                    <Label htmlFor={`q-text-${index}`}>問題文</Label>
                                    <Textarea id={`q-text-${index}`} value={q.text} onChange={(e) => handleQuestionChange(index, 'text', e.target.value)} placeholder={`問題 ${index + 1} の内容を記述...`} />
                                </div>
+                                {q.type === 'multiple-choice' && (
+                                  <div className="space-y-2">
+                                      <Label htmlFor={`q-options-${index}`}>選択肢 (改行で区切る)</Label>
+                                      <Textarea 
+                                          id={`q-options-${index}`} 
+                                          value={Array.isArray(q.options) ? q.options.join('\n') : ''} 
+                                          onChange={(e) => handleQuestionChange(index, 'options', e.target.value)} 
+                                          placeholder={'選択肢A\n選択肢B\n選択肢C'}
+                                          rows={4}
+                                      />
+                                  </div>
+                                )}
                                 <div className="space-y-2">
                                    <Label htmlFor={`q-model-answer-${index}`}>模範解答</Label>
                                    <Textarea id={`q-model-answer-${index}`} value={q.modelAnswer} onChange={(e) => handleQuestionChange(index, 'modelAnswer', e.target.value)} placeholder={`問題 ${index + 1} の模範解答を記述...`} rows={3} />
