@@ -60,9 +60,6 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                     <Separator className="my-2 bg-sidebar-border" />
                     <div className="flex flex-col gap-2 p-2">
                          <div className="flex items-center gap-2 overflow-hidden group-data-[collapsible=icon]:w-8">
-                            <Avatar>
-                                <AvatarFallback>AD</AvatarFallback>
-                            </Avatar>
                             <div className="flex flex-col truncate">
                                 <span className="text-sm font-semibold text-sidebar-foreground">管理者ユーザー</span>
                                 <span className="text-xs text-sidebar-foreground/70">admin@exampro.com</span>
