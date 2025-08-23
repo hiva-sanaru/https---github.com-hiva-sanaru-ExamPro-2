@@ -34,23 +34,23 @@ const prompt = ai.definePrompt({
   name: 'gradeAnswerPrompt',
   input: {schema: GradeAnswerInputSchema},
   output: {schema: GradeAnswerOutputSchema},
-  prompt: `You are an AI grading assistant. Please grade the following answer based on the provided model answer.
+  prompt: `あなたはAI採点アシスタントです。提供された模範解答に基づいて、以下の解答を採点してください。
 
-Question:
+問題:
 {{questionText}}
 
-Maximum Points:
+満点:
 {{points}}
 
-Model Answer:
+模範解答:
 {{modelAnswer}}
 
-Examinee's Answer:
+受験者の解答:
 {{answerText}}
 
-Provide a score and a justification for the score.
-The score should be an integer between 0 and the maximum points.
-The justification should clearly explain the reasoning behind the assigned score by comparing the examinee's answer to the model answer.`,
+スコアと、そのスコアに至った根拠を日本語で提供してください。
+スコアは0から満点の間の整数でなければなりません。
+根拠は、受験者の解答と模範解答を比較し、割り当てられたスコアの理由を明確に説明する必要があります。`,
 });
 
 const gradeAnswerFlow = ai.defineFlow(
