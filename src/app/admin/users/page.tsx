@@ -79,10 +79,29 @@ export default function AdminUsersPage() {
             </div>
              <Card>
                 <CardHeader>
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-4">
-                        <div>
-                            <CardTitle className="font-headline text-xl">ユーザーリスト</CardTitle>
-                             {!isLoading && <CardDescription>{filteredUsers.length}人のユーザーが見つかりました。</CardDescription>}
+                    <div className="flex flex-col gap-4">
+                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between">
+                            <div>
+                                <CardTitle className="font-headline text-xl">ユーザーリスト</CardTitle>
+                                {!isLoading && <CardDescription>{filteredUsers.length}人のユーザーが見つかりました。</CardDescription>}
+                            </div>
+                            <Dialog open={isAddUserOpen} onOpenChange={setAddUserOpen}>
+                                <DialogTrigger asChild>
+                                    <Button className="w-full sm:w-auto mt-2 sm:mt-0">
+                                        <PlusCircle className="mr-2 h-4 w-4" />
+                                        ユーザーを追加
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-[425px]">
+                                    <DialogHeader>
+                                        <DialogTitle>新規ユーザーを追加</DialogTitle>
+                                        <DialogDescription>
+                                            新しいユーザーの詳細を入力してください。
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <AddUserForm onFinished={handleUserAdded} headquartersList={headquartersList} />
+                                </DialogContent>
+                            </Dialog>
                         </div>
                         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
                             <div className="relative w-full sm:w-auto">
@@ -116,23 +135,6 @@ export default function AdminUsersPage() {
                                     ))}
                                 </SelectContent>
                             </Select>
-                            <Dialog open={isAddUserOpen} onOpenChange={setAddUserOpen}>
-                                <DialogTrigger asChild>
-                                    <Button className="w-full sm:w-auto">
-                                        <PlusCircle className="mr-2 h-4 w-4" />
-                                        ユーザーを追加
-                                    </Button>
-                                </DialogTrigger>
-                                <DialogContent className="sm:max-w-[425px]">
-                                    <DialogHeader>
-                                        <DialogTitle>新規ユーザーを追加</DialogTitle>
-                                        <DialogDescription>
-                                            新しいユーザーの詳細を入力してください。
-                                        </DialogDescription>
-                                    </DialogHeader>
-                                    <AddUserForm onFinished={handleUserAdded} headquartersList={headquartersList} />
-                                </DialogContent>
-                            </Dialog>
                         </div>
                     </div>
                 </CardHeader>
