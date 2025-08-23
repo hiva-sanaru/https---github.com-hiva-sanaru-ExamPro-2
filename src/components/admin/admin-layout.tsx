@@ -1,0 +1,95 @@
+"use client"
+import React from "react";
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import {
+    SidebarProvider,
+    Sidebar,
+    SidebarHeader,
+    SidebarContent,
+    SidebarMenu,
+    SidebarMenuItem,
+    SidebarMenuButton,
+    SidebarFooter,
+    SidebarInset,
+    SidebarTrigger
+} from "@/components/ui/sidebar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { BookA, LayoutDashboard, FileCheck2, Users, Settings, LogOut } from "lucide-react";
+
+
+export function AdminLayout({ children }: { children: React.ReactNode }) {
+    const pathname = usePathname();
+
+    const menuItems = [
+        { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
+        { href: "/admin/review/sub1", label: "Submissions", icon: FileCheck2 },
+        { href: "/admin/users", label: "Users", icon: Users },
+    ]
+
+    return (
+        <SidebarProvider>
+            <Sidebar variant="sidebar" collapsible="icon">
+                <SidebarHeader>
+                    <div className="flex items-center gap-2">
+                        <div className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                            <BookA className="size-5" />
+                        </div>
+                        <span className="font-headline text-lg font-semibold text-primary-foreground">ExamPro-2</span>
+                    </div>
+                </SidebarHeader>
+                <SidebarContent>
+                    <SidebarMenu>
+                        {menuItems.map((item) => (
+                             <SidebarMenuItem key={item.href}>
+                                <Link href={item.href} legacyBehavior passHref>
+                                    <SidebarMenuButton isActive={pathname === item.href} tooltip={item.label}>
+                                        <item.icon />
+                                        <span>{item.label}</span>
+                                    </SidebarMenuButton>
+                                </Link>
+                            </SidebarMenuItem>
+                        ))}
+                    </SidebarMenu>
+                </SidebarContent>
+                <SidebarFooter>
+                    <Separator className="my-2 bg-sidebar-border" />
+                    <div className="flex flex-col gap-2 p-2">
+                         <div className="flex items-center gap-2 overflow-hidden group-data-[collapsible=icon]:w-8">
+                            <Avatar>
+                                <AvatarImage src="https://placehold.co/40x40.png" alt="Admin" data-ai-hint="person avatar" />
+                                <AvatarFallback>AD</AvatarFallback>
+                            </Avatar>
+                            <div className="flex flex-col truncate">
+                                <span className="text-sm font-semibold text-sidebar-foreground">Admin User</span>
+                                <span className="text-xs text-sidebar-foreground/70">admin@exampro.com</span>
+                            </div>
+                        </div>
+                        <Link href="/login" legacyBehavior passHref>
+                            <Button variant="ghost" className="w-full justify-start gap-2 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:justify-center">
+                                <LogOut className="size-4 shrink-0" />
+                                <span className="group-data-[collapsible=icon]:hidden">Logout</span>
+                            </Button>
+                        </Link>
+                    </div>
+                </SidebarFooter>
+            </Sidebar>
+
+            <SidebarInset>
+                <header className="flex h-14 items-center justify-between border-b bg-background px-4 md:justify-end">
+                    <SidebarTrigger className="md:hidden" />
+                    <div className="flex items-center gap-4">
+                        <Button variant="outline" size="icon">
+                            <Settings className="h-4 w-4" />
+                        </Button>
+                    </div>
+                </header>
+                <main className="flex-1 overflow-y-auto p-4 md:p-6">
+                    {children}
+                </main>
+            </SidebarInset>
+        </SidebarProvider>
+    );
+}
