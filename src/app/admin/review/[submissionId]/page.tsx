@@ -3,9 +3,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { mockExams, mockSubmissions } from "@/lib/data";
 import { notFound } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { User, Calendar, CheckCircle } from "lucide-react";
+import { User, Calendar, CheckCircle, AlertTriangle, ShieldCheck } from "lucide-react";
 import { format } from "date-fns";
 import { ja } from 'date-fns/locale';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+
+// This is a mock of a logged-in user.
+// In a real application, this would come from an authentication context.
+const MOCK_ADMIN_USER = {
+    id: 'admin1',
+    role: 'hq_administrator', // Try changing this to 'system_administrator'
+    headquarters: 'Tokyo' // This is ignored if role is 'system_administrator'
+}
 
 export default function AdminReviewPage({ params }: { params: { submissionId: string } }) {
     const submission = mockSubmissions.find(s => s.id === params.submissionId);
@@ -17,12 +26,46 @@ export default function AdminReviewPage({ params }: { params: { submissionId: st
         notFound();
     }
 
+    // RBAC check:
+    const hasAccess = MOCK_ADMIN_USER.role === 'system_administrator' || 
+                      (MOCK_ADMIN_USER.role === 'hq_administrator' && MOCK_ADMIN_USER.headquarters === submission.examineeHeadquarters);
+
+    if (!hasAccess) {
+        return (
+             <div className="space-y-6">
+                <div>
+                    <h1 className="text-3xl font-bold font-headline">アクセスが拒否されました</h1>
+                    <p className="text-muted-foreground">この提出物を閲覧する権限がありません。</p>
+                </div>
+                <Alert variant="destructive">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertTitle>権限エラー</AlertTitle>
+                    <AlertDescription>
+                        あなたは <strong>{MOCK_ADMIN_USER.headquarters}</strong> の本部管理者ですが、この提出物は <strong>{submission.examineeHeadquarters}</strong> 本部のものです。
+                        システム管理者に連絡してアクセスをリクエストしてください。
+                    </AlertDescription>
+                </Alert>
+            </div>
+        )
+    }
+
+
     return (
         <div className="space-y-6">
             <div>
                 <h1 className="text-3xl font-bold font-headline">提出物のレビュー</h1>
                 <p className="text-muted-foreground">試験の採点: "{exam.title}"</p>
             </div>
+
+             {MOCK_ADMIN_USER.role === 'system_administrator' && (
+                 <Alert variant="default" className="bg-blue-50 border-blue-200 dark:bg-blue-950 dark:border-blue-800">
+                    <ShieldCheck className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    <AlertTitle>システム管理者ビュー</AlertTitle>
+                    <AlertDescription>
+                        あなたはシステム管理者として、すべての提出物を閲覧・管理する権限を持っています。
+                    </AlertDescription>
+                </Alert>
+            )}
 
             <Card>
                 <CardHeader>

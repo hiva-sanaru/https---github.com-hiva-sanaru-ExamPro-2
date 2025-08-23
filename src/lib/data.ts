@@ -86,6 +86,7 @@ export const mockSubmissions: Submission[] = [
         id: 'sub1',
         examId: '1',
         examineeId: 'user2',
+        examineeHeadquarters: 'Tokyo',
         submittedAt: new Date('2024-07-20T10:30:00Z'),
         status: 'Grading',
         answers: [
