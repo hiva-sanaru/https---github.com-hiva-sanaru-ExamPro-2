@@ -1,9 +1,12 @@
 
+'use client';
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ExamList } from "@/components/admin/exam-list";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, Download } from "lucide-react";
 import Link from "next/link";
+import { mockExams, mockSubmissions, mockUsers } from "@/lib/data";
 
 // This is a mock of a logged-in user.
 // In a real application, this would come from an authentication context.
@@ -15,6 +18,27 @@ const MOCK_ADMIN_USER = {
 
 
 export default function AdminDashboardPage() {
+
+    const handleBackup = () => {
+        const backupData = {
+            users: mockUsers,
+            exams: mockExams,
+            submissions: mockSubmissions,
+            timestamp: new Date().toISOString(),
+        };
+
+        const jsonString = JSON.stringify(backupData, null, 2);
+        const blob = new Blob([jsonString], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `sanaru_backup_${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
+
     return (
         <div className="space-y-6">
             <div>
@@ -71,14 +95,20 @@ export default function AdminDashboardPage() {
                         <CardTitle className="font-headline text-xl">試験の管理</CardTitle>
                         <CardDescription>システム内のすべての試験を作成、編集、表示します。</CardDescription>
                     </div>
-                     {MOCK_ADMIN_USER.role === 'system_administrator' && (
-                        <Link href="/admin/create-exam" passHref>
-                            <Button>
-                                <PlusCircle />
-                                試験を作成
-                            </Button>
-                        </Link>
-                    )}
+                     <div className="flex items-center gap-2">
+                        <Button variant="outline" onClick={handleBackup}>
+                            <Download />
+                            データをバックアップ
+                        </Button>
+                        {MOCK_ADMIN_USER.role === 'system_administrator' && (
+                            <Link href="/admin/create-exam" passHref>
+                                <Button>
+                                    <PlusCircle />
+                                    試験を作成
+                                </Button>
+                            </Link>
+                        )}
+                    </div>
                 </CardHeader>
                 <CardContent>
                     <ExamList isAdmin={MOCK_ADMIN_USER.role === 'system_administrator'} />
