@@ -1,85 +1,90 @@
 
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Upload, Trash2 } from 'lucide-react';
+import { Upload, Trash2, Loader2 } from 'lucide-react';
 import Papa from 'papaparse';
+import { getHeadquarters, addHeadquartersBatch, deleteHeadquarters } from '@/services/headquartersService';
+import type { Headquarters as HeadquartersType } from '@/lib/types';
 
-interface Headquarters {
-  code: string;
-  name: string;
+
+interface Headquarters extends HeadquartersType {
+  // code and name are in HeadquartersType
 }
-
-const STORAGE_KEY = 'sanaru-headquarters';
 
 export default function HeadquartersPage() {
   const { toast } = useToast();
   const [headquarters, setHeadquarters] = useState<Headquarters[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
+  const fetchHeadquarters = useCallback(async () => {
+    setIsLoading(true);
     try {
-      const savedData = localStorage.getItem(STORAGE_KEY);
-      if (savedData) {
-        setHeadquarters(JSON.parse(savedData));
-      }
+      const hqs = await getHeadquarters();
+      setHeadquarters(hqs);
     } catch (error) {
-      console.error("Failed to load headquarters from localStorage", error);
+      console.error("Failed to load headquarters from Firestore", error);
       toast({
         title: 'データの読み込みに失敗しました',
+        description: 'データベースへの接続に問題がある可能性があります。',
         variant: 'destructive',
       });
+    } finally {
+        setIsLoading(false);
     }
   }, [toast]);
 
-  const updateHeadquarters = (newHeadquarters: Headquarters[]) => {
-    setHeadquarters(newHeadquarters);
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newHeadquarters));
-    } catch (error) {
-       console.error("Failed to save headquarters to localStorage", error);
-       toast({
-        title: 'データの保存に失敗しました',
-        description: 'ストレージの容量がいっぱいか、ブラウザの設定で無効になっている可能性があります。',
-        variant: 'destructive',
-      });
-    }
-  }
+  useEffect(() => {
+    fetchHeadquarters();
+  }, [fetchHeadquarters]);
+
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    setIsLoading(true);
+    setIsUploading(true);
 
-    Papa.parse<Headquarters>(file, {
+    Papa.parse<{code: string, name: string}>(file, {
       header: true,
       skipEmptyLines: true,
-      complete: (results) => {
+      complete: async (results) => {
         const parsedData = results.data.filter(item => item.code && item.name);
-        const updatedHqs = [...headquarters];
-        let addedCount = 0;
         
-        parsedData.forEach(newItem => {
-            if(!updatedHqs.some(hq => hq.code === newItem.code)) {
-                updatedHqs.push(newItem);
-                addedCount++;
-            }
-        });
+        const newHqs = parsedData.filter(newItem => 
+            !headquarters.some(hq => hq.code === newItem.code)
+        );
 
-        updateHeadquarters(updatedHqs);
-        
-        toast({
-          title: 'CSVが正常にインポートされました',
-          description: `${addedCount}件の本部が新しく追加されました。`,
-        });
-        setIsLoading(false);
+        if (newHqs.length > 0) {
+            try {
+                await addHeadquartersBatch(newHqs);
+                toast({
+                  title: 'CSVが正常にインポートされました',
+                  description: `${newHqs.length}件の本部が新しく追加されました。`,
+                });
+                fetchHeadquarters(); // Refresh list from firestore
+            } catch (error) {
+                 toast({
+                    title: 'データベースへの保存中にエラーが発生しました',
+                    description: (error as Error).message,
+                    variant: 'destructive',
+                });
+            }
+        } else {
+             toast({
+                title: 'インポートする新しいデータがありません',
+                description: 'CSV内のすべての本部は既に存在します。',
+            });
+        }
+
+        setIsUploading(false);
       },
       error: (error) => {
         toast({
@@ -87,11 +92,10 @@ export default function HeadquartersPage() {
           description: error.message,
           variant: 'destructive',
         });
-        setIsLoading(false);
+        setIsUploading(false);
       },
     });
 
-    // Reset file input
     if(fileInputRef.current) {
         fileInputRef.current.value = '';
     }
@@ -101,12 +105,20 @@ export default function HeadquartersPage() {
     fileInputRef.current?.click();
   };
 
-  const handleRemoveHeadquarters = (code: string) => {
-    const newHeadquarters = headquarters.filter(hq => hq.code !== code);
-    updateHeadquarters(newHeadquarters);
-    toast({
-        title: '本部が削除されました',
-    });
+  const handleRemoveHeadquarters = async (code: string) => {
+    try {
+        await deleteHeadquarters(code);
+        setHeadquarters(prev => prev.filter(hq => hq.code !== code));
+        toast({
+            title: '本部が削除されました',
+        });
+    } catch(error) {
+        toast({
+            title: '削除中にエラーが発生しました',
+            description: (error as Error).message,
+            variant: 'destructive',
+        });
+    }
   }
 
   return (
@@ -131,9 +143,9 @@ export default function HeadquartersPage() {
                     className="hidden"
                     accept=".csv"
                 />
-                <Button onClick={handleImportClick} disabled={isLoading}>
+                <Button onClick={handleImportClick} disabled={isUploading}>
                     <Upload className="mr-2 h-4 w-4" />
-                    {isLoading ? 'インポート中...' : 'CSVをインポート'}
+                    {isUploading ? 'インポート中...' : 'CSVをインポート'}
                 </Button>
             </div>
         </CardHeader>
@@ -148,7 +160,13 @@ export default function HeadquartersPage() {
                     </TableRow>
                     </TableHeader>
                     <TableBody>
-                    {headquarters.length > 0 ? (
+                    {isLoading ? (
+                        <TableRow>
+                            <TableCell colSpan={3} className="h-24 text-center">
+                               <Loader2 className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
+                            </TableCell>
+                        </TableRow>
+                    ) : headquarters.length > 0 ? (
                         headquarters.map((hq) => (
                             <TableRow key={hq.code}>
                                 <TableCell className="font-medium">{hq.code}</TableCell>

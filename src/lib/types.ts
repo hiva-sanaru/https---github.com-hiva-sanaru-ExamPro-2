@@ -1,3 +1,4 @@
+
 export type UserRole = 'system_administrator' | 'hq_administrator' | 'examinee';
 
 export interface User {
@@ -57,4 +58,9 @@ export interface Submission {
   finalScore?: number;
   lessonReviewDate1?: Date;
   lessonReviewDate2?: Date;
+}
+
+export interface Headquarters {
+  code: string;
+  name: string;
 }
