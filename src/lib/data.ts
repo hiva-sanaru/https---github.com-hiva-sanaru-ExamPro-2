@@ -13,18 +13,21 @@ export const mockExams: Exam[] = [
         text: 'リーダーシップスキルを発揮した状況を説明してください。その結果はどうでしたか？',
         type: 'descriptive',
         points: 20,
+        timeLimit: 600, // 10 minutes
       },
       {
         id: 'q2',
         text: '当社の価値観は、誠実さ、革新、そして_____です。',
         type: 'fill-in-the-blank',
         points: 10,
+        timeLimit: 120, // 2 minutes
       },
       {
         id: 'q3',
         text: '新しい第3四半期のプロジェクトイニシアチブの主な目標は何ですか？',
         type: 'multiple-choice',
         points: 15,
+        timeLimit: 180, // 3 minutes
         options: [
           '市場シェアを10%増加させる',
           '運用コストを15%削減する',
@@ -37,6 +40,7 @@ export const mockExams: Exam[] = [
         text: '新しいコンプライアンス規制（GDPR）と、それが当社のデータ処理ポリシーに与える影響について説明してください。',
         type: 'descriptive',
         points: 25,
+        timeLimit: 900, // 15 minutes
         subQuestions: [
             { id: 'q4a', text: '不遵守の場合の罰則は何ですか？', type: 'descriptive', points: 10 },
             { id: 'q4b', text: '顧客データの保存にどのように影響しますか？', type: 'descriptive', points: 15 }
@@ -47,6 +51,7 @@ export const mockExams: Exam[] = [
         text: 'プロジェクトコードネーム「フェニックス」は、_____までに完了する予定です。',
         type: 'fill-in-the-blank',
         points: 10,
+        timeLimit: 120, // 2 minutes
       }
     ],
   },
@@ -62,12 +67,14 @@ export const mockExams: Exam[] = [
         text: 'あなたの役割でやり取りする主要な3つの部門を挙げてください。',
         type: 'descriptive',
         points: 15,
+        timeLimit: 300,
       },
       {
         id: 'nh2',
         text: '会社は_____年に設立されました。',
         type: 'fill-in-the-blank',
         points: 10,
+        timeLimit: 60,
       },
     ],
   },

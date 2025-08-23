@@ -25,7 +25,7 @@ export default function CreateExamPage() {
   const [isSaving, setIsSaving] = useState(false);
 
   const handleAddQuestion = () => {
-    setQuestions([...questions, { id: `new${questions.length + 1}`, text: '', type: 'descriptive', points: 10 }]);
+    setQuestions([...questions, { id: `new${questions.length + 1}`, text: '', type: 'descriptive', points: 10, timeLimit: 300 }]);
   };
 
   const handleRemoveQuestion = (index: number) => {
@@ -55,7 +55,8 @@ export default function CreateExamPage() {
                 id: `ai${i}`,
                 text: lines[0]?.replace(/^[0-9]\. /, ''),
                 type: 'descriptive',
-                points: 10
+                points: 10,
+                timeLimit: 300,
             }
         }).filter(q => q.text);
 
@@ -119,7 +120,7 @@ export default function CreateExamPage() {
                                    <Label htmlFor={`q-text-${index}`}>問題文</Label>
                                    <Textarea id={`q-text-${index}`} value={q.text} onChange={(e) => handleQuestionChange(index, 'text', e.target.value)} placeholder={`問題 ${index + 1} の内容を記述...`} />
                                    <div className="flex gap-4">
-                                       <div className="w-1/2 space-y-2">
+                                        <div className="w-1/3 space-y-2">
                                            <Label htmlFor={`q-type-${index}`}>問題タイプ</Label>
                                            <Select value={q.type} onValueChange={(value) => handleQuestionChange(index, 'type', value)}>
                                                 <SelectTrigger id={`q-type-${index}`}>
@@ -132,9 +133,13 @@ export default function CreateExamPage() {
                                                 </SelectContent>
                                             </Select>
                                        </div>
-                                       <div className="w-1/2 space-y-2">
+                                       <div className="w-1/3 space-y-2">
                                            <Label htmlFor={`q-points-${index}`}>配点</Label>
                                            <Input id={`q-points-${index}`} type="number" value={q.points} onChange={(e) => handleQuestionChange(index, 'points', Number(e.target.value))} placeholder="例: 10" />
+                                       </div>
+                                       <div className="w-1/3 space-y-2">
+                                           <Label htmlFor={`q-time-${index}`}>制限時間(秒)</Label>
+                                           <Input id={`q-time-${index}`} type="number" value={q.timeLimit} onChange={(e) => handleQuestionChange(index, 'timeLimit', Number(e.target.value))} placeholder="例: 300" />
                                        </div>
                                    </div>
                                </div>

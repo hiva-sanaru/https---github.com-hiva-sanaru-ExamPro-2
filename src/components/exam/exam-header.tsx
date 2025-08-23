@@ -6,11 +6,15 @@ import { Button } from "../ui/button";
 
 interface ExamHeaderProps {
   title: string;
-  duration: number; // in minutes
+  timeLimit: number; // in seconds
 }
 
-export function ExamHeader({ title, duration }: ExamHeaderProps) {
-  const [timeLeft, setTimeLeft] = useState(duration * 60);
+export function ExamHeader({ title, timeLimit }: ExamHeaderProps) {
+  const [timeLeft, setTimeLeft] = useState(timeLimit);
+
+  useEffect(() => {
+    setTimeLeft(timeLimit);
+  }, [timeLimit]);
 
   useEffect(() => {
     if (timeLeft <= 0) return;
@@ -39,7 +43,7 @@ export function ExamHeader({ title, duration }: ExamHeaderProps) {
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 rounded-md bg-muted px-3 py-1.5 text-sm font-medium">
             <Timer className="h-4 w-4 text-primary" />
-            <span>{formatTime(timeLeft)}</span>
+            <span>のこり時間: {formatTime(timeLeft)}</span>
           </div>
           <Button variant="outline" size="sm">一時停止</Button>
         </div>

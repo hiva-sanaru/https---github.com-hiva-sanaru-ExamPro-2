@@ -16,6 +16,7 @@ export interface Question {
   text: string;
   type: QuestionType;
   points: number;
+  timeLimit?: number; // in seconds
   options?: string[]; // for multiple-choice
   subQuestions?: Question[];
 }

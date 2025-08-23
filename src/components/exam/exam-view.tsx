@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { Progress } from "@/components/ui/progress";
 import { Carousel, CarouselApi, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "../ui/carousel";
 import { BookCheck } from "lucide-react";
+import { ExamHeader } from "./exam-header";
 
 interface ExamViewProps {
   exam: Exam;
@@ -89,17 +90,22 @@ export function ExamView({ exam }: ExamViewProps) {
   const [current, setCurrent] = useState(0)
   const [count, setCount] = useState(0)
   const [progress, setProgress] = useState(0);
+  const [currentQuestion, setCurrentQuestion] = useState<Question>(exam.questions[0]);
+
 
   useEffect(() => {
     if (!api) return
     
     setCount(api.scrollSnapList().length)
     setCurrent(api.selectedScrollSnap() + 1)
+    setCurrentQuestion(exam.questions[api.selectedScrollSnap()]);
 
     api.on("select", () => {
-      setCurrent(api.selectedScrollSnap() + 1)
+      const selectedIndex = api.selectedScrollSnap();
+      setCurrent(selectedIndex + 1)
+      setCurrentQuestion(exam.questions[selectedIndex]);
     })
-  }, [api])
+  }, [api, exam.questions])
 
   useEffect(() => {
     const answeredCount = answers.filter(a => a.value && a.value.trim() !== '').length;
@@ -124,36 +130,41 @@ export function ExamView({ exam }: ExamViewProps) {
   };
 
   return (
-    <div className="space-y-6">
-        <div>
-            <Progress value={progress} className="h-2" />
-            <p className="text-right text-sm text-muted-foreground mt-2">
-                {count} 問中 {current} 問目
-            </p>
-        </div>
-      
-        <Carousel setApi={setApi} className="w-full">
-            <CarouselContent>
-                {exam.questions.map((question) => (
-                    <CarouselItem key={question.id}>
-                        <QuestionCard 
-                            question={question} 
-                            answer={answers.find(a => a.questionId === question.id)}
-                            onAnswerChange={handleAnswerChange}
-                        />
-                    </CarouselItem>
-                ))}
-            </CarouselContent>
-            <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2 md:-left-12" />
-            <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2 md:-right-12" />
-        </Carousel>
+    <>
+      <ExamHeader title={exam.title} timeLimit={currentQuestion?.timeLimit || exam.duration * 60} />
+      <div className="container mx-auto max-w-4xl py-8">
+        <div className="space-y-6">
+            <div>
+                <Progress value={progress} className="h-2" />
+                <p className="text-right text-sm text-muted-foreground mt-2">
+                    {count} 問中 {current} 問目
+                </p>
+            </div>
+          
+            <Carousel setApi={setApi} className="w-full">
+                <CarouselContent>
+                    {exam.questions.map((question) => (
+                        <CarouselItem key={question.id}>
+                            <QuestionCard 
+                                question={question} 
+                                answer={answers.find(a => a.questionId === question.id)}
+                                onAnswerChange={handleAnswerChange}
+                            />
+                        </CarouselItem>
+                    ))}
+                </CarouselContent>
+                <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2 md:-left-12" />
+                <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2 md:-right-12" />
+            </Carousel>
 
-      <div className="flex justify-end mt-8">
-        <Button onClick={handleReview} size="lg" className="bg-accent hover:bg-accent/90">
-          確認して提出
-          <BookCheck className="ml-2 h-4 w-4" />
-        </Button>
+          <div className="flex justify-end mt-8">
+            <Button onClick={handleReview} size="lg" className="bg-accent hover:bg-accent/90">
+              確認して提出
+              <BookCheck className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

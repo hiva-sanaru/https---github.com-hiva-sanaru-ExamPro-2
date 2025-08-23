@@ -16,7 +16,7 @@ export default function ExamLayout({
 
   return (
     <div className="flex min-h-screen flex-col bg-muted/40">
-      <ExamHeader title={exam.title} duration={exam.duration} />
+      {/* The header is now rendered within ExamView to manage question-specific timers */}
       <main className="flex-1">{children}</main>
     </div>
   );
