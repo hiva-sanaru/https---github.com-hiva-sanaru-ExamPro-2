@@ -7,7 +7,6 @@ import { ja } from 'date-fns/locale';
 import { gradeAnswer } from "@/ai/flows/grade-answer";
 import { useToast } from "@/hooks/use-toast";
 import type { Exam, Submission, Question } from "@/lib/types";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -130,65 +129,63 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
           受験者の回答を確認し、AI採点機能を使用して、最終評価を入力してください。
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <Accordion type="single" collapsible className="w-full">
-          {exam.questions.map((question, index) => {
-            const result = gradingResults.find((r) => r.questionId === question.id);
-            return (
-              <AccordionItem value={`item-${index}`} key={question.id}>
-                <AccordionTrigger className="hover:no-underline">
-                  <div className="flex justify-between w-full pr-4 items-center">
-                    <span className="font-semibold text-left">問題 {index + 1}: {question.text} ({question.points}点)</span>
-                    <div className="flex items-center gap-2">
-                        {manualScores[question.id] !== undefined && <Badge>{manualScores[question.id]}点</Badge>}
-                        {result && !result.isLoading && <Badge variant="secondary">AI採点済み</Badge>}
-                        {result?.isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+      <CardContent className="space-y-6">
+        {exam.questions.map((question, index) => {
+          const result = gradingResults.find((r) => r.questionId === question.id);
+          return (
+            <Card key={question.id} className="overflow-hidden">
+                <CardHeader className="bg-muted/50">
+                    <div className="flex justify-between w-full items-center">
+                        <CardTitle className="text-lg font-semibold text-left">問題 {index + 1}: {question.text} ({question.points}点)</CardTitle>
+                        <div className="flex items-center gap-2">
+                            {manualScores[question.id] !== undefined && <Badge>{manualScores[question.id]}点</Badge>}
+                            {result && !result.isLoading && <Badge variant="secondary">AI採点済み</Badge>}
+                            {result?.isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+                        </div>
                     </div>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <Label className="flex items-center gap-2"><User className="w-4 h-4 text-muted-foreground" />受験者の回答</Label>
-                        <p className="p-3 rounded-md bg-muted text-sm min-h-[100px]">{getAnswerForQuestion(question.id)}</p>
+                </CardHeader>
+                <CardContent className="p-6 space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <Label className="flex items-center gap-2"><User className="w-4 h-4 text-muted-foreground" />受験者の回答</Label>
+                            <p className="p-3 rounded-md bg-muted text-sm min-h-[100px]">{getAnswerForQuestion(question.id)}</p>
+                        </div>
+                        <div className="space-y-2">
+                            <Label className="flex items-center gap-2"><Bot className="w-4 h-4 text-muted-foreground" />AI採点</Label>
+                            {result && !result.isLoading ? (
+                                <div className="p-3 rounded-md bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 space-y-2">
+                                    <p><strong>スコア:</strong> {result.score}/{question.points}</p>
+                                    <p><strong>根拠:</strong> {result.justification}</p>
+                                </div>
+                            ) : (
+                                <div className="p-3 rounded-md bg-muted/50 border border-dashed flex items-center justify-center min-h-[100px]">
+                                    <Button size="sm" onClick={() => handleGradeQuestion(question)} disabled={result?.isLoading || !question.modelAnswer}>
+                                        <Wand2 className="mr-2 h-4 w-4" />
+                                        {result?.isLoading ? "採点中..." : "AIで採点"}
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
                     </div>
-                    <div className="space-y-2">
-                         <Label className="flex items-center gap-2"><Bot className="w-4 h-4 text-muted-foreground" />AI採点</Label>
-                        {result && !result.isLoading ? (
-                            <div className="p-3 rounded-md bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 space-y-2">
-                                <p><strong>スコア:</strong> {result.score}/{question.points}</p>
-                                <p><strong>根拠:</strong> {result.justification}</p>
-                            </div>
-                        ) : (
-                            <div className="p-3 rounded-md bg-muted/50 border border-dashed flex items-center justify-center min-h-[100px]">
-                                <Button size="sm" onClick={() => handleGradeQuestion(question)} disabled={result?.isLoading || !question.modelAnswer}>
-                                    <Wand2 className="mr-2 h-4 w-4" />
-                                    {result?.isLoading ? "採点中..." : "AIで採点"}
-                                </Button>
-                            </div>
-                        )}
+                    <div className="space-y-2 pt-4 border-t">
+                        <Label htmlFor={`feedback-${question.id}`}>あなたの評価</Label>
+                        <div className="flex items-start gap-2">
+                            <Input 
+                                id={`score-${question.id}`} 
+                                type="number" 
+                                placeholder="スコア" 
+                                className="w-24" 
+                                max={question.points}
+                                value={manualScores[question.id] || ''}
+                                onChange={(e) => handleManualScoreChange(question.id, e.target.value)}
+                            />
+                            <Textarea id={`feedback-${question.id}`} placeholder={`問題${index+1}のスコアの根拠を記入してください...`} />
+                        </div>
                     </div>
-                  </div>
-                  <div className="space-y-2 pt-4 border-t">
-                    <Label htmlFor={`feedback-${question.id}`}>あなたの評価</Label>
-                    <div className="flex items-start gap-2">
-                        <Input 
-                            id={`score-${question.id}`} 
-                            type="number" 
-                            placeholder="スコア" 
-                            className="w-24" 
-                            max={question.points}
-                            value={manualScores[question.id] || ''}
-                            onChange={(e) => handleManualScoreChange(question.id, e.target.value)}
-                        />
-                        <Textarea id={`feedback-${question.id}`} placeholder={`問題${index+1}のスコアの根拠を記入してください...`} />
-                    </div>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            );
-          })}
-        </Accordion>
+                </CardContent>
+            </Card>
+          );
+        })}
       </CardContent>
       <CardFooter className="flex flex-col items-stretch gap-4">
         <div className="border-t pt-4">
@@ -280,3 +277,5 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
     </Card>
   );
 }
+
+    
