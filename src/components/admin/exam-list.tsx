@@ -52,12 +52,12 @@ export function ExamList({ isAdmin }: ExamListProps) {
       <Table>
         <TableHeader>
           <TableRow className="bg-primary hover:bg-primary/90">
-            <TableHead className="text-primary-foreground">タイトル</TableHead>
-            <TableHead className="text-primary-foreground">ステータス</TableHead>
-            <TableHead className="text-primary-foreground">問題数</TableHead>
-            <TableHead className="text-primary-foreground">合計点</TableHead>
-            <TableHead className="text-primary-foreground">時間</TableHead>
-            <TableHead className="text-right text-primary-foreground">アクション</TableHead>
+            <TableHead className="text-primary-foreground whitespace-nowrap">タイトル</TableHead>
+            <TableHead className="text-primary-foreground whitespace-nowrap">ステータス</TableHead>
+            <TableHead className="text-primary-foreground whitespace-nowrap">問題数</TableHead>
+            <TableHead className="text-primary-foreground whitespace-nowrap">合計点</TableHead>
+            <TableHead className="text-primary-foreground whitespace-nowrap">時間</TableHead>
+            <TableHead className="text-right text-primary-foreground whitespace-nowrap">アクション</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
