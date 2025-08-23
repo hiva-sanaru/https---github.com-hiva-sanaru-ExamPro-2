@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import type { Exam, Answer } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ArrowLeft, Send } from "lucide-react";
 
 interface ReviewViewProps {
@@ -49,11 +49,12 @@ export function ReviewView({ exam }: ReviewViewProps) {
       <Card>
         <CardHeader>
           <CardTitle className="font-headline text-2xl">{exam.title}</CardTitle>
+          <CardDescription>各質問への回答を確認してください。</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {exam.questions.map((question) => (
-            <div key={question.id} className="rounded-lg border p-4">
-              <p className="font-semibold">{question.id}. {question.text}</p>
+          {exam.questions.map((question, index) => (
+            <div key={question.id} className="rounded-lg border bg-card p-4 shadow-sm">
+              <p className="font-semibold text-card-foreground">問題 {index + 1}: {question.text}</p>
               <p className="mt-2 text-muted-foreground whitespace-pre-wrap bg-muted p-3 rounded-md">
                 {getAnswerForQuestion(question.id)}
               </p>
@@ -64,12 +65,12 @@ export function ReviewView({ exam }: ReviewViewProps) {
 
       <div className="flex justify-between items-center mt-8">
         <Button variant="outline" onClick={() => router.back()}>
-          <ArrowLeft />
+          <ArrowLeft className="mr-2 h-4 w-4" />
           戻って編集
         </Button>
         <Button onClick={handleSubmit} disabled={isLoading} size="lg">
           {isLoading ? "提出中..." : "最終回答を提出"}
-          {!isLoading && <Send />}
+          {!isLoading && <Send className="ml-2 h-4 w-4" />}
         </Button>
       </div>
     </div>

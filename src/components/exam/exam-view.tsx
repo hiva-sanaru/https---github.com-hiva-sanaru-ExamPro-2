@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { Progress } from "@/components/ui/progress";
 import { Carousel, CarouselApi, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "../ui/carousel";
-import { ArrowRight, BookCheck } from "lucide-react";
+import { BookCheck } from "lucide-react";
 
 interface ExamViewProps {
   exam: Exam;
@@ -27,7 +27,7 @@ const QuestionCard = ({ question, answer, onAnswerChange }: { question: Question
     return (
         <Card className="h-full flex flex-col">
             <CardHeader>
-                <CardTitle className="font-headline text-xl">問題 {question.id.replace('q', '')}</CardTitle>
+                <CardTitle className="font-headline text-xl">問題 {question.id.replace('q', '').replace('nh','')}</CardTitle>
                 <p className="text-muted-foreground">{question.points} 点</p>
             </CardHeader>
             <CardContent className="flex-grow space-y-4">
@@ -75,6 +75,9 @@ const QuestionCard = ({ question, answer, onAnswerChange }: { question: Question
                     </div>
                 )}
             </CardContent>
+             <CardFooter>
+                <p className="text-xs text-muted-foreground">問題タイプ: {question.type === 'descriptive' ? '記述式' : question.type === 'fill-in-the-blank' ? '穴埋め' : '多肢選択式'}</p>
+            </CardFooter>
         </Card>
     )
 }
@@ -125,7 +128,7 @@ export function ExamView({ exam }: ExamViewProps) {
         <div>
             <Progress value={progress} className="h-2" />
             <p className="text-right text-sm text-muted-foreground mt-2">
-                {count} 問中 {current} 問解答済み
+                {count} 問中 {current} 問目
             </p>
         </div>
       
@@ -141,14 +144,14 @@ export function ExamView({ exam }: ExamViewProps) {
                     </CarouselItem>
                 ))}
             </CarouselContent>
-            <CarouselPrevious className="-left-4 md:-left-12" />
-            <CarouselNext className="-right-4 md:-right-12" />
+            <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2 md:-left-12" />
+            <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2 md:-right-12" />
         </Carousel>
 
       <div className="flex justify-end mt-8">
         <Button onClick={handleReview} size="lg" className="bg-accent hover:bg-accent/90">
           確認して提出
-          <BookCheck />
+          <BookCheck className="ml-2 h-4 w-4" />
         </Button>
       </div>
     </div>
