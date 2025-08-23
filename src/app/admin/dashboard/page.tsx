@@ -116,7 +116,6 @@ export default function AdminDashboardPage() {
                 <CardHeader className="flex flex-row items-center justify-between">
                     <div>
                         <CardTitle className="font-headline text-xl">試験の管理</CardTitle>
-                        <CardDescription>システム内のすべての試験を作成、編集、表示します。</CardDescription>
                     </div>
                      <div className="flex items-center gap-2">
                         <Button variant="outline" onClick={handleBackup}>
