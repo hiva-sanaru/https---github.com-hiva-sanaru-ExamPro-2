@@ -25,7 +25,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
     const menuItems = [
         { href: "/admin/dashboard", label: "ダッシュボード", icon: LayoutDashboard },
-        { href: "/admin/review/sub1", label: "提出物", icon: FileCheck2 },
+        { href: "/admin/review", label: "提出物", icon: FileCheck2 },
         { href: "/admin/users", label: "ユーザー", icon: Users },
         { href: "/admin/headquarters", label: "本部管理", icon: Building },
     ]
@@ -43,7 +43,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                         {menuItems.map((item) => (
                              <SidebarMenuItem key={item.href}>
                                 <Link href={item.href}>
-                                    <SidebarMenuButton isActive={pathname === item.href} tooltip={item.label}>
+                                    <SidebarMenuButton isActive={pathname.startsWith(item.href)} tooltip={item.label}>
                                         <item.icon />
                                         <span>{item.label}</span>
                                     </SidebarMenuButton>
