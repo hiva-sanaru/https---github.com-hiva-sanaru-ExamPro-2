@@ -17,7 +17,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { BookA, LayoutDashboard, FileCheck2, Users, Settings, LogOut } from "lucide-react";
+import { BookA, LayoutDashboard, FileCheck2, Users, Settings, LogOut, Building } from "lucide-react";
 
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -27,6 +27,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         { href: "/admin/dashboard", label: "ダッシュボード", icon: LayoutDashboard },
         { href: "/admin/review/sub1", label: "提出物", icon: FileCheck2 },
         { href: "/admin/users", label: "ユーザー", icon: Users },
+        { href: "/admin/headquarters", label: "本部管理", icon: Building },
     ]
 
     return (
