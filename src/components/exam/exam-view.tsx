@@ -43,7 +43,7 @@ const renderFillInTheBlank = (text: string, value: string, onChange: (value: str
     )
 }
 
-const QuestionCard = ({ question, answer, onAnswerChange }: { question: Question; answer: Answer | undefined, onAnswerChange: (questionId: string, value: string) => void }) => {
+const QuestionCard = ({ question, index, answer, onAnswerChange }: { question: Question; index: number; answer: Answer | undefined, onAnswerChange: (questionId: string, value: string) => void }) => {
     
     const handleSubAnswerChange = (subQuestionId: string, value: string) => {
         // This part would need a more complex state management, for now we just log it
@@ -53,7 +53,7 @@ const QuestionCard = ({ question, answer, onAnswerChange }: { question: Question
     return (
         <Card className="h-full flex flex-col">
             <CardHeader>
-                <CardTitle className="font-headline text-xl">問題 {question.id.replace('q', '').replace('nh','')}</CardTitle>
+                <CardTitle className="font-headline text-xl">問題 {index + 1}</CardTitle>
                 <p className="text-muted-foreground">{question.points} 点</p>
             </CardHeader>
             <CardContent className="flex-grow space-y-4">
@@ -64,14 +64,14 @@ const QuestionCard = ({ question, answer, onAnswerChange }: { question: Question
                         placeholder="あなたの答え..." 
                         rows={8}
                         value={answer?.value || ''}
-                        onChange={(e) => onAnswerChange(question.id, e.target.value)}
+                        onChange={(e) => onAnswerChange(question.id!, e.target.value)}
                     />
                 )}
                 {question.type === 'fill-in-the-blank' && (
-                    renderFillInTheBlank(question.text, answer?.value || '', (value) => onAnswerChange(question.id, value))
+                    renderFillInTheBlank(question.text, answer?.value || '', (value) => onAnswerChange(question.id!, value))
                 )}
-                {question.type === 'multiple-choice' && question.options && (
-                    <RadioGroup value={answer?.value || ''} onValueChange={(value) => onAnswerChange(question.id, value)}>
+                {question.type === 'selection' && question.options && (
+                    <RadioGroup value={answer?.value || ''} onValueChange={(value) => onAnswerChange(question.id!, value)}>
                         {question.options.map((option, index) => (
                             <div key={index} className="flex items-center space-x-2">
                                 <RadioGroupItem value={option} id={`${question.id}-${index}`} />
@@ -91,7 +91,7 @@ const QuestionCard = ({ question, answer, onAnswerChange }: { question: Question
                                     placeholder="サブ問題へのあなたの答え..." 
                                     rows={3}
                                     className="mt-2"
-                                    onChange={(e) => handleSubAnswerChange(subQ.id, e.target.value)}
+                                    onChange={(e) => handleSubAnswerChange(subQ.id!, e.target.value)}
                                 />
                              </div>
                         ))}
@@ -165,10 +165,11 @@ export function ExamView({ exam }: ExamViewProps) {
           
             <Carousel setApi={setApi} className="w-full">
                 <CarouselContent>
-                    {exam.questions.map((question) => (
+                    {exam.questions.map((question, index) => (
                         <CarouselItem key={question.id}>
                             <QuestionCard 
-                                question={question} 
+                                question={question}
+                                index={index}
                                 answer={answers.find(a => a.questionId === question.id)}
                                 onAnswerChange={handleAnswerChange}
                             />
