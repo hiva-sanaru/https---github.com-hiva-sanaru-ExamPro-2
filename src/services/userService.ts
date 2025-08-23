@@ -1,6 +1,6 @@
 
 import { db } from '@/lib/firebase';
-import { collection, getDocs, doc, setDoc, deleteDoc, getDoc, query, where, addDoc, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, setDoc, deleteDoc, getDoc, query, where, addDoc, updateDoc, limit } from 'firebase/firestore';
 import type { User } from '@/lib/types';
 
 const usersCollection = collection(db, 'users');
@@ -17,6 +17,18 @@ export async function getUser(id: string): Promise<User | null> {
         return { id: docSnap.id, ...docSnap.data() } as User;
     }
     return null;
+}
+
+export async function findUserByEmployeeId(employeeId: string): Promise<User | null> {
+    const q = query(usersCollection, where("employeeId", "==", employeeId), limit(1));
+    const snapshot = await getDocs(q);
+
+    if (snapshot.empty) {
+        return null;
+    }
+    
+    const userDoc = snapshot.docs[0];
+    return { id: userDoc.id, ...userDoc.data() } as User;
 }
 
 export async function addUser(user: Omit<User, 'id'>): Promise<string> {

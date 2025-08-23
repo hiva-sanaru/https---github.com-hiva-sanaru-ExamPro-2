@@ -17,7 +17,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { User, KeyRound, ArrowRight } from "lucide-react";
+import { User, KeyRound, ArrowRight, Loader2 } from "lucide-react";
+import { findUserByEmployeeId } from "@/services/userService";
+import { useToast } from "@/hooks/use-toast";
 
 const loginSchema = z.object({
   employeeId: z.string().length(8, { message: "社員番号は8桁である必要があります。"}).regex(/^[0-9]+$/, { message: "社員番号は半角数字でなければなりません。"}),
@@ -28,6 +30,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 export function LoginForm() {
   const router = useRouter();
+  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<LoginFormValues>({
@@ -38,15 +41,49 @@ export function LoginForm() {
     },
   });
 
-  const onSubmit = (data: LoginFormValues) => {
+  const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true);
-    // Simulate API call
-    // In a real app, you would verify credentials and get the user's role from the backend
-    setTimeout(() => {
-        // For demonstration, we'll assume any valid login is for an admin
-        router.push("/admin/dashboard");
-        setIsLoading(false);
-    }, 1000);
+    try {
+        const user = await findUserByEmployeeId(data.employeeId);
+
+        if (!user) {
+            toast({
+                title: "ログイン失敗",
+                description: "社員番号またはパスワードが正しくありません。",
+                variant: "destructive"
+            });
+            setIsLoading(false);
+            return;
+        }
+
+        // NOTE: Password verification is not implemented yet.
+        // For now, we assume if the user exists, login is successful.
+
+        if (user.role === 'system_administrator' || user.role === 'hq_administrator') {
+            router.push("/admin/dashboard");
+        } else if (user.role === 'examinee') {
+            // TODO: Redirect to an examinee-specific dashboard.
+            // For now, redirecting to the home page.
+            router.push("/");
+        } else {
+            toast({
+                title: "ログイン失敗",
+                description: "このユーザーには役割が割り当てられていません。",
+                variant: "destructive"
+            });
+        }
+
+    } catch (error) {
+        console.error("Login error:", error);
+        toast({
+            title: "ログインエラー",
+            description: "ログイン中に予期せぬエラーが発生しました。",
+            variant: "destructive"
+        });
+    } finally {
+        // A slight delay is kept to give feedback to the user, even on failure.
+        setTimeout(() => setIsLoading(false), 500);
+    }
   };
 
   return (
@@ -91,7 +128,7 @@ export function LoginForm() {
               )}
             />
             <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "サインイン中..." : "サインイン"}
+                {isLoading ? <Loader2 className="animate-spin" /> : "サインイン"}
                 {!isLoading && <ArrowRight />}
             </Button>
           </form>
