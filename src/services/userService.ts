@@ -1,6 +1,6 @@
 
 import { db } from '@/lib/firebase';
-import { collection, getDocs, doc, setDoc, deleteDoc, getDoc, query, where, addDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, setDoc, deleteDoc, getDoc, query, where, addDoc, updateDoc } from 'firebase/firestore';
 import type { User } from '@/lib/types';
 
 const usersCollection = collection(db, 'users');
@@ -26,7 +26,9 @@ export async function addUser(user: Omit<User, 'id'>): Promise<string> {
 
 export async function updateUser(userId: string, userData: Partial<User>): Promise<void> {
     const docRef = doc(db, 'users', userId);
-    await setDoc(docRef, userData, { merge: true });
+    // The employeeId should not be part of the update data as it's used as an immutable identifier in some parts of the logic.
+    const { employeeId, ...updateData } = userData;
+    await setDoc(docRef, updateData, { merge: true });
 }
 
 export async function deleteUser(userId: string): Promise<void> {
