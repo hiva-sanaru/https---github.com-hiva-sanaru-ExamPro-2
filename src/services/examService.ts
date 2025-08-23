@@ -17,7 +17,12 @@ export async function getExam(id: string): Promise<Exam | null> {
     const docRef = doc(db, 'exams', id);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
-        return { id: docSnap.id, ...docSnap.data() } as Exam;
+        const examData = docSnap.data();
+        // Ensure questions array exists
+        if (!examData.questions) {
+            examData.questions = [];
+        }
+        return { id: docSnap.id, ...examData } as Exam;
     }
     return null;
 }
@@ -36,12 +41,18 @@ export async function addExam(examData: Omit<Exam, 'id'>): Promise<string> {
 // Update an existing exam
 export async function updateExam(examId: string, examData: Partial<Omit<Exam, 'id'>>): Promise<void> {
     const docRef = doc(db, 'exams', examId);
-    const questionsWithIds = examData.questions?.map(q => ({
-        ...q,
-        id: q.id || uuidv4(),
-        subQuestions: q.subQuestions?.map(subQ => ({ ...subQ, id: subQ.id || uuidv4() }))
-    }));
-    await updateDoc(docRef, { ...examData, questions: questionsWithIds });
+    let dataToUpdate = { ...examData };
+
+    if (examData.questions) {
+        const questionsWithIds = examData.questions.map(q => ({
+            ...q,
+            id: q.id || uuidv4(),
+            subQuestions: q.subQuestions?.map(subQ => ({ ...subQ, id: subQ.id || uuidv4() }))
+        }));
+        dataToUpdate.questions = questionsWithIds;
+    }
+    
+    await updateDoc(docRef, dataToUpdate);
 }
 
 
