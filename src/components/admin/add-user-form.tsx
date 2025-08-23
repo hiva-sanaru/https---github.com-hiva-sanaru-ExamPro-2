@@ -76,7 +76,6 @@ export function AddUserForm({ user, onFinished, headquartersList }: AddUserFormP
                 title: "ユーザーが正常に更新されました！",
                 description: `名前: ${data.name}, 社員番号: ${data.employeeId}`,
             });
-            setIsLoading(false);
             onFinished({ ...user, ...userData });
         } else {
             const newUserId = await addUser(userData);
@@ -85,7 +84,6 @@ export function AddUserForm({ user, onFinished, headquartersList }: AddUserFormP
                 title: "ユーザーが正常に追加されました！",
                 description: `名前: ${data.name}, 社員番号: ${data.employeeId}`,
             });
-            setIsLoading(false);
             onFinished(newUser);
         }
     } catch(error) {
@@ -94,6 +92,7 @@ export function AddUserForm({ user, onFinished, headquartersList }: AddUserFormP
             description: (error as Error).message,
             variant: "destructive"
         })
+    } finally {
         setIsLoading(false);
     }
   };
