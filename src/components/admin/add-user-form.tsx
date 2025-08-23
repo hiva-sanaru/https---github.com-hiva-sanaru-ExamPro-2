@@ -79,11 +79,12 @@ export function AddUserForm({ user, onFinished, headquartersList }: AddUserFormP
             onFinished({ ...user, ...userData });
         } else {
             const newUserId = await addUser(userData);
+            const newUser = { id: newUserId, ...userData };
             toast({
                 title: "ユーザーが正常に追加されました！",
                 description: `名前: ${data.name}, 社員番号: ${data.employeeId}`,
             });
-            onFinished({ id: newUserId, ...userData });
+            onFinished(newUser);
         }
     } catch(error) {
         toast({

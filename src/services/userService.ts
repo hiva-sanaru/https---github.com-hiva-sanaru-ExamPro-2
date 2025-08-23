@@ -1,6 +1,6 @@
 
 import { db } from '@/lib/firebase';
-import { collection, getDocs, doc, setDoc, deleteDoc, getDoc, query, where } from 'firebase/firestore';
+import { collection, getDocs, doc, setDoc, deleteDoc, getDoc, query, where, addDoc } from 'firebase/firestore';
 import type { User } from '@/lib/types';
 
 const usersCollection = collection(db, 'users');
@@ -20,7 +20,7 @@ export async function getUser(id: string): Promise<User | null> {
 }
 
 export async function addUser(user: Omit<User, 'id'>): Promise<string> {
-    // employeeId should be the document id
+    // Use employeeId as the document id
     const docRef = doc(usersCollection, user.employeeId);
     await setDoc(docRef, user);
     return user.employeeId;
