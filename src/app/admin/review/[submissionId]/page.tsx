@@ -4,7 +4,7 @@ import { mockExams, mockSubmissions } from "@/lib/data";
 import { notFound } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { User, Calendar, CheckCircle, AlertTriangle, ShieldCheck } from "lucide-react";
-import { format } from "date-fns";
+import { formatInTimeZone } from 'date-fns-tz';
 import { ja } from 'date-fns/locale';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
@@ -82,7 +82,7 @@ export default function AdminReviewPage({ params }: { params: { submissionId: st
                     </div>
                     <div className="flex items-center gap-2">
                         <Calendar className="w-4 h-4 text-muted-foreground" />
-                        <strong>提出日時:</strong> <span>{format(submission.submittedAt, "PPP p", { locale: ja })}</span>
+                        <strong>提出日時:</strong> <span>{formatInTimeZone(submission.submittedAt, 'Asia/Tokyo', "PPP p", { locale: ja })}</span>
                     </div>
                      <div className="flex items-center gap-2">
                         <CheckCircle className="w-4 h-4 text-muted-foreground" />

@@ -13,7 +13,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cva } from "class-variance-authority";
-import { format } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import { ja } from 'date-fns/locale';
 import Link from "next/link";
 import { Eye } from "lucide-react";
@@ -65,7 +65,7 @@ export function SubmissionList() {
                     <TableCell className="font-medium">{exam?.title || 'N/A'}</TableCell>
                     <TableCell>{examinee?.name || 'N/A'}</TableCell>
                     <TableCell>{submission.examineeHeadquarters}</TableCell>
-                    <TableCell>{format(submission.submittedAt, "PPP p", { locale: ja })}</TableCell>
+                    <TableCell>{formatInTimeZone(submission.submittedAt, 'Asia/Tokyo', "PPP p", { locale: ja })}</TableCell>
                     <TableCell>
                         <Badge variant="outline" className={badgeVariants({ status: submission.status as any })}>
                             {getStatusName(submission.status)}
