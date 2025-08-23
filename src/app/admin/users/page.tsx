@@ -9,15 +9,32 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { mockUsers } from "@/lib/data";
-import type { User } from "@/lib/types";
+import type { User, UserRole } from "@/lib/types";
 import { PlusCircle, Search } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+const headquartersList = ["Tokyo", "Osaka", "Fukuoka", "Hokkaido"];
 
 export default function AdminUsersPage() {
     const [searchTerm, setSearchTerm] = useState("");
+    const [roleFilter, setRoleFilter] = useState("all");
+    const [hqFilter, setHqFilter] = useState("all");
 
-    const filteredUsers = mockUsers.filter((user: User) => 
-        user.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredUsers = mockUsers.filter((user: User) => {
+        const nameMatch = user.name.toLowerCase().includes(searchTerm.toLowerCase());
+        const roleMatch = roleFilter === 'all' || user.role === roleFilter;
+        const hqMatch = hqFilter === 'all' || user.headquarters === hqFilter;
+        return nameMatch && roleMatch && hqMatch;
+    });
+
+    const getRoleName = (role: UserRole) => {
+        switch(role) {
+            case 'system_administrator': return 'システム管理者';
+            case 'hq_administrator': return '本部管理者';
+            case 'examinee': return '受験者';
+        }
+    }
+
 
     return (
         <div className="space-y-6">
@@ -41,6 +58,28 @@ export default function AdminUsersPage() {
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
                         </div>
+                        <Select value={roleFilter} onValueChange={setRoleFilter}>
+                            <SelectTrigger className="w-[180px]">
+                                <SelectValue placeholder="役割で絞り込み" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">すべての役割</SelectItem>
+                                <SelectItem value="system_administrator">システム管理者</SelectItem>
+                                <SelectItem value="hq_administrator">本部管理者</SelectItem>
+                                <SelectItem value="examinee">受験者</SelectItem>
+                            </SelectContent>
+                        </Select>
+                         <Select value={hqFilter} onValueChange={setHqFilter}>
+                            <SelectTrigger className="w-[180px]">
+                                <SelectValue placeholder="本部で絞り込み" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">すべての本部</SelectItem>
+                                {headquartersList.map(hq => (
+                                    <SelectItem key={hq} value={hq}>{hq}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                         <Dialog>
                             <DialogTrigger asChild>
                                 <Button>
