@@ -7,7 +7,7 @@ export default function LoginPage() {
       <div className="flex w-full max-w-md flex-col items-center space-y-6">
         <div className="flex items-center space-x-3 text-primary">
           <BookAIcon className="h-10 w-10" />
-          <h1 className="text-4xl font-bold font-headline">SANARUスタッフ昇給試験サイト</h1>
+          <h1 className="text-3xl font-bold font-headline">SANARUスタッフ昇給試験サイト</h1>
         </div>
         <p className="text-center text-muted-foreground">
           おかえりなさい。現代のチームのためのAI搭載試験プラットフォーム。
