@@ -17,6 +17,7 @@ import type { User, Exam, Submission } from '@/lib/types';
 // In a real application, this would come from an authentication context.
 const MOCK_ADMIN_USER = {
     id: 'admin1',
+    name: '田中 太郎',
     role: 'system_administrator', // Try changing this to 'hq_administrator'
     headquarters: 'Tokyo' 
 }
@@ -69,7 +70,7 @@ export default function AdminDashboardPage() {
         <div className="space-y-6">
             <div>
                 <h1 className="text-3xl font-bold font-headline">管理者ダッシュボード</h1>
-                <p className="text-muted-foreground">おかえりなさい、管理者さん！ここで試験とユーザーを管理します。</p>
+                <p className="text-muted-foreground">おかえりなさい、{MOCK_ADMIN_USER.name}さん！ここで試験とユーザーを管理します。</p>
             </div>
             
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
