@@ -136,7 +136,7 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
             <Card key={question.id} className="overflow-hidden">
                 <CardHeader className="bg-primary text-primary-foreground">
                     <div className="flex justify-between w-full items-center">
-                        <CardTitle className="text-lg font-semibold text-left text-primary-foreground">問題 {index + 1}: {question.text} ({question.points}点)</CardTitle>
+                        <CardTitle className="text-base font-semibold text-left text-primary-foreground">問題 {index + 1}: {question.text} ({question.points}点)</CardTitle>
                         <div className="flex items-center gap-2">
                             {manualScores[question.id] !== undefined && <Badge variant="secondary">{manualScores[question.id]}点</Badge>}
                             {result && !result.isLoading && <Badge variant="secondary">AI採点済み</Badge>}
@@ -153,7 +153,7 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
                         <div className="space-y-2">
                             <Label className="flex items-center gap-2"><Bot className="w-4 h-4 text-muted-foreground" />AI採点</Label>
                             {result && !result.isLoading ? (
-                                <div className="p-3 rounded-md bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 space-y-2">
+                                <div className="p-3 rounded-md bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 space-y-2 text-sm">
                                     <p><strong>スコア:</strong> {result.score}/{question.points}</p>
                                     <p><strong>根拠:</strong> {result.justification}</p>
                                 </div>
@@ -191,7 +191,7 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
         <div className="border-t pt-4">
             <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-headline">最終評価</h3>
-                <div className="text-2xl font-bold">
+                <div className="text-xl font-bold">
                     合計スコア: {totalScore} / {exam.totalPoints}
                 </div>
             </div>
@@ -277,7 +277,3 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
     </Card>
   );
 }
-
-    
-
-    
