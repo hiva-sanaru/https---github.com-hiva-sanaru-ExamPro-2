@@ -114,6 +114,7 @@ export function ExamView({ exam }: ExamViewProps) {
 
   // Exam-wide countdown timer logic
   useEffect(() => {
+    if (isLoading) return; // Don't start timer until everything is loaded
     if (examTimeLeft <= 0) {
         handleTimeUp();
         return;
@@ -122,7 +123,7 @@ export function ExamView({ exam }: ExamViewProps) {
         setExamTimeLeft(prev => prev - 1);
     }, 1000);
     return () => clearInterval(timer);
-  }, [examTimeLeft, handleTimeUp]);
+  }, [examTimeLeft, handleTimeUp, isLoading]);
 
   if (isLoading) {
     return <div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>
@@ -157,7 +158,6 @@ export function ExamView({ exam }: ExamViewProps) {
                                 index={index}
                                 answer={answers.find(a => a.questionId === question.id)}
                                 onAnswerChange={handleAnswerChange}
-                                onTimeUp={handleNext} // Auto-advance to next question
                             />
                         </CarouselItem>
                     ))}

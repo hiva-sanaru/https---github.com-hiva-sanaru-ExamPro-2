@@ -15,7 +15,6 @@ interface QuestionCardProps {
     index: number;
     answer: Answer | undefined;
     onAnswerChange: (questionId: string, value: string) => void;
-    onTimeUp: () => void;
 }
 
 const renderFillInTheBlank = (text: string, value: string, onChange: (value: string) => void) => {
@@ -42,34 +41,8 @@ const renderFillInTheBlank = (text: string, value: string, onChange: (value: str
     )
 }
 
-const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-    const s = (seconds % 60).toString().padStart(2, '0');
-    return `${m}:${s}`;
-};
-
-export const QuestionCard = ({ question, index, answer, onAnswerChange, onTimeUp }: QuestionCardProps) => {
-    const [timeLeft, setTimeLeft] = useState(question.timeLimit);
+export const QuestionCard = ({ question, index, answer, onAnswerChange }: QuestionCardProps) => {
     
-    useEffect(() => {
-        // Reset timer when question changes
-        setTimeLeft(question.timeLimit);
-    }, [question.timeLimit]);
-
-    useEffect(() => {
-        if (timeLeft === undefined) return;
-        if (timeLeft <= 0) {
-            onTimeUp();
-            return;
-        }
-
-        const timer = setInterval(() => {
-            setTimeLeft(prev => (prev !== undefined ? prev - 1 : undefined));
-        }, 1000);
-
-        return () => clearInterval(timer);
-    }, [timeLeft, onTimeUp]);
-
     const handleSubAnswerChange = (subQuestionId: string, value: string) => {
         // This part would need a more complex state management, for now we just log it
         console.log(`Sub-question ${subQuestionId} answer changed to: ${value}`);
@@ -84,10 +57,10 @@ export const QuestionCard = ({ question, index, answer, onAnswerChange, onTimeUp
                     <CardTitle className="font-headline text-xl">問題 {index + 1}</CardTitle>
                     <p className="text-muted-foreground">{question.points} 点</p>
                 </div>
-                {timeLeft !== undefined && (
+                {question.timeLimit && (
                     <div className="flex items-center gap-2 rounded-lg bg-muted px-3 py-1.5 text-sm">
                         <Clock className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-mono font-semibold">残り時間: {formatTime(timeLeft)}</span>
+                        <span className="font-mono font-semibold">目安時間: {Math.floor(question.timeLimit / 60)}分</span>
                     </div>
                 )}
             </CardHeader>
