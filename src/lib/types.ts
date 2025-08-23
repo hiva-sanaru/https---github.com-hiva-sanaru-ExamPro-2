@@ -8,6 +8,7 @@ export interface User {
   role: UserRole;
   avatarUrl: string;
   headquarters?: string;
+  password?: string;
 }
 
 export type QuestionType = 'descriptive' | 'fill-in-the-blank' | 'selection';

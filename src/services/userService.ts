@@ -40,6 +40,12 @@ export async function updateUser(userId: string, userData: Partial<User>): Promi
     const docRef = doc(db, 'users', userId);
     // The employeeId should not be part of the update data as it's used as an immutable identifier in some parts of the logic.
     const { employeeId, ...updateData } = userData;
+
+    // Only include password in the update if it's explicitly provided and not an empty string
+    if (userData.password === '' || userData.password === null || userData.password === undefined) {
+        delete updateData.password;
+    }
+    
     await setDoc(docRef, updateData, { merge: true });
 }
 

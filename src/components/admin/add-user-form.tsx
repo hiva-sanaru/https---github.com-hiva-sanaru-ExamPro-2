@@ -14,10 +14,12 @@ import { Loader2 } from "lucide-react";
 import type { User, Headquarters } from "@/lib/types";
 import { addUser, updateUser } from "@/services/userService";
 
-const userSchema = z.object({
+const userSchema = (isEditing: boolean) => z.object({
     name: z.string().min(1, { message: "名前は必須です。" }),
     employeeId: z.string().length(8, { message: "社員番号は8桁である必要があります。"}).regex(/^[0-9]+$/, { message: "社員番号は半角数字でなければなりません。"}),
-    password: z.string().min(8, { message: "パスワードは8文字以上である必要があります。" }).optional().or(z.literal('')),
+    password: isEditing 
+        ? z.string().min(8, { message: "パスワードは8文字以上である必要があります。" }).optional().or(z.literal(''))
+        : z.string().min(8, { message: "パスワードは8文字以上である必要があります。" }),
     role: z.enum(["system_administrator", "hq_administrator", "examinee"], {
         required_error: "役割を選択する必要があります。",
     }),
@@ -28,11 +30,10 @@ const userSchema = z.object({
     }
     return true;
 }, {
-    message: "本部管理者の場合は本部を選択してください。",
+    message: "本部管理者または受験者の場合は本部を選択してください。",
     path: ["headquarters"],
 });
 
-type UserFormValues = z.infer<typeof userSchema>;
 
 interface AddUserFormProps {
     user?: User; 
@@ -46,9 +47,11 @@ export function AddUserForm({ user, onFinished, headquartersList, onClose }: Add
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const isEditing = !!user;
+  
+  type UserFormValues = z.infer<ReturnType<typeof userSchema>>;
 
   const form = useForm<UserFormValues>({
-    resolver: zodResolver(userSchema),
+    resolver: zodResolver(userSchema(isEditing)),
     defaultValues: {
       name: user?.name || "",
       employeeId: user?.employeeId || "",
@@ -63,13 +66,17 @@ export function AddUserForm({ user, onFinished, headquartersList, onClose }: Add
   const onSubmit = async (data: UserFormValues) => {
     setIsLoading(true);
     try {
-        const userData = {
+        let userData: Partial<User> = {
             name: data.name,
             employeeId: data.employeeId,
             role: data.role,
             headquarters: (data.role === 'hq_administrator' || data.role === 'examinee') ? data.headquarters : '',
             avatarUrl: `https://placehold.co/40x40.png?text=${data.name.substring(0,2).toUpperCase()}`
         };
+
+        if (data.password) {
+            userData.password = data.password;
+        }
 
         if (isEditing && user) {
             await updateUser(user.id, userData);
@@ -79,8 +86,12 @@ export function AddUserForm({ user, onFinished, headquartersList, onClose }: Add
             });
             onFinished({ ...user, ...userData });
         } else {
-            const newUserId = await addUser(userData);
-            const newUser = { id: newUserId, ...userData };
+            // Ensure password is set for new user. The schema should enforce this.
+            if (!userData.password) {
+                throw new Error("Password is required for new users.");
+            }
+            const newUserId = await addUser(userData as Omit<User, 'id'>);
+            const newUser = { id: newUserId, ...userData } as User;
             toast({
                 title: "ユーザーが正常に追加されました！",
                 description: `名前: ${data.name}, 社員番号: ${data.employeeId}`,

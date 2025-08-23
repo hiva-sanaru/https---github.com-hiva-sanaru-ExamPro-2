@@ -46,7 +46,7 @@ export function LoginForm() {
     try {
         const user = await findUserByEmployeeId(data.employeeId);
 
-        if (!user) {
+        if (!user || user.password !== data.password) {
             toast({
                 title: "ログイン失敗",
                 description: "社員番号またはパスワードが正しくありません。",
@@ -56,14 +56,9 @@ export function LoginForm() {
             return;
         }
 
-        // NOTE: Password verification is not implemented yet.
-        // For now, we assume if the user exists, login is successful.
-
         if (user.role === 'system_administrator' || user.role === 'hq_administrator') {
             router.push("/admin/dashboard");
         } else if (user.role === 'examinee') {
-            // TODO: Redirect to an examinee-specific dashboard.
-            // For now, redirecting to the home page.
             router.push("/");
         } else {
             toast({
@@ -81,7 +76,6 @@ export function LoginForm() {
             variant: "destructive"
         });
     } finally {
-        // A slight delay is kept to give feedback to the user, even on failure.
         setTimeout(() => setIsLoading(false), 500);
     }
   };
