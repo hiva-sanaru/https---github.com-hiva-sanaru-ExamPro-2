@@ -19,6 +19,30 @@ interface ExamViewProps {
   exam: Exam;
 }
 
+const renderFillInTheBlank = (text: string, value: string, onChange: (value: string) => void) => {
+    const parts = text.split('___');
+    if (parts.length <= 1) {
+        return <Input placeholder="空欄を埋めてください..." value={value} onChange={(e) => onChange(e.target.value)} />;
+    }
+    return (
+        <div className="flex items-center gap-2 flex-wrap">
+            {parts.map((part, index) => (
+                <div key={index} className="flex items-center gap-2">
+                    {part && <p className="text-lg">{part}</p>}
+                    {index < parts.length - 1 && (
+                         <Input 
+                            placeholder="回答" 
+                            className="w-48"
+                            value={value || ''}
+                            onChange={(e) => onChange(e.target.value)}
+                        />
+                    )}
+                </div>
+            ))}
+        </div>
+    )
+}
+
 const QuestionCard = ({ question, answer, onAnswerChange }: { question: Question; answer: Answer | undefined, onAnswerChange: (questionId: string, value: string) => void }) => {
     
     const handleSubAnswerChange = (subQuestionId: string, value: string) => {
@@ -33,7 +57,8 @@ const QuestionCard = ({ question, answer, onAnswerChange }: { question: Question
                 <p className="text-muted-foreground">{question.points} 点</p>
             </CardHeader>
             <CardContent className="flex-grow space-y-4">
-                <p className="text-lg">{question.text}</p>
+                {question.type !== 'fill-in-the-blank' && <p className="text-lg">{question.text}</p>}
+                
                 {question.type === 'descriptive' && (
                     <Textarea 
                         placeholder="あなたの答え..." 
@@ -43,11 +68,7 @@ const QuestionCard = ({ question, answer, onAnswerChange }: { question: Question
                     />
                 )}
                 {question.type === 'fill-in-the-blank' && (
-                    <Input 
-                        placeholder="空欄を埋めてください..." 
-                        value={answer?.value || ''}
-                        onChange={(e) => onAnswerChange(question.id, e.target.value)}
-                    />
+                    renderFillInTheBlank(question.text, answer?.value || '', (value) => onAnswerChange(question.id, value))
                 )}
                 {question.type === 'multiple-choice' && question.options && (
                     <RadioGroup value={answer?.value || ''} onValueChange={(value) => onAnswerChange(question.id, value)}>
