@@ -44,7 +44,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                     <SidebarMenu>
                         {menuItems.map((item) => (
                              <SidebarMenuItem key={item.href}>
-                                <Link href={item.href} legacyBehavior passHref>
+                                <Link href={item.href}>
                                     <SidebarMenuButton isActive={pathname === item.href} tooltip={item.label}>
                                         <item.icon />
                                         <span>{item.label}</span>
@@ -67,7 +67,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                                 <span className="text-xs text-sidebar-foreground/70">admin@exampro.com</span>
                             </div>
                         </div>
-                        <Link href="/login" legacyBehavior passHref>
+                        <Link href="/login">
                             <Button variant="ghost" className="w-full justify-start gap-2 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:justify-center">
                                 <LogOut className="size-4 shrink-0" />
                                 <span className="group-data-[collapsible=icon]:hidden">ログアウト</span>
