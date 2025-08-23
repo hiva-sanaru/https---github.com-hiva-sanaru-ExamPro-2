@@ -20,10 +20,8 @@ export async function getUser(id: string): Promise<User | null> {
 }
 
 export async function addUser(user: Omit<User, 'id'>): Promise<string> {
-    // Use employeeId as the document id
-    const docRef = doc(usersCollection, user.employeeId);
-    await setDoc(docRef, user);
-    return user.employeeId;
+    const docRef = await addDoc(usersCollection, user);
+    return docRef.id;
 }
 
 export async function updateUser(userId: string, userData: Partial<User>): Promise<void> {
