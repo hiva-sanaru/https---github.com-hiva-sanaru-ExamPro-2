@@ -38,15 +38,18 @@ export async function addUser(user: Omit<User, 'id'>): Promise<string> {
 
 export async function updateUser(userId: string, userData: Partial<User>): Promise<void> {
     const docRef = doc(db, 'users', userId);
-    // The employeeId should not be part of the update data as it's used as an immutable identifier in some parts of the logic.
-    const { employeeId, password, ...updateData } = userData;
+    
+    const dataToUpdate: Partial<User> = { ...userData };
+
+    // Do not allow employeeId to be updated
+    delete (dataToUpdate as any).employeeId;
 
     // Only include password in the update if it's explicitly provided and not an empty string
-    if (password) {
-        (updateData as Partial<User>).password = password;
+    if (!userData.password) {
+        delete dataToUpdate.password;
     }
     
-    await setDoc(docRef, updateData, { merge: true });
+    await updateDoc(docRef, dataToUpdate);
 }
 
 export async function deleteUser(userId: string): Promise<void> {
