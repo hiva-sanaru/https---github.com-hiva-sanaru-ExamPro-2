@@ -14,6 +14,7 @@ import type { Question, Exam } from '@/lib/types';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { addExam, getExam, updateExam } from '@/services/examService';
 import { v4 as uuidv4 } from 'uuid';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 
 function CreateExamPageContent() {
@@ -207,131 +208,138 @@ function CreateExamPageContent() {
                 <CardTitle>問題リスト</CardTitle>
                 <CardDescription>試験問題を作成・編集します。</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-               {questions.map((q, index) => {
-                   const blankCount = q.type === 'fill-in-the-blank' ? (q.text?.match(/___/g) || []).length : 0;
-                   return (
-                   <Card key={q.id || index} className="p-4 bg-muted/30">
-                       <div className="flex justify-between items-start">
-                           <div className="flex-grow space-y-4 pr-4">
-                               <div className="space-y-2">
-                                   <Label htmlFor={`q-text-${index}`}>問題文 {index + 1}</Label>
-                                   <Textarea id={`q-text-${index}`} value={q.text} onChange={(e) => handleQuestionChange(index, 'text', e.target.value)} placeholder={`問題 ${index + 1} の内容を記述...`} />
-                               </div>
-                                {q.type === 'selection' && (
-                                  <div className="space-y-2">
-                                      <Label htmlFor={`q-options-${index}`}>選択肢 (改行で区切る)</Label>
-                                      <Textarea 
-                                          id={`q-options-${index}`} 
-                                          value={Array.isArray(q.options) ? q.options.join('\n') : ''} 
-                                          onChange={(e) => handleQuestionChange(index, 'options', e.target.value)} 
-                                          placeholder={'選択肢A\n選択肢B\n選択肢C'}
-                                          rows={4}
-                                      />
-                                  </div>
-                                )}
-                                <div className="space-y-2">
-                                   <Label>模範解答</Label>
-                                   {q.type === 'fill-in-the-blank' ? (
-                                     <div className="space-y-2 pl-4 border-l-2">
-                                       {Array.from({ length: blankCount }).map((_, i) => (
-                                         <div key={i} className="flex items-center gap-2">
-                                           <Label htmlFor={`q-model-answer-${index}-${i}`} className="w-16">空欄 {i + 1}</Label>
-                                           <Input
-                                             id={`q-model-answer-${index}-${i}`}
-                                             value={Array.isArray(q.modelAnswer) ? (q.modelAnswer[i] || '') : ''}
-                                             onChange={(e) => handleQuestionChange(index, 'modelAnswer', { index: i, value: e.target.value })}
-                                             placeholder={`空欄 ${i + 1} の答え`}
-                                           />
+            <CardContent>
+                <Accordion type="multiple" className="w-full space-y-4">
+                    {questions.map((q, index) => {
+                       const blankCount = q.type === 'fill-in-the-blank' ? (q.text?.match(/___/g) || []).length : 0;
+                       return (
+                        <AccordionItem value={`item-${index}`} key={q.id || index} className="border bg-muted/30 rounded-md px-4">
+                            <AccordionTrigger className="hover:no-underline">
+                                <div className="flex justify-between items-center w-full">
+                                    <span className="font-semibold text-lg">問題 {index + 1}: {q.text?.substring(0, 30) || "新しい問題"}...</span>
+                                    <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); handleRemoveQuestion(index); }}>
+                                        <Trash2 className="h-5 w-5 text-destructive" />
+                                    </Button>
+                                </div>
+                            </AccordionTrigger>
+                            <AccordionContent className="pt-4">
+                               <div className="flex-grow space-y-4 pr-4">
+                                   <div className="space-y-2">
+                                       <Label htmlFor={`q-text-${index}`}>問題文 {index + 1}</Label>
+                                       <Textarea id={`q-text-${index}`} value={q.text} onChange={(e) => handleQuestionChange(index, 'text', e.target.value)} placeholder={`問題 ${index + 1} の内容を記述...`} />
+                                   </div>
+                                    {q.type === 'selection' && (
+                                      <div className="space-y-2">
+                                          <Label htmlFor={`q-options-${index}`}>選択肢 (改行で区切る)</Label>
+                                          <Textarea 
+                                              id={`q-options-${index}`} 
+                                              value={Array.isArray(q.options) ? q.options.join('\n') : ''} 
+                                              onChange={(e) => handleQuestionChange(index, 'options', e.target.value)} 
+                                              placeholder={'選択肢A\n選択肢B\n選択肢C'}
+                                              rows={4}
+                                          />
+                                      </div>
+                                    )}
+                                    <div className="space-y-2">
+                                       <Label>模範解答</Label>
+                                       {q.type === 'fill-in-the-blank' ? (
+                                         <div className="space-y-2 pl-4 border-l-2">
+                                           {Array.from({ length: blankCount }).map((_, i) => (
+                                             <div key={i} className="flex items-center gap-2">
+                                               <Label htmlFor={`q-model-answer-${index}-${i}`} className="w-16">空欄 {i + 1}</Label>
+                                               <Input
+                                                 id={`q-model-answer-${index}-${i}`}
+                                                 value={Array.isArray(q.modelAnswer) ? (q.modelAnswer[i] || '') : ''}
+                                                 onChange={(e) => handleQuestionChange(index, 'modelAnswer', { index: i, value: e.target.value })}
+                                                 placeholder={`空欄 ${i + 1} の答え`}
+                                               />
+                                             </div>
+                                           ))}
+                                           {blankCount === 0 && <p className="text-xs text-muted-foreground">問題文に「___」（アンダースコア3つ）を追加して空欄を作成してください。</p>}
                                          </div>
-                                       ))}
-                                       {blankCount === 0 && <p className="text-xs text-muted-foreground">問題文に「___」（アンダースコア3つ）を追加して空欄を作成してください。</p>}
-                                     </div>
-                                   ) : (
-                                     <Textarea id={`q-model-answer-${index}`} value={typeof q.modelAnswer === 'string' ? q.modelAnswer : ''} onChange={(e) => handleQuestionChange(index, 'modelAnswer', e.target.value)} placeholder={`問題 ${index + 1} の模範解答を記述...`} rows={3} />
-                                   )}
-                               </div>
-                               <div className="flex gap-4">
-                                    <div className="w-1/3 space-y-2">
-                                       <Label htmlFor={`q-type-${index}`}>問題タイプ</Label>
-                                       <Select value={q.type} onValueChange={(value) => handleQuestionChange(index, 'type', value)}>
-                                            <SelectTrigger id={`q-type-${index}`}>
-                                                <SelectValue placeholder="タイプを選択" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="descriptive">記述式</SelectItem>
-                                                <SelectItem value="fill-in-the-blank">穴埋め</SelectItem>
-                                                <SelectItem value="selection">選択式</SelectItem>
-                                            </SelectContent>
-                                        </Select>
+                                       ) : (
+                                         <Textarea id={`q-model-answer-${index}`} value={typeof q.modelAnswer === 'string' ? q.modelAnswer : ''} onChange={(e) => handleQuestionChange(index, 'modelAnswer', e.target.value)} placeholder={`問題 ${index + 1} の模範解答を記述...`} rows={3} />
+                                       )}
                                    </div>
-                                   <div className="w-1/3 space-y-2">
-                                       <Label htmlFor={`q-points-${index}`}>配点</Label>
-                                       <Input id={`q-points-${index}`} type="number" value={q.points} onChange={(e) => handleQuestionChange(index, 'points', Number(e.target.value))} placeholder="例: 10" />
+                                   <div className="flex gap-4">
+                                        <div className="w-1/3 space-y-2">
+                                           <Label htmlFor={`q-type-${index}`}>問題タイプ</Label>
+                                           <Select value={q.type} onValueChange={(value) => handleQuestionChange(index, 'type', value)}>
+                                                <SelectTrigger id={`q-type-${index}`}>
+                                                    <SelectValue placeholder="タイプを選択" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="descriptive">記述式</SelectItem>
+                                                    <SelectItem value="fill-in-the-blank">穴埋め</SelectItem>
+                                                    <SelectItem value="selection">選択式</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                       </div>
+                                       <div className="w-1/3 space-y-2">
+                                           <Label htmlFor={`q-points-${index}`}>配点</Label>
+                                           <Input id={`q-points-${index}`} type="number" value={q.points} onChange={(e) => handleQuestionChange(index, 'points', Number(e.target.value))} placeholder="例: 10" />
+                                       </div>
+                                       <div className="w-1/3 space-y-2">
+                                           <Label htmlFor={`q-time-${index}`}>制限時間(秒)</Label>
+                                           <Input id={`q-time-${index}`} type="number" value={q.timeLimit} onChange={(e) => handleQuestionChange(index, 'timeLimit', Number(e.target.value))} placeholder="例: 300" />
+                                       </div>
                                    </div>
-                                   <div className="w-1/3 space-y-2">
-                                       <Label htmlFor={`q-time-${index}`}>制限時間(秒)</Label>
-                                       <Input id={`q-time-${index}`} type="number" value={q.timeLimit} onChange={(e) => handleQuestionChange(index, 'timeLimit', Number(e.target.value))} placeholder="例: 300" />
-                                   </div>
-                               </div>
 
-                               {/* Sub Questions */}
-                               {q.subQuestions && q.subQuestions.length > 0 && (
-                                   <div className="space-y-4 pl-6 border-l-2 border-primary/20">
-                                       <h4 className="font-bold text-md text-muted-foreground pt-2">サブ問題</h4>
-                                       {q.subQuestions.map((subQ, subIndex) => (
-                                           <Card key={subQ.id || subIndex} className="p-4 bg-background">
-                                                <div className="flex justify-between items-start">
-                                                    <div className="flex-grow space-y-4 pr-4">
-                                                        <div className="space-y-2">
-                                                            <Label htmlFor={`subq-text-${index}-${subIndex}`}>サブ問題文 {subIndex + 1}</Label>
-                                                            <Textarea id={`subq-text-${index}-${subIndex}`} value={subQ.text} onChange={(e) => handleSubQuestionChange(index, subIndex, 'text', e.target.value)} placeholder={`サブ問題 ${subIndex + 1} の内容...`} />
-                                                        </div>
-                                                        <div className="space-y-2">
-                                                            <Label htmlFor={`subq-model-answer-${index}-${subIndex}`}>模範解答</Label>
-                                                            <Textarea id={`subq-model-answer-${index}-${subIndex}`} value={typeof subQ.modelAnswer === 'string' ? subQ.modelAnswer : ''} onChange={(e) => handleSubQuestionChange(index, subIndex, 'modelAnswer', e.target.value)} placeholder={`サブ問題 ${subIndex + 1} の模範解答...`} rows={2} />
-                                                        </div>
-                                                        <div className="flex gap-4">
-                                                            <div className="w-1/2 space-y-2">
-                                                                <Label htmlFor={`subq-type-${index}-${subIndex}`}>問題タイプ</Label>
-                                                                <Select value={subQ.type} onValueChange={(value) => handleSubQuestionChange(index, subIndex, 'type', value)}>
-                                                                    <SelectTrigger id={`subq-type-${index}-${subIndex}`}>
-                                                                        <SelectValue placeholder="タイプを選択" />
-                                                                    </SelectTrigger>
-                                                                    <SelectContent>
-                                                                        <SelectItem value="descriptive">記述式</SelectItem>
-                                                                        <SelectItem value="fill-in-the-blank">穴埋め</SelectItem>
-                                                                        <SelectItem value="selection">選択式</SelectItem>
-                                                                    </SelectContent>
-                                                                </Select>
+                                   {/* Sub Questions */}
+                                   {q.subQuestions && q.subQuestions.length > 0 && (
+                                       <div className="space-y-4 pl-6 border-l-2 border-primary/20">
+                                           <h4 className="font-bold text-md text-muted-foreground pt-2">サブ問題</h4>
+                                           {q.subQuestions.map((subQ, subIndex) => (
+                                               <Card key={subQ.id || subIndex} className="p-4 bg-background">
+                                                    <div className="flex justify-between items-start">
+                                                        <div className="flex-grow space-y-4 pr-4">
+                                                            <div className="space-y-2">
+                                                                <Label htmlFor={`subq-text-${index}-${subIndex}`}>サブ問題文 {subIndex + 1}</Label>
+                                                                <Textarea id={`subq-text-${index}-${subIndex}`} value={subQ.text} onChange={(e) => handleSubQuestionChange(index, subIndex, 'text', e.target.value)} placeholder={`サブ問題 ${subIndex + 1} の内容...`} />
                                                             </div>
-                                                            <div className="w-1/2 space-y-2">
-                                                                <Label htmlFor={`subq-points-${index}-${subIndex}`}>配点</Label>
-                                                                <Input id={`subq-points-${index}-${subIndex}`} type="number" value={subQ.points} onChange={(e) => handleSubQuestionChange(index, subIndex, 'points', Number(e.target.value))} placeholder="例: 5" />
+                                                            <div className="space-y-2">
+                                                                <Label htmlFor={`subq-model-answer-${index}-${subIndex}`}>模範解答</Label>
+                                                                <Textarea id={`subq-model-answer-${index}-${subIndex}`} value={typeof subQ.modelAnswer === 'string' ? subQ.modelAnswer : ''} onChange={(e) => handleSubQuestionChange(index, subIndex, 'modelAnswer', e.target.value)} placeholder={`サブ問題 ${subIndex + 1} の模範解答...`} rows={2} />
+                                                            </div>
+                                                            <div className="flex gap-4">
+                                                                <div className="w-1/2 space-y-2">
+                                                                    <Label htmlFor={`subq-type-${index}-${subIndex}`}>問題タイプ</Label>
+                                                                    <Select value={subQ.type} onValueChange={(value) => handleSubQuestionChange(index, subIndex, 'type', value)}>
+                                                                        <SelectTrigger id={`subq-type-${index}-${subIndex}`}>
+                                                                            <SelectValue placeholder="タイプを選択" />
+                                                                        </SelectTrigger>
+                                                                        <SelectContent>
+                                                                            <SelectItem value="descriptive">記述式</SelectItem>
+                                                                            <SelectItem value="fill-in-the-blank">穴埋め</SelectItem>
+                                                                            <SelectItem value="selection">選択式</SelectItem>
+                                                                        </SelectContent>
+                                                                    </Select>
+                                                                </div>
+                                                                <div className="w-1/2 space-y-2">
+                                                                    <Label htmlFor={`subq-points-${index}-${subIndex}`}>配点</Label>
+                                                                    <Input id={`subq-points-${index}-${subIndex}`} type="number" value={subQ.points} onChange={(e) => handleSubQuestionChange(index, subIndex, 'points', Number(e.target.value))} placeholder="例: 5" />
+                                                                </div>
                                                             </div>
                                                         </div>
+                                                        <Button variant="ghost" size="icon" onClick={() => handleRemoveSubQuestion(index, subIndex)}>
+                                                            <Trash2 className="h-4 w-4 text-destructive" />
+                                                        </Button>
                                                     </div>
-                                                    <Button variant="ghost" size="icon" onClick={() => handleRemoveSubQuestion(index, subIndex)}>
-                                                        <Trash2 className="h-4 w-4 text-destructive" />
-                                                    </Button>
-                                                </div>
-                                            </Card>
-                                       ))}
-                                   </div>
-                               )}
-                               <Button variant="outline" size="sm" onClick={() => handleAddSubQuestion(index)}>
-                                   <CornerDownLeft className="mr-2 h-4 w-4" />
-                                   サブ問題を追加
-                               </Button>
-
-                           </div>
-                           <Button variant="ghost" size="icon" onClick={() => handleRemoveQuestion(index)}>
-                                <Trash2 className="h-5 w-5 text-destructive" />
-                           </Button>
-                       </div>
-                   </Card>
-               )})}
-                <Button variant="outline" onClick={handleAddQuestion}>
+                                                </Card>
+                                           ))}
+                                       </div>
+                                   )}
+                                   <Button variant="outline" size="sm" onClick={() => handleAddSubQuestion(index)}>
+                                       <CornerDownLeft className="mr-2 h-4 w-4" />
+                                       サブ問題を追加
+                                   </Button>
+                               </div>
+                            </AccordionContent>
+                        </AccordionItem>
+                       )
+                    })}
+                </Accordion>
+                <Button variant="outline" onClick={handleAddQuestion} className="mt-4">
                     <PlusCircle className="mr-2 h-4 w-4" />
                     問題を追加
                 </Button>
@@ -356,3 +364,5 @@ export default function CreateExamPage() {
     </Suspense>
   )
 }
+
+    
