@@ -82,8 +82,8 @@ export function UserList({ users, onUserDeleted, onUserUpdated, headquartersList
           <TableRow className="bg-primary hover:bg-primary/90">
             <TableHead className="text-primary-foreground">名前</TableHead>
             <TableHead className="text-primary-foreground">社員番号</TableHead>
-            <TableHead className="text-primary-foreground">役割</TableHead>
-            <TableHead className="text-primary-foreground">本部</TableHead>
+            <TableHead className="text-primary-foreground text-center">役割</TableHead>
+            <TableHead className="text-primary-foreground text-center">本部</TableHead>
             <TableHead className="text-right text-primary-foreground">アクション</TableHead>
           </TableRow>
         </TableHeader>
@@ -94,12 +94,12 @@ export function UserList({ users, onUserDeleted, onUserUpdated, headquartersList
                 {user.name}
               </TableCell>
               <TableCell className="font-mono">{user.employeeId}</TableCell>
-              <TableCell>
+              <TableCell className="text-center">
                 <Badge variant="outline" className={badgeVariants({ role: user.role })}>
                   {getRoleName(user.role)}
                 </Badge>
               </TableCell>
-              <TableCell>{user.headquarters || '－'}</TableCell>
+              <TableCell className="text-center">{user.headquarters || '－'}</TableCell>
               <TableCell className="text-right">
                 <Dialog open={openEditDialogs[user.id] || false} onOpenChange={(open) => handleDialogChange(user.id, open)}>
                   <AlertDialog>
