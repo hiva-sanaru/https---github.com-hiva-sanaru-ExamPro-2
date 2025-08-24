@@ -6,6 +6,8 @@
 - `src/ai`: Genkit setup and flows (`genkit.ts`, `dev.ts`, `flows/*`).
 - `src/lib`: Types, data helpers, utilities.
 - `src/hooks`: React hooks.
+- `src/services`: API service wrappers and data fetching logic.
+- `docs`: Project documentation and design blueprints (e.g., `docs/blueprint.md`).
 - `tests/ui`: Playwright specs and snapshots.
 - `.github/workflows/ui-tests.yml`: CI for UI tests.
 
@@ -38,4 +40,5 @@
 
 ## Security & Configuration Tips
 - Keep secrets out of code. Use `.env.local` (Next.js) and `.env` for Genkit dev runner.
-- Configure required API keys for Google AI and any Firebase credentials as needed; document variables in PRs that introduce new ones.
+- Firebase project and hosting configuration is defined in `.firebaserc` and `apphosting.yaml`; do not commit service account keys or other sensitive credentials.
+- Configure required API keys for Google AI and other third-party services via environment variables; document new variables in PRs that introduce them.
