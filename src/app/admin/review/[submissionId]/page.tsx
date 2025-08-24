@@ -4,22 +4,16 @@ import { ReviewPanel } from "@/components/admin/review-panel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { notFound, useRouter, useParams } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { User, Calendar, CheckCircle, AlertTriangle, ShieldCheck, Loader2 } from "lucide-react";
+import { User as UserIcon, Calendar, CheckCircle, AlertTriangle, ShieldCheck, Loader2 } from "lucide-react";
 import { formatInTimeZone } from 'date-fns-tz';
 import { ja } from 'date-fns/locale';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useState, useEffect } from "react";
 import { getSubmission } from "@/services/submissionService";
 import { getExam } from "@/services/examService";
-import type { Submission, Exam } from "@/lib/types";
+import { findUserByEmployeeId } from "@/services/userService";
+import type { Submission, Exam, User } from "@/lib/types";
 
-// This is a mock of a logged-in user.
-// In a real application, this would come from an authentication context.
-const MOCK_ADMIN_USER = {
-    id: 'admin1',
-    role: 'hq_administrator', // Try changing this to 'system_administrator'
-    headquarters: 'Tokyo' // This is ignored if role is 'system_administrator'
-}
 
 export default function AdminReviewPage() {
     const router = useRouter();
@@ -28,24 +22,39 @@ export default function AdminReviewPage() {
 
     const [submission, setSubmission] = useState<Submission | null>(null);
     const [exam, setExam] = useState<Exam | null>(null);
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        const fetchSubmissionAndExam = async () => {
+        const fetchAllData = async () => {
             if (!submissionId) return;
             setIsLoading(true);
             try {
                 const sub = await getSubmission(submissionId);
                 if (!sub) {
                     setError("Submission not found.");
+                    setIsLoading(false);
                     return;
                 }
+
                 const ex = await getExam(sub.examId);
                 if (!ex) {
                     setError("Exam not found for this submission.");
+                    setIsLoading(false);
                     return;
                 }
+                
+                const employeeId = localStorage.getItem('loggedInUserEmployeeId');
+                if (employeeId) {
+                    const user = await findUserByEmployeeId(employeeId);
+                    setCurrentUser(user);
+                } else {
+                    // Redirect to login if no user is logged in
+                    router.push('/login');
+                    return;
+                }
+
                 setSubmission(sub);
                 setExam(ex);
             } catch (e) {
@@ -56,8 +65,8 @@ export default function AdminReviewPage() {
             }
         };
 
-        fetchSubmissionAndExam();
-    }, [submissionId]);
+        fetchAllData();
+    }, [submissionId, router]);
 
     if (isLoading) {
         return (
@@ -84,14 +93,14 @@ export default function AdminReviewPage() {
         );
     }
     
-    if (!submission || !exam) {
+    if (!submission || !exam || !currentUser) {
         notFound();
     }
     
 
     // RBAC check:
-    const hasAccess = MOCK_ADMIN_USER.role === 'system_administrator' || 
-                      (MOCK_ADMIN_USER.role === 'hq_administrator' && MOCK_ADMIN_USER.headquarters === submission.examineeHeadquarters);
+    const hasAccess = currentUser.role === 'system_administrator' || 
+                      (currentUser.role === 'hq_administrator' && currentUser.headquarters === submission.examineeHeadquarters);
 
     if (!hasAccess) {
         return (
@@ -104,7 +113,7 @@ export default function AdminReviewPage() {
                     <AlertTriangle className="h-4 w-4" />
                     <AlertTitle>権限エラー</AlertTitle>
                     <AlertDescription>
-                        あなたは <strong>{MOCK_ADMIN_USER.headquarters}</strong> の本部管理者ですが、この提出物は <strong>{submission.examineeHeadquarters}</strong> 本部のものです。
+                        あなたは <strong>{currentUser.headquarters}</strong> の本部管理者ですが、この提出物は <strong>{submission.examineeHeadquarters}</strong> 本部のものです。
                         システム管理者に連絡してアクセスをリクエストしてください。
                     </AlertDescription>
                 </Alert>
@@ -120,7 +129,7 @@ export default function AdminReviewPage() {
                 <p className="text-muted-foreground">試験の採点: "{exam.title}"</p>
             </div>
 
-             {MOCK_ADMIN_USER.role === 'system_administrator' && (
+             {currentUser.role === 'system_administrator' && (
                  <Alert variant="default" className="bg-blue-50 border-blue-200 dark:bg-blue-950 dark:border-blue-800">
                     <ShieldCheck className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                     <AlertTitle>システム管理者ビュー</AlertTitle>
@@ -136,11 +145,11 @@ export default function AdminReviewPage() {
                 </CardHeader>
                 <CardContent className="grid md:grid-cols-3 gap-4 text-sm">
                     <div className="flex items-center gap-2">
-                        <User className="w-4 h-4 text-muted-foreground" />
+                        <UserIcon className="w-4 h-4 text-muted-foreground" />
                         <strong>受験者:</strong> <span>受験者ユーザー (ID: {submission.examineeId})</span>
                     </div>
                      <div className="flex items-center gap-2">
-                        <User className="w-4 h-4 text-muted-foreground" />
+                        <UserIcon className="w-4 h-4 text-muted-foreground" />
                         <strong>本部:</strong> <span>{submission.examineeHeadquarters}</span>
                     </div>
                     <div className="flex items-center gap-2">
