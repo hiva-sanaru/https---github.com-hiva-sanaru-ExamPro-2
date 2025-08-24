@@ -35,21 +35,21 @@ export function ReviewView({ exam }: ReviewViewProps) {
     }
   }, [exam.id]);
 
-  const getAnswerForQuestion = (questionId: string) => {
+  const getAnswerForQuestion = (questionId: string): string => {
     const answer = answers.find(a => a.questionId === questionId);
     if (!answer) return "回答がありません。";
     
     if (answer.subAnswers && answer.subAnswers.length > 0) {
         return answer.subAnswers.map((sa, index) => 
-            `(${index + 1}) ${sa.value}`
-        ).join('\\n');
+            `(${index + 1}) ${sa.value || '未回答'}`
+        ).join('\n');
     }
 
-    if (typeof answer.value === 'string') {
-        return answer.value || "回答がありません。";
+    if (typeof answer.value === 'string' && answer.value.trim()) {
+        return answer.value;
     }
 
-    return "回答形式が正しくありません。";
+    return "回答がありません。";
   }
 
   const handleSubmit = async () => {

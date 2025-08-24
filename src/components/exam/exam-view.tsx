@@ -102,8 +102,8 @@ export function ExamView({ exam }: ExamViewProps) {
   useEffect(() => {
     if (!exam) return;
     const answeredCount = answers.filter(a => {
-        if (Array.isArray(a.value)) { // This handles subquestions
-            return a.value.length > 0 && a.value.some(sa => sa.value.trim() !== '');
+        if (Array.isArray(a.subAnswers) && a.subAnswers.length > 0) {
+            return a.subAnswers.some(sa => sa.value.trim() !== '');
         }
         return a.value && a.value.trim() !== '';
     }).length;
@@ -126,13 +126,11 @@ export function ExamView({ exam }: ExamViewProps) {
         });
       }
       
-      const newAnswer: Answer = { questionId, value: '', subAnswers: [] };
+      // If a new answer is created
       if (Array.isArray(value)) {
-          newAnswer.subAnswers = value;
-      } else {
-          newAnswer.value = value;
+        return [...prev, { questionId, value: '', subAnswers: value }];
       }
-      return [...prev, newAnswer];
+      return [...prev, { questionId, value, subAnswers: [] }];
     });
   };
   
