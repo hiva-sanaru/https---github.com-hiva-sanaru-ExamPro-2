@@ -234,7 +234,7 @@ export function ExamView({ exam }: ExamViewProps) {
   }, [questionTimeLeft, handleQuestionTimeUp]);
 
   if (isLoading || !exam) {
-    return <div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>
+    return <div className="flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>
   }
 
   return (
