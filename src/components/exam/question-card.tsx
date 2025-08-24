@@ -23,19 +23,19 @@ const renderFillInTheBlank = (text: string, value: string, onChange: (value: str
         return <Input placeholder="空欄を埋めてください..." value={value} onChange={(e) => onChange(e.target.value)} />;
     }
     return (
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap text-lg">
             {parts.map((part, index) => (
-                <div key={index} className="flex items-center gap-2">
-                    {part && <p className="text-lg">{part}</p>}
+                <React.Fragment key={index}>
+                    {part && <p>{part}</p>}
                     {index < parts.length - 1 && (
                          <Input 
                             placeholder="回答" 
-                            className="w-48"
+                            className="w-48 inline-block"
                             value={value || ''}
                             onChange={(e) => onChange(e.target.value)}
                         />
                     )}
-                </div>
+                </React.Fragment>
             ))}
         </div>
     )
