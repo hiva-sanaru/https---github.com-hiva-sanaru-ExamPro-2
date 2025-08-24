@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -161,7 +162,7 @@ const CarouselContent = React.forwardRef<
       <div
         ref={ref}
         className={cn(
-          "flex",
+          "flex items-start",
           orientation === "horizontal" ? "-ml-4" : "-mt-4 flex-col",
           className
         )}
