@@ -214,14 +214,14 @@ function CreateExamPageContent() {
                        const blankCount = q.type === 'fill-in-the-blank' ? (q.text?.match(/___/g) || []).length : 0;
                        return (
                         <AccordionItem value={`item-${index}`} key={q.id || index} className="border bg-muted/30 rounded-md px-4">
-                            <AccordionTrigger className="hover:no-underline">
-                                <div className="flex justify-between items-center w-full">
+                            <div className="flex items-center">
+                                <AccordionTrigger className="flex-1 text-left hover:no-underline">
                                     <span className="font-semibold text-lg">問題 {index + 1}: {q.text?.substring(0, 30) || "新しい問題"}...</span>
-                                    <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); handleRemoveQuestion(index); }}>
-                                        <Trash2 className="h-5 w-5 text-destructive" />
-                                    </Button>
-                                </div>
-                            </AccordionTrigger>
+                                </AccordionTrigger>
+                                <Button variant="ghost" size="icon" onClick={() => handleRemoveQuestion(index)} className="ml-2">
+                                    <Trash2 className="h-5 w-5 text-destructive" />
+                                </Button>
+                            </div>
                             <AccordionContent className="pt-4">
                                <div className="flex-grow space-y-4 pr-4">
                                    <div className="space-y-2">
