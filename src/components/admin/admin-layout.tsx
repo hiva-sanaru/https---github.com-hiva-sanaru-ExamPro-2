@@ -113,8 +113,8 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
                             <DropdownMenuContent align="end">
                                 <DropdownMenuLabel>マイアカウント</DropdownMenuLabel>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem>プロフィール</DropdownMenuItem>
-                                <DropdownMenuItem>設定</DropdownMenuItem>
+                                <DropdownMenuItem disabled>プロフィール</DropdownMenuItem>
+                                <DropdownMenuItem disabled>設定</DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                  <DropdownMenuItem asChild>
                                     <Link href="/login">ログアウト</Link>
