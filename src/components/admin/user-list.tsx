@@ -99,7 +99,7 @@ export function UserList({ users, onUserDeleted, onUserUpdated, headquartersList
                   {getRoleName(user.role)}
                 </Badge>
               </TableCell>
-              <TableCell>{user.headquarters || 'N/A'}</TableCell>
+              <TableCell>{user.headquarters || '－'}</TableCell>
               <TableCell className="text-right">
                 <Dialog open={openEditDialogs[user.id] || false} onOpenChange={(open) => handleDialogChange(user.id, open)}>
                   <AlertDialog>

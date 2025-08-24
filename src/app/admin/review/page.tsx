@@ -42,7 +42,7 @@ export default function ReviewListPage() {
             "提出日時",
             "ステータス",
             "本部スコア",
-            "人事部スコア",
+            "人事室スコア",
             "最終スコア",
             "授業審査希望日1",
             "授業審査希望終了日1",
@@ -55,18 +55,18 @@ export default function ReviewListPage() {
             const examinee = users.find(u => u.id === submission.examineeId);
             return [
                 submission.id,
-                exam?.title || "N/A",
-                examinee?.name || "N/A",
-                submission.examineeHeadquarters || "N/A",
+                exam?.title || "－",
+                examinee?.name || "－",
+                submission.examineeHeadquarters || "－",
                 submission.submittedAt.toISOString(),
                 submission.status,
-                submission.hqGrade?.score ?? "N/A",
-                submission.poGrade?.score ?? "N/A",
-                submission.finalScore ?? "N/A",
-                submission.lessonReviewDate1?.toISOString() ?? "N/A",
-                submission.lessonReviewEndDate1?.toISOString() ?? "N/A",
-                submission.lessonReviewDate2?.toISOString() ?? "N/A",
-                submission.lessonReviewEndDate2?.toISOString() ?? "N/A"
+                submission.hqGrade?.score ?? "－",
+                submission.poGrade?.score ?? "－",
+                submission.finalScore ?? "－",
+                submission.lessonReviewDate1?.toISOString() ?? "－",
+                submission.lessonReviewEndDate1?.toISOString() ?? "－",
+                submission.lessonReviewDate2?.toISOString() ?? "－",
+                submission.lessonReviewEndDate2?.toISOString() ?? "－"
             ].join(',');
         });
 

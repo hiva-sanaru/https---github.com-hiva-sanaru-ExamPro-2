@@ -88,7 +88,7 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
   }
 
   const getAnswerForQuestion = (questionId: string) => {
-    return submission.answers.find((a) => a.questionId === questionId)?.value || "N/A";
+    return submission.answers.find((a) => a.questionId === questionId)?.value || "－";
   };
   
   const handleGradeAllQuestions = async () => {
@@ -98,7 +98,7 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
 
     const gradingPromises = exam.questions.map(question => {
         const answerText = getAnswerForQuestion(question.id!);
-        if (!answerText || answerText === "N/A" || !question.modelAnswer) {
+        if (!answerText || answerText === "－" || !question.modelAnswer) {
             return Promise.resolve({ questionId: question.id, error: "回答または模範解答がありません" });
         }
 

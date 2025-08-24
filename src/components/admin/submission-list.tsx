@@ -159,8 +159,8 @@ export function SubmissionList({ submissions, exams, users }: SubmissionListProp
                 const examinee = usersMap[submission.examineeId];
                 return (
                     <TableRow key={submission.id}>
-                        <TableCell className="font-medium">{exam?.title || 'N/A'}</TableCell>
-                        <TableCell>{examinee?.name || 'N/A'}</TableCell>
+                        <TableCell className="font-medium">{exam?.title || '－'}</TableCell>
+                        <TableCell>{examinee?.name || '－'}</TableCell>
                         <TableCell>{submission.examineeHeadquarters?.replace('本部', '')}</TableCell>
                         <TableCell>{format(submission.submittedAt, 'yy/MM/dd')}</TableCell>
                         <TableCell>
