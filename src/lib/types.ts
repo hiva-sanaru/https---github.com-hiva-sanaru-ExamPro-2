@@ -24,18 +24,9 @@ export interface Question {
   subQuestions?: Question[];
 }
 
-export interface Exam {
-  id: string;
-  title: string;
-  duration: number; // in minutes
-  totalPoints: number;
-  status: 'Draft' | 'Published' | 'Archived';
-  questions: Question[];
-}
-
 export interface Answer {
   questionId: string;
-  value: string;
+  value: string | string[];
   subAnswers?: Answer[];
 }
 

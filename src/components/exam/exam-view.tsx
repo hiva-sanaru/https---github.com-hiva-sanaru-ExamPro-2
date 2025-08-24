@@ -103,34 +103,37 @@ export function ExamView({ exam }: ExamViewProps) {
     if (!exam) return;
     const answeredCount = answers.filter(a => {
         if (Array.isArray(a.subAnswers) && a.subAnswers.length > 0) {
-            return a.subAnswers.some(sa => sa.value.trim() !== '');
+            return a.subAnswers.some(sa => sa.value.toString().trim() !== '');
         }
-        return a.value && a.value.trim() !== '';
+        if (Array.isArray(a.value)) {
+            return a.value.some(v => v.trim() !== '');
+        }
+        return a.value && a.value.toString().trim() !== '';
     }).length;
     setProgress((answeredCount / exam.questions.length) * 100);
   }, [answers, exam]);
 
-  const handleAnswerChange = (questionId: string, value: string | Answer[]) => {
+  const handleAnswerChange = (questionId: string, value: string | string[] | Answer[]) => {
     setAnswers((prev) => {
       const existingAnswerIndex = prev.findIndex((a) => a.questionId === questionId);
       
       if (existingAnswerIndex > -1) {
         return prev.map((a, i) => {
           if (i === existingAnswerIndex) {
-            if (Array.isArray(value)) {
-              return { ...a, subAnswers: value };
+            if (Array.isArray(value) && (value.length === 0 || typeof (value[0] as any).questionId !== 'undefined')) {
+              return { ...a, subAnswers: value as Answer[] };
             }
-            return { ...a, value };
+            return { ...a, value: value as string | string[] };
           }
           return a;
         });
       }
       
       // If a new answer is created
-      if (Array.isArray(value)) {
-        return [...prev, { questionId, value: '', subAnswers: value }];
+      if (Array.isArray(value) && (value.length === 0 || typeof (value[0] as any).questionId !== 'undefined')) {
+        return [...prev, { questionId, value: '', subAnswers: value as Answer[] }];
       }
-      return [...prev, { questionId, value, subAnswers: [] }];
+      return [...prev, { questionId, value: value as string | string[], subAnswers: [] }];
     });
   };
   

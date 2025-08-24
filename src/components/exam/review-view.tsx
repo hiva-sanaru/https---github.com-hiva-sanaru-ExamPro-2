@@ -45,6 +45,13 @@ export function ReviewView({ exam }: ReviewViewProps) {
         ).join('\n');
     }
 
+    if (Array.isArray(answer.value)) {
+        if (answer.value.length === 0 || answer.value.every(v => v === '')) {
+            return "回答がありません。";
+        }
+        return answer.value.map((v, i) => `(${i + 1}) ${v || '未回答'}`).join(' ');
+    }
+
     if (typeof answer.value === 'string' && answer.value.trim()) {
         return answer.value;
     }
@@ -64,8 +71,8 @@ export function ReviewView({ exam }: ReviewViewProps) {
     setIsLoading(true);
     try {
         const submissionAnswers = answers.map(answer => {
-            if(typeof answer.value !== 'string') {
-                return { ...answer, value: '' }; // Set a default value for the main question if it was only subquestions
+            if (answer.subAnswers && answer.subAnswers.length > 0 && !answer.value) {
+                return { ...answer, value: '' }; 
             }
             return answer;
         });

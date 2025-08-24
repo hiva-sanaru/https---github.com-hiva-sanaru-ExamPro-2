@@ -14,13 +14,13 @@ interface QuestionCardProps {
     question: Question;
     index: number;
     answer: Answer | undefined;
-    onAnswerChange: (questionId: string, value: string | Answer[]) => void;
+    onAnswerChange: (questionId: string, value: string | string[] | Answer[]) => void;
 }
 
 const renderFillInTheBlank = (
   text: string,
-  value: string,
-  onChange: (value: string) => void
+  value: string[],
+  onChange: (index: number, value: string) => void
 ) => {
   const parts = text.split('___');
   return (
@@ -31,8 +31,8 @@ const renderFillInTheBlank = (
                 {index < parts.length - 1 && (
                      <Input 
                         className="inline-block w-48 h-8 border-0 border-b rounded-none focus:ring-0 px-1 align-baseline"
-                        value={value}
-                        onChange={(e) => onChange(e.target.value)}
+                        value={value[index] || ''}
+                        onChange={(e) => onChange(index, e.target.value)}
                     />
                 )}
             </React.Fragment>
@@ -61,11 +61,17 @@ export const QuestionCard = ({ question, index, answer, onAnswerChange }: Questi
     const getSubAnswerValue = (subQuestionId: string) => {
         return answer?.subAnswers?.find(a => a.questionId === subQuestionId)?.value || '';
     }
+
+    const handleFillInTheBlankChange = (index: number, value: string) => {
+        const newValues = Array.isArray(answer?.value) ? [...answer.value] : [];
+        newValues[index] = value;
+        onAnswerChange(question.id!, newValues);
+    };
     
     const hasSubQuestions = question.subQuestions && question.subQuestions.length > 0;
 
     return (
-        <Card className="flex flex-col">
+        <Card>
             <CardHeader className="flex flex-row justify-between items-start">
                 <div>
                     <CardTitle className="font-headline text-xl">問題 {index + 1}</CardTitle>
@@ -92,7 +98,7 @@ export const QuestionCard = ({ question, index, answer, onAnswerChange }: Questi
                             />
                         )}
                         {question.type === 'fill-in-the-blank' && (
-                            renderFillInTheBlank(question.text, typeof answer?.value === 'string' ? answer.value : '', (value) => onAnswerChange(question.id!, value))
+                           renderFillInTheBlank(question.text, Array.isArray(answer?.value) ? answer.value : [], handleFillInTheBlankChange)
                         )}
                         {question.type === 'selection' && question.options && (
                             <RadioGroup value={typeof answer?.value === 'string' ? answer.value : ''} onValueChange={(value) => onAnswerChange(question.id!, value)}>
