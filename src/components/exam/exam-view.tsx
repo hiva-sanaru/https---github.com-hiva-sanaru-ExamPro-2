@@ -157,7 +157,6 @@ export function ExamView({ exam }: ExamViewProps) {
     const timer = setInterval(() => {
       setExamTimeLeft((prev) => {
         if (prev <= 1) {
-          handleTimeUp();
           clearInterval(timer);
           return 0;
         }
@@ -166,7 +165,14 @@ export function ExamView({ exam }: ExamViewProps) {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [isLoading, handleTimeUp]);
+  }, [isLoading]);
+
+  // Effect to handle time up action
+  useEffect(() => {
+    if (examTimeLeft === 0 && !isLoading) {
+      handleTimeUp();
+    }
+  }, [examTimeLeft, isLoading, handleTimeUp]);
 
   // Per-question countdown timer logic
   useEffect(() => {
@@ -227,10 +233,11 @@ export function ExamView({ exam }: ExamViewProps) {
   }, [toast, handleNext]);
 
   useEffect(() => {
-    if (questionTimeLeft === 0) {
+    if (questionTimeLeft === 0 && !isLoading) {
       handleQuestionTimeUp();
     }
-  }, [questionTimeLeft, handleQuestionTimeUp]);
+  }, [questionTimeLeft, isLoading, handleQuestionTimeUp]);
+
 
   if (isLoading || !exam) {
     return <div className="flex items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin" /></div>
