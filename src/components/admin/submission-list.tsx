@@ -21,7 +21,6 @@ import Link from "next/link";
 import { Eye, Loader2, MoreHorizontal, Trash2 } from "lucide-react";
 import { updateSubmission, deleteSubmission } from "@/services/submissionService";
 import { useToast } from "@/hooks/use-toast";
-import { format } from 'date-fns';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 
@@ -187,7 +186,7 @@ export function SubmissionList({ submissions, exams, users }: SubmissionListProp
                         <TableCell className="font-medium">{exam?.title || '－'}</TableCell>
                         <TableCell>{examinee?.name || '－'}</TableCell>
                         <TableCell>{submission.examineeHeadquarters?.replace('本部', '') || '－'}</TableCell>
-                        <TableCell>{format(submission.submittedAt, 'yy/MM/dd')}</TableCell>
+                        <TableCell>{formatInTimeZone(submission.submittedAt, 'Asia/Tokyo', "yy/MM/dd", { locale: ja })}</TableCell>
                         <TableCell>
                             <Badge variant="outline" className={badgeVariants({ status: statusName as any })}>
                                 {statusName}
