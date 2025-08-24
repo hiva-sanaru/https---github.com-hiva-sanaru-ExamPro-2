@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import type { Exam, Question, Answer } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
@@ -13,7 +13,7 @@ import { QuestionCard } from "./question-card";
 import { useToast } from "@/hooks/use-toast";
 
 interface ExamViewProps {
-  exam: Exam;
+  exam: Exam | null;
 }
 
 export function ExamView({ exam }: ExamViewProps) {
@@ -27,7 +27,7 @@ export function ExamView({ exam }: ExamViewProps) {
   const [isLoading, setIsLoading] = useState(true);
 
   // Overall exam timer
-  const [examTimeLeft, setExamTimeLeft] = useState(exam.duration * 60);
+  const [examTimeLeft, setExamTimeLeft] = useState(exam?.duration ? exam.duration * 60 : 0);
 
   // Per-question timer
   const [questionTimeLeft, setQuestionTimeLeft] = useState<number | null>(null);
@@ -35,6 +35,7 @@ export function ExamView({ exam }: ExamViewProps) {
 
   // Load answers and initialize timer from localStorage on mount
   useEffect(() => {
+    if (!exam) return;
     try {
         const savedAnswers = localStorage.getItem(`exam-${exam.id}-answers`);
         if (savedAnswers) {
@@ -67,12 +68,13 @@ export function ExamView({ exam }: ExamViewProps) {
     } finally {
         setIsLoading(false);
     }
-  }, [exam.id, exam.duration]);
+  }, [exam]);
   
   // Save answers to localStorage whenever they change
   useEffect(() => {
+    if (!exam) return;
     localStorage.setItem(`exam-${exam.id}-answers`, JSON.stringify(answers));
-  }, [answers, exam.id]);
+  }, [answers, exam]);
 
   const handleNext = useCallback(() => {
     if (api) {
@@ -81,8 +83,9 @@ export function ExamView({ exam }: ExamViewProps) {
   }, [api])
 
   const handleReview = useCallback(() => {
+    if (!exam) return;
     router.push(`/exam/${exam.id}/review`);
-  }, [exam.id, router]);
+  }, [exam, router]);
 
   useEffect(() => {
     if (!api) return
@@ -97,9 +100,10 @@ export function ExamView({ exam }: ExamViewProps) {
   }, [api])
 
   useEffect(() => {
+    if (!exam) return;
     const answeredCount = answers.filter(a => a.value && a.value.trim() !== '').length;
     setProgress((answeredCount / exam.questions.length) * 100);
-  }, [answers, exam.questions.length])
+  }, [answers, exam])
 
   const handleAnswerChange = (questionId: string, value: string) => {
     setAnswers((prev) => {
@@ -143,10 +147,10 @@ export function ExamView({ exam }: ExamViewProps) {
 
   // Per-question countdown timer logic
   useEffect(() => {
-    if (isLoading || current <= 0) return;
+    if (isLoading || current <= 0 || !exam) return;
     const qIndex = current - 1;
     const question = exam.questions[qIndex];
-    if (!question.timeLimit) {
+    if (!question || !question.timeLimit) {
       setQuestionEndTime(null);
       setQuestionTimeLeft(null);
       return;
@@ -177,7 +181,7 @@ export function ExamView({ exam }: ExamViewProps) {
       localStorage.setItem(key, newEndTime.toString());
       setQuestionEndTime(newEndTime);
     }
-  }, [current, isLoading, exam.id, exam.questions]);
+  }, [current, isLoading, exam]);
 
   useEffect(() => {
     if (isLoading || questionEndTime == null) return;
@@ -205,7 +209,7 @@ export function ExamView({ exam }: ExamViewProps) {
     }
   }, [questionTimeLeft, handleQuestionTimeUp]);
 
-  if (isLoading) {
+  if (isLoading || !exam) {
     return <div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>
   }
 
