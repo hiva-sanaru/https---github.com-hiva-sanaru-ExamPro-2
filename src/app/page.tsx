@@ -35,9 +35,11 @@ async function ExamineeDashboard() {
                                         </p>
                                     </div>
                                     <Link href={`/exam/${exam.id}`} passHref>
-                                        <Button>
-                                            試験を開始
-                                            <ArrowRight className="ml-2 h-4 w-4" />
+                                        <Button asChild>
+                                            <a>
+                                                試験を開始
+                                                <ArrowRight className="ml-2 h-4 w-4" />
+                                            </a>
                                         </Button>
                                     </Link>
                                 </div>
