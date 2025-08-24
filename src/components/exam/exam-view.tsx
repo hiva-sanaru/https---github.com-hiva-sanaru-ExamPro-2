@@ -253,7 +253,6 @@ export function ExamView({ exam }: ExamViewProps) {
                 watchDrag: false,
                 watchKeys: false,
                 draggable: false,
-                align: "start"
             }}>
                 <CarouselContent>
                     {exam.questions.map((question, index) => (
@@ -287,3 +286,5 @@ export function ExamView({ exam }: ExamViewProps) {
     </>
   );
 }
+
+    
