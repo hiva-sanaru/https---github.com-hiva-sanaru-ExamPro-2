@@ -250,9 +250,7 @@ export function ExamView({ exam }: ExamViewProps) {
             </div>
           
             <Carousel setApi={setApi} className="w-full" opts={{
-                watchDrag: false,
                 watchKeys: false,
-                draggable: false,
             }}>
                 <CarouselContent>
                     {exam.questions.map((question, index) => (
