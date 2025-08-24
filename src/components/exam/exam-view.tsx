@@ -101,19 +101,36 @@ export function ExamView({ exam }: ExamViewProps) {
 
   useEffect(() => {
     if (!exam) return;
-    const answeredCount = answers.filter(a => a.value && a.value.trim() !== '').length;
+    const answeredCount = answers.filter(a => {
+        if (Array.isArray(a.subAnswers) && a.subAnswers.length > 0) {
+            return a.subAnswers.some(sa => sa.value.trim() !== '');
+        }
+        return a.value && a.value.trim() !== '';
+    }).length;
     setProgress((answeredCount / exam.questions.length) * 100);
-  }, [answers, exam])
+  }, [answers, exam]);
 
-  const handleAnswerChange = (questionId: string, value: string) => {
+  const handleAnswerChange = (questionId: string, value: string | Answer[]) => {
     setAnswers((prev) => {
-      const existingAnswer = prev.find((a) => a.questionId === questionId);
-      if (existingAnswer) {
-        return prev.map((a) =>
-          a.questionId === questionId ? { ...a, value } : a
-        );
+      const existingAnswerIndex = prev.findIndex((a) => a.questionId === questionId);
+      
+      if (existingAnswerIndex > -1) {
+        return prev.map((a, i) => {
+          if (i === existingAnswerIndex) {
+            if (Array.isArray(value)) {
+              return { ...a, subAnswers: value };
+            }
+            return { ...a, value };
+          }
+          return a;
+        });
       }
-      return [...prev, { questionId, value }];
+      
+      // If a new answer is created
+      if (Array.isArray(value)) {
+        return [...prev, { questionId, value: '', subAnswers: value }];
+      }
+      return [...prev, { questionId, value, subAnswers: [] }];
     });
   };
   

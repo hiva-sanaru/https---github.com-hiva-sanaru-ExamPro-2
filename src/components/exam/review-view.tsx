@@ -35,8 +35,21 @@ export function ReviewView({ exam }: ReviewViewProps) {
     }
   }, [exam.id]);
 
-  const getAnswerForQuestion = (questionId: string) => {
-    return answers.find(a => a.questionId === questionId)?.value || "回答がありません。";
+  const getAnswerForQuestion = (questionId: string): string => {
+    const answer = answers.find(a => a.questionId === questionId);
+    if (!answer) return "回答がありません。";
+    
+    if (answer.subAnswers && answer.subAnswers.length > 0) {
+        return answer.subAnswers.map((sa, index) => 
+            `(${index + 1}) ${sa.value || '未回答'}`
+        ).join('\n');
+    }
+
+    if (typeof answer.value === 'string' && answer.value.trim()) {
+        return answer.value;
+    }
+
+    return "回答がありません。";
   }
 
   const handleSubmit = async () => {
@@ -50,11 +63,18 @@ export function ReviewView({ exam }: ReviewViewProps) {
     }
     setIsLoading(true);
     try {
+        const submissionAnswers = answers.map(answer => {
+            if(typeof answer.value !== 'string') {
+                return { ...answer, value: '' }; // Set a default value for the main question if it was only subquestions
+            }
+            return answer;
+        });
+
         await addSubmission({
             examId: exam.id,
             examineeId: currentUser.id,
             examineeHeadquarters: currentUser.headquarters,
-            answers: answers,
+            answers: submissionAnswers,
         });
 
         toast({
@@ -87,9 +107,22 @@ export function ReviewView({ exam }: ReviewViewProps) {
           {exam.questions.map((question, index) => (
             <div key={question.id} className="rounded-lg border bg-card p-4 shadow-sm">
               <p className="font-semibold text-card-foreground">問題 {index + 1}: {question.text}</p>
-              <p className="mt-2 text-muted-foreground whitespace-pre-wrap bg-muted p-3 rounded-md">
-                {getAnswerForQuestion(question.id!)}
-              </p>
+              {question.subQuestions && question.subQuestions.length > 0 ? (
+                 <div className="mt-2 space-y-2">
+                    {question.subQuestions.map((subQ, subIndex) => (
+                        <div key={subQ.id}>
+                            <p className="font-medium text-sm text-muted-foreground">({subIndex + 1}) {subQ.text}</p>
+                            <p className="mt-1 text-card-foreground whitespace-pre-wrap bg-muted p-2 rounded-md text-sm">
+                                {answers.find(a => a.questionId === question.id)?.subAnswers?.find(sa => sa.questionId === subQ.id)?.value || "回答がありません。"}
+                            </p>
+                        </div>
+                    ))}
+                 </div>
+              ) : (
+                <p className="mt-2 text-muted-foreground whitespace-pre-wrap bg-muted p-3 rounded-md">
+                  {getAnswerForQuestion(question.id!)}
+                </p>
+              )}
             </div>
           ))}
         </CardContent>

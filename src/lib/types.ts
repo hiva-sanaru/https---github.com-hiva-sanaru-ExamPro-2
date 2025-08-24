@@ -61,6 +61,7 @@ export interface Submission {
   lessonReviewEndDate1?: any; // Firestore Timestamp
   lessonReviewDate2?: any; // Firestore Timestamp
   lessonReviewEndDate2?: any; // Firestore Timestamp
+  resultCommunicated?: boolean;
 }
 
 export interface Headquarters {
