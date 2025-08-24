@@ -1,11 +1,11 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ExamList } from "@/components/admin/exam-list";
-import { PlusCircle, Download, Loader2 } from "lucide-react";
+import { PlusCircle, Download, Loader2, FilePen, CheckSquare } from "lucide-react";
 import Link from "next/link";
 import { getUsers, findUserByEmployeeId } from "@/services/userService";
 import { getExams } from "@/services/examService";
@@ -50,6 +50,12 @@ export default function AdminDashboardPage() {
         fetchData();
     }, []);
 
+    const dashboardStats = useMemo(() => {
+        const ungradedSubmissions = submissions.filter(s => s.status === 'Submitted').length;
+        const pendingReviewSubmissions = submissions.filter(s => s.status === 'Grading').length;
+        return { ungradedSubmissions, pendingReviewSubmissions };
+    }, [submissions]);
+
     const handleBackup = () => {
         const backupData = {
             users: users,
@@ -88,28 +94,28 @@ export default function AdminDashboardPage() {
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" className="h-4 w-4 text-muted-foreground"><path d="M15 21v-4.37a2 2 0 0 0-1.09-1.79l-1.83-1.1-3.18 3.2Z"></path><path d="m9.13 11.3-3.18 3.2 2.74 1.79A2 2 0 0 0 10 18.63V21"></path><path d="M12 3v5.88"></path><path d="M12 21v-5.88"></path><path d="M4.22 10.22 12 18l7.78-7.78"></path><path d="M19.78 10.22 12 18l-7.78-7.78"></path></svg>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{exams.length}</div>
+                         {isLoading ? <div className="h-8 w-12 bg-muted rounded animate-pulse" /> : <div className="text-2xl font-bold">{exams.length}</div> }
                         <p className="text-xs text-muted-foreground">下書きを含む</p>
                     </CardContent>
                 </Card>
                  <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">提出物</CardTitle>
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" className="h-4 w-4 text-muted-foreground"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                        <CardTitle className="text-sm font-medium">未採点の提出</CardTitle>
+                        <FilePen className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">+{submissions.length}</div>
-                        <p className="text-xs text-muted-foreground">レビュー待ち</p>
+                        {isLoading ? <div className="h-8 w-12 bg-muted rounded animate-pulse" /> : <div className="text-2xl font-bold">{dashboardStats.ungradedSubmissions}</div> }
+                        <p className="text-xs text-muted-foreground">本部の採点待ち</p>
                     </CardContent>
                 </Card>
                  <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">平均スコア</CardTitle>
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" className="h-4 w-4 text-muted-foreground"><line x1="12" x2="12" y1="20" y2="10"></line><line x1="18" x2="18" y1="20" y2="4"></line><line x1="6" x2="6" y1="20" y2="16"></line></svg>
+                        <CardTitle className="text-sm font-medium">レビュー待ちの提出</CardTitle>
+                        <CheckSquare className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">88.5%</div>
-                        <p className="text-xs text-muted-foreground">前回の試験サイクルから+2.1%</p>
+                        {isLoading ? <div className="h-8 w-12 bg-muted rounded animate-pulse" /> : <div className="text-2xl font-bold">{dashboardStats.pendingReviewSubmissions}</div> }
+                        <p className="text-xs text-muted-foreground">人事部のレビュー待ち</p>
                     </CardContent>
                 </Card>
                 <Card>
@@ -118,7 +124,7 @@ export default function AdminDashboardPage() {
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" className="h-4 w-4 text-muted-foreground"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">+{users.length}</div>
+                        {isLoading ? <div className="h-8 w-12 bg-muted rounded animate-pulse" /> : <div className="text-2xl font-bold">+{users.length}</div> }
                         <p className="text-xs text-muted-foreground">登録済み</p>
                     </CardContent>
                 </Card>
