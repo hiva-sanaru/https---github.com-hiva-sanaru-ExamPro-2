@@ -103,17 +103,17 @@ export function SubmissionList({ submissions, exams, users, isSystemAdmin }: Sub
         {
           variants: {
             status: {
-              Passed: "bg-green-100 text-green-800 border-green-200",
-              Failed: "bg-red-100 text-red-800 border-red-200",
-              Submitted: "bg-blue-100 text-blue-800 border-blue-200",
-              Grading: "bg-yellow-100 text-yellow-800 border-yellow-200",
-              "In Progress": "bg-gray-100 text-gray-800 border-gray-200",
+              Passed: "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-700/40",
+              Failed: "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-700/40",
+              Submitted: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-700/40",
+              Grading: "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-300 dark:border-yellow-700/40",
+              "In Progress": "bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-900/20 dark:text-gray-400 dark:border-gray-700/40",
             },
           },
         }
     )
 
-    const getStatusName = (status: string) => {
+    const getStatusName = (status: Submission['status']) => {
         switch(status) {
             case 'Passed': return '合格';
             case 'Failed': return '不合格';
@@ -128,14 +128,14 @@ export function SubmissionList({ submissions, exams, users, isSystemAdmin }: Sub
     <div className="rounded-lg border">
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead className="bg-primary text-primary-foreground">試験名</TableHead>
-            <TableHead>受験者名</TableHead>
-            <TableHead>本部</TableHead>
-            <TableHead>提出日時</TableHead>
-            <TableHead>ステータス</TableHead>
-            <TableHead>結果伝達</TableHead>
-            <TableHead className="text-right">アクション</TableHead>
+          <TableRow className="bg-primary hover:bg-primary/90">
+            <TableHead className="text-primary-foreground">試験名</TableHead>
+            <TableHead className="text-primary-foreground">受験者名</TableHead>
+            <TableHead className="text-primary-foreground">本部</TableHead>
+            <TableHead className="text-primary-foreground">提出日時</TableHead>
+            <TableHead className="text-primary-foreground">ステータス</TableHead>
+            <TableHead className="text-primary-foreground">結果伝達</TableHead>
+            <TableHead className="text-right text-primary-foreground">アクション</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -157,7 +157,7 @@ export function SubmissionList({ submissions, exams, users, isSystemAdmin }: Sub
                 const examinee = usersMap[submission.examineeId];
                 return (
                     <TableRow key={submission.id}>
-                        <TableCell className="font-medium bg-blue-50 text-blue-900 dark:bg-blue-900/20 dark:text-blue-200">{exam?.title || 'N/A'}</TableCell>
+                        <TableCell className="font-medium">{exam?.title || 'N/A'}</TableCell>
                         <TableCell>{examinee?.name || 'N/A'}</TableCell>
                         <TableCell>{submission.examineeHeadquarters}</TableCell>
                         <TableCell>{formatInTimeZone(submission.submittedAt, 'Asia/Tokyo', "PPP p", { locale: ja })}</TableCell>
