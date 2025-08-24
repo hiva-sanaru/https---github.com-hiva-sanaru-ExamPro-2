@@ -110,7 +110,7 @@ export function ExamView({ exam }: ExamViewProps) {
             return a.subAnswers.some(sa => sa.value.toString().trim() !== '');
         }
         if (Array.isArray(a.value)) {
-            return a.value.some(v => v.trim() !== '');
+            return a.value.some(v => v && v.trim() !== '');
         }
         return a.value && a.value.toString().trim() !== '';
     }).length;
@@ -288,7 +288,3 @@ export function ExamView({ exam }: ExamViewProps) {
     </>
   );
 }
-
-    
-
-    
