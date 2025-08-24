@@ -100,10 +100,8 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
             </Sidebar>
 
             <SidebarInset>
-                <header className="flex h-14 items-center justify-end border-b bg-background px-4">
-                    <SidebarTrigger className="md:hidden" />
-                </header>
                 <main className="flex-1 overflow-y-auto p-4 md:p-6">
+                    <SidebarTrigger className="md:hidden absolute top-4 right-4" />
                     {children}
                 </main>
             </SidebarInset>
