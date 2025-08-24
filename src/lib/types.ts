@@ -20,7 +20,7 @@ export interface Question {
   points: number;
   timeLimit?: number; // in seconds
   options?: string[]; // for selection
-  modelAnswer?: string; // for grading
+  modelAnswer?: string | string[]; // for grading
   subQuestions?: Question[];
 }
 

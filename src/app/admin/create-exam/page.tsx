@@ -93,11 +93,23 @@ function CreateExamPageContent() {
   const handleQuestionChange = (index: number, field: keyof Question, value: any) => {
     const newQuestions = [...questions];
     const question = newQuestions[index] as Question;
-    if (field === 'options') {
+
+    // Special handling for fill-in-the-blank model answers
+    if (field === 'modelAnswer' && question.type === 'fill-in-the-blank' && typeof value === 'object' && value.index !== undefined) {
+        const answers = Array.isArray(question.modelAnswer) ? [...question.modelAnswer] : [];
+        answers[value.index] = value.value;
+        question.modelAnswer = answers;
+    } else if (field === 'options') {
         question[field] = value.split('\n');
     } else {
         (question as any)[field] = value;
     }
+
+    // Reset modelAnswer if question type changes
+    if (field === 'type') {
+      question.modelAnswer = value === 'fill-in-the-blank' ? [] : '';
+    }
+
     setQuestions(newQuestions);
   };
   
@@ -196,7 +208,9 @@ function CreateExamPageContent() {
                 <CardDescription>試験問題を作成・編集します。</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-               {questions.map((q, index) => (
+               {questions.map((q, index) => {
+                   const blankCount = q.type === 'fill-in-the-blank' ? (q.text?.match(/___/g) || []).length : 0;
+                   return (
                    <Card key={q.id || index} className="p-4 bg-muted/30">
                        <div className="flex justify-between items-start">
                            <div className="flex-grow space-y-4 pr-4">
@@ -217,8 +231,25 @@ function CreateExamPageContent() {
                                   </div>
                                 )}
                                 <div className="space-y-2">
-                                   <Label htmlFor={`q-model-answer-${index}`}>模範解答</Label>
-                                   <Textarea id={`q-model-answer-${index}`} value={q.modelAnswer} onChange={(e) => handleQuestionChange(index, 'modelAnswer', e.target.value)} placeholder={`問題 ${index + 1} の模範解答を記述...`} rows={3} />
+                                   <Label>模範解答</Label>
+                                   {q.type === 'fill-in-the-blank' ? (
+                                     <div className="space-y-2 pl-4 border-l-2">
+                                       {Array.from({ length: blankCount }).map((_, i) => (
+                                         <div key={i} className="flex items-center gap-2">
+                                           <Label htmlFor={`q-model-answer-${index}-${i}`} className="w-16">空欄 {i + 1}</Label>
+                                           <Input
+                                             id={`q-model-answer-${index}-${i}`}
+                                             value={Array.isArray(q.modelAnswer) ? (q.modelAnswer[i] || '') : ''}
+                                             onChange={(e) => handleQuestionChange(index, 'modelAnswer', { index: i, value: e.target.value })}
+                                             placeholder={`空欄 ${i + 1} の答え`}
+                                           />
+                                         </div>
+                                       ))}
+                                       {blankCount === 0 && <p className="text-xs text-muted-foreground">問題文に「___」（アンダースコア3つ）を追加して空欄を作成してください。</p>}
+                                     </div>
+                                   ) : (
+                                     <Textarea id={`q-model-answer-${index}`} value={typeof q.modelAnswer === 'string' ? q.modelAnswer : ''} onChange={(e) => handleQuestionChange(index, 'modelAnswer', e.target.value)} placeholder={`問題 ${index + 1} の模範解答を記述...`} rows={3} />
+                                   )}
                                </div>
                                <div className="flex gap-4">
                                     <div className="w-1/3 space-y-2">
@@ -258,7 +289,7 @@ function CreateExamPageContent() {
                                                         </div>
                                                         <div className="space-y-2">
                                                             <Label htmlFor={`subq-model-answer-${index}-${subIndex}`}>模範解答</Label>
-                                                            <Textarea id={`subq-model-answer-${index}-${subIndex}`} value={subQ.modelAnswer} onChange={(e) => handleSubQuestionChange(index, subIndex, 'modelAnswer', e.target.value)} placeholder={`サブ問題 ${subIndex + 1} の模範解答...`} rows={2} />
+                                                            <Textarea id={`subq-model-answer-${index}-${subIndex}`} value={typeof subQ.modelAnswer === 'string' ? subQ.modelAnswer : ''} onChange={(e) => handleSubQuestionChange(index, subIndex, 'modelAnswer', e.target.value)} placeholder={`サブ問題 ${subIndex + 1} の模範解答...`} rows={2} />
                                                         </div>
                                                         <div className="flex gap-4">
                                                             <div className="w-1/2 space-y-2">
@@ -299,7 +330,7 @@ function CreateExamPageContent() {
                            </Button>
                        </div>
                    </Card>
-               ))}
+               )})}
                 <Button variant="outline" onClick={handleAddQuestion}>
                     <PlusCircle className="mr-2 h-4 w-4" />
                     問題を追加
