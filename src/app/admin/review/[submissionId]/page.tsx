@@ -113,7 +113,7 @@ export default function AdminReviewPage() {
                     <AlertTriangle className="h-4 w-4" />
                     <AlertTitle>権限エラー</AlertTitle>
                     <AlertDescription>
-                        あなたは <strong>{currentUser.headquarters}</strong> の本部管理者ですが、この提出物は <strong>{submission.examineeHeadquarters}</strong> 本部のものです。
+                        あなたは <strong>{currentUser.headquarters}</strong> の本部管理者ですが、この提出物は <strong>{submission.examineeHeadquarters}</strong> のものです。
                         システム管理者に連絡してアクセスをリクエストしてください。
                     </AlertDescription>
                 </Alert>
