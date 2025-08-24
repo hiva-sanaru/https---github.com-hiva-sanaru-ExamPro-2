@@ -102,6 +102,9 @@ export function ExamView({ exam }: ExamViewProps) {
   useEffect(() => {
     if (!exam) return;
     const answeredCount = answers.filter(a => {
+        if (Array.isArray(a.blankAnswers) && a.blankAnswers.length > 0) {
+            return a.blankAnswers.some(v => v.trim() !== '');
+        }
         if (Array.isArray(a.subAnswers) && a.subAnswers.length > 0) {
             return a.subAnswers.some(sa => sa.value.trim() !== '');
         }
@@ -110,27 +113,33 @@ export function ExamView({ exam }: ExamViewProps) {
     setProgress((answeredCount / exam.questions.length) * 100);
   }, [answers, exam]);
 
-  const handleAnswerChange = (questionId: string, value: string | Answer[]) => {
+  const handleAnswerChange = (questionId: string, value: string | string[] | Answer[]) => {
     setAnswers((prev) => {
       const existingAnswerIndex = prev.findIndex((a) => a.questionId === questionId);
-      
+
       if (existingAnswerIndex > -1) {
         return prev.map((a, i) => {
           if (i === existingAnswerIndex) {
-            if (Array.isArray(value)) {
-              return { ...a, subAnswers: value };
+            if (Array.isArray(value) && typeof value[0] === 'string') {
+              return { ...a, blankAnswers: value as string[] };
+            }
+            if (Array.isArray(value) && typeof value[0] !== 'string') {
+              return { ...a, subAnswers: value as Answer[] };
             }
             return { ...a, value };
           }
           return a;
         });
       }
-      
+
       // If a new answer is created
-      if (Array.isArray(value)) {
-        return [...prev, { questionId, value: '', subAnswers: value }];
+      if (Array.isArray(value) && typeof value[0] === 'string') {
+        return [...prev, { questionId, value: '', blankAnswers: value as string[] }];
       }
-      return [...prev, { questionId, value, subAnswers: [] }];
+      if (Array.isArray(value) && typeof value[0] !== 'string') {
+        return [...prev, { questionId, value: '', subAnswers: value as Answer[] }];
+      }
+      return [...prev, { questionId, value, blankAnswers: [] }];
     });
   };
   

@@ -1,7 +1,7 @@
 
 "use client";
 
-import { Fragment } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import type { Question, Answer } from "@/lib/types";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,50 +11,43 @@ import { Label } from "@/components/ui/label";
 import { Clock } from "lucide-react";
 
 interface QuestionCardProps {
-    question: Question;
-    index: number;
-    answer: Answer | undefined;
-    onAnswerChange: (questionId: string, value: string | Answer[]) => void;
+  question: Question;
+  index: number;
+  answer: Answer | undefined;
+  onAnswerChange: (questionId: string, value: string | string[] | Answer[]) => void;
 }
 
 const renderFillInTheBlank = (
   text: string,
-  value: string,
-  onChange: (value: string) => void
+  values: string[],
+  onChange: (values: string[]) => void
 ) => {
-  const parts = text.split('___');
-  if (parts.length <= 1) {
-    return (
-const renderFillInTheBlank = (
-  text: string,
-  value: string,
-  onChange: (value: string) => void
-) => {
-  const parts = text.split('___');
-  if (parts.length <= 1) {
-    return (
-      <span className="inline-block border-b border-current min-w-[6ch] px-1 bg-transparent">
-        <Input
-          placeholder="空欄を埋めてください..."
-          className="bg-transparent border-none focus:ring-0"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-        />
-      </span>
-    );
-  }
+  const parts = text.split("___");
+  const blanks = parts.length - 1;
+  const [localValues, setLocalValues] = useState<string[]>(
+    () => (values.length === blanks ? values : Array(blanks).fill(""))
+  );
+  useEffect(() => {
+    if (values.length === blanks) setLocalValues(values);
+  }, [values, blanks]);
+  const updateAt = (i: number, v: string) => {
+    const next = [...localValues];
+    next[i] = v;
+    setLocalValues(next);
+    onChange(next);
+  };
   return (
-    <p
-      className="text-lg whitespace-pre-wrap"
-      contentEditable
-      suppressContentEditableWarning
-      onInput={(e) => onChange((e.currentTarget as HTMLElement).innerText)}
-    >
-      {parts.map((part, index) => (
-        <Fragment key={index}>
-          <span contentEditable={false}>{part}</span>
-          {index < parts.length - 1 && (
-            <span className="inline-block border-b border-current min-w-[6ch] px-1" />
+    <p className="text-lg whitespace-pre-wrap">
+      {parts.map((part, i) => (
+        <Fragment key={i}>
+          {part}
+          {i < blanks && (
+            <Input
+              placeholder={`空欄${i + 1}`}
+              className="inline-block w-48 align-bottom mx-1"
+              value={localValues[i]}
+              onChange={(e) => updateAt(i, e.target.value)}
+            />
           )}
         </Fragment>
       ))}
@@ -74,7 +67,7 @@ export const QuestionCard = ({ question, index, answer, onAnswerChange }: Questi
                 i === existingAnswerIndex ? { ...a, value } : a
             );
         } else {
-            newSubAnswers = [...currentSubAnswers, { questionId: subQuestionId, value }];
+            newSubAnswers = [...currentSubAnswers, { questionId: subQuestionId, value, subAnswers: [] }];
         }
         onAnswerChange(question.id!, newSubAnswers);
     }
@@ -112,9 +105,13 @@ export const QuestionCard = ({ question, index, answer, onAnswerChange }: Questi
                                 onChange={(e) => onAnswerChange(question.id!, e.target.value)}
                             />
                         )}
-                        {question.type === 'fill-in-the-blank' && (
-                            renderFillInTheBlank(question.text, typeof answer?.value === 'string' ? answer.value : '', (value) => onAnswerChange(question.id!, value))
-                        )}
+{question.type === 'fill-in-the-blank' && (
+  renderFillInTheBlank(
+    question.text,
+    answer?.blankAnswers || [],
+    (values) => onAnswerChange(question.id!, values)
+  )
+)}
                         {question.type === 'selection' && question.options && (
                             <RadioGroup value={typeof answer?.value === 'string' ? answer.value : ''} onValueChange={(value) => onAnswerChange(question.id!, value)}>
                                 {question.options.map((option, index) => (

@@ -36,6 +36,9 @@ export interface Exam {
 export interface Answer {
   questionId: string;
   value: string;
+  /** 書き込み式問題（fill-in-the-blank）の場合、複数の空欄に対応 */
+  blankAnswers?: string[];
+  /** 小問やさらなる入れ子対応用 */
   subAnswers?: Answer[];
 }
 
