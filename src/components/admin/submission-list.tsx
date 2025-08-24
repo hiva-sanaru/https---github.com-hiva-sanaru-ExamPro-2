@@ -18,10 +18,12 @@ import { cva } from "class-variance-authority";
 import { formatInTimeZone } from 'date-fns-tz';
 import { ja } from 'date-fns/locale';
 import Link from "next/link";
-import { Eye, Loader2 } from "lucide-react";
-import { updateSubmission } from "@/services/submissionService";
+import { Eye, Loader2, MoreHorizontal, Trash2 } from "lucide-react";
+import { updateSubmission, deleteSubmission } from "@/services/submissionService";
 import { useToast } from "@/hooks/use-toast";
 import { format } from 'date-fns';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 
 
 interface SubmissionListProps {
@@ -38,9 +40,14 @@ export function SubmissionList({ submissions, exams, users }: SubmissionListProp
     const [localSubmissions, setLocalSubmissions] = useState(submissions);
     const [currentUser, setCurrentUser] = useState<User | null>(null);
 
-    useEffect(() => {
+    const fetchSubmissions = useCallback(async () => {
+        // This is a placeholder. In a real app, you'd fetch from the service.
         setLocalSubmissions(submissions);
     }, [submissions]);
+
+    useEffect(() => {
+        fetchSubmissions();
+    }, [fetchSubmissions]);
 
     useEffect(() => {
         if (submissions.length > 0 && exams.length > 0 && users.length > 0) {
@@ -99,14 +106,31 @@ export function SubmissionList({ submissions, exams, users }: SubmissionListProp
         }
     };
 
+    const handleDelete = async (submissionId: string) => {
+        try {
+            await deleteSubmission(submissionId);
+            toast({
+                title: "提出物が削除されました",
+            });
+            // Refresh the list by filtering out the deleted submission
+            setLocalSubmissions(prev => prev.filter(s => s.id !== submissionId));
+        } catch (error) {
+            console.error(`Failed to delete submission ${submissionId}`, error);
+            toast({
+                title: "削除エラー",
+                description: "提出物の削除中にエラーが発生しました。",
+                variant: "destructive"
+            });
+        }
+    }
+
 
     const badgeVariants = cva(
         "capitalize",
         {
           variants: {
             status: {
-              Passed: "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-700/40",
-              Failed: "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-700/40",
+              Completed: "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-700/40",
               Submitted: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-700/40",
               Grading: "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-300 dark:border-yellow-700/40",
               "In Progress": "bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-900/20 dark:text-gray-400 dark:border-gray-700/40",
@@ -117,8 +141,7 @@ export function SubmissionList({ submissions, exams, users }: SubmissionListProp
 
     const getStatusName = (status: Submission['status']) => {
         switch(status) {
-            case 'Passed': return '合格';
-            case 'Failed': return '不合格';
+            case 'Completed': return '完了';
             case 'Submitted': return '提出済み';
             case 'Grading': return '採点中';
             case 'In Progress': return '進行中';
@@ -161,7 +184,7 @@ export function SubmissionList({ submissions, exams, users }: SubmissionListProp
                     <TableRow key={submission.id}>
                         <TableCell className="font-medium">{exam?.title || '－'}</TableCell>
                         <TableCell>{examinee?.name || '－'}</TableCell>
-                        <TableCell>{submission.examineeHeadquarters?.replace('本部', '')}</TableCell>
+                        <TableCell>{submission.examineeHeadquarters?.replace('本部', '') || '－'}</TableCell>
                         <TableCell>{format(submission.submittedAt, 'yy/MM/dd')}</TableCell>
                         <TableCell>
                             <Badge variant="outline" className={badgeVariants({ status: submission.status as any })}>
@@ -178,11 +201,39 @@ export function SubmissionList({ submissions, exams, users }: SubmissionListProp
                             />
                         </TableCell>
                         <TableCell className="text-right">
-                            <Link href={`/admin/review/${submission.id}`} passHref>
-                                 <Button variant="outline" size="sm">
-                                    採点
-                                </Button>
-                            </Link>
+                             <AlertDialog>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="ghost" size="icon">
+                                            <MoreHorizontal className="h-4 w-4" />
+                                            <span className="sr-only">アクション</span>
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                        <DropdownMenuItem asChild>
+                                           <Link href={`/admin/review/${submission.id}`}><Eye className="mr-2 h-4 w-4"/>採点</Link>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuSeparator />
+                                        <AlertDialogTrigger asChild>
+                                            <DropdownMenuItem className="text-destructive hover:!text-destructive focus:!text-destructive" onSelect={(e) => e.preventDefault()}>
+                                                <Trash2 className="mr-2 h-4 w-4"/>削除
+                                            </DropdownMenuItem>
+                                        </AlertDialogTrigger>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>本当に削除しますか？</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            この操作は元に戻すことはできません。この提出物と関連するすべての採点データが完全に削除されます。
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>キャンセル</AlertDialogCancel>
+                                        <AlertDialogAction onClick={() => handleDelete(submission.id)} className="bg-destructive hover:bg-destructive/90">削除</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
                         </TableCell>
                     </TableRow>
                 )

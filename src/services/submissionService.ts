@@ -1,6 +1,6 @@
 
 import { db } from '@/lib/firebase';
-import { collection, getDocs, doc, getDoc, addDoc, updateDoc, Timestamp, serverTimestamp } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, addDoc, updateDoc, Timestamp, serverTimestamp, deleteDoc } from 'firebase/firestore';
 import type { Submission } from '@/lib/types';
 
 const submissionsCollection = collection(db, 'submissions');
@@ -69,4 +69,10 @@ export async function updateSubmission(submissionId: string, submissionData: Par
     }
 
     await updateDoc(docRef, dataToUpdate);
+}
+
+// Delete a submission
+export async function deleteSubmission(submissionId: string): Promise<void> {
+    const docRef = doc(db, 'submissions', submissionId);
+    await deleteDoc(docRef);
 }
