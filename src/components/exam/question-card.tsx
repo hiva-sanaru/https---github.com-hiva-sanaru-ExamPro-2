@@ -65,7 +65,7 @@ export const QuestionCard = ({ question, index, answer, onAnswerChange }: Questi
     const hasSubQuestions = question.subQuestions && question.subQuestions.length > 0;
 
     return (
-        <Card className="h-full flex flex-col">
+        <Card className="flex flex-col">
             <CardHeader className="flex flex-row justify-between items-start">
                 <div>
                     <CardTitle className="font-headline text-xl">問題 {index + 1}</CardTitle>
@@ -78,7 +78,7 @@ export const QuestionCard = ({ question, index, answer, onAnswerChange }: Questi
                     </div>
                 )}
             </CardHeader>
-            <CardContent className="flex-grow space-y-4">
+            <CardContent className="space-y-4">
                  <div className="text-lg whitespace-pre-wrap">{question.type !== 'fill-in-the-blank' ? question.text : ''}</div>
                 
                 {!hasSubQuestions && (
