@@ -28,7 +28,7 @@ export function ExamHeader({ title, timeLeft, questionTimeLeft }: ExamHeaderProp
         </div>
         <div className="flex items-center gap-4">
           {questionTimeLeft != null && (
-            <div className="flex flex-col items-center gap-1 rounded-lg bg-red-50 border border-red-200 px-4 py-2 text-red-700">
+            <div className="flex flex-col items-center gap-1 rounded-lg bg-red-50 border border-red-200 px-4 pt-2 pb-3 text-red-700">
               <span className="text-xs text-muted-foreground">小問残り時間</span>
               <div className="flex items-center gap-2">
                 <Clock className="h-5 w-5" />
@@ -38,7 +38,7 @@ export function ExamHeader({ title, timeLeft, questionTimeLeft }: ExamHeaderProp
               </div>
             </div>
           )}
-          <div className="flex flex-col items-center gap-1 rounded-lg bg-blue-50 border border-blue-200 px-4 py-2 text-blue-700">
+          <div className="flex flex-col items-center gap-1 rounded-lg bg-blue-50 border border-blue-200 px-4 pt-2 pb-3 text-blue-700">
             <span className="text-xs text-muted-foreground">試験残り時間</span>
             <div className="flex items-center gap-2">
               <Timer className="h-5 w-5" />
