@@ -156,7 +156,7 @@ export default function AdminReviewPage({ params }: { params: { submissionId: st
                         本部採点
                     </TabsTrigger>
                     <TabsTrigger value="po" className="font-headline">
-                        人事部レビュー
+                        人事室レビュー
                     </TabsTrigger>
                 </TabsList>
                 <TabsContent value="hq">
@@ -170,7 +170,7 @@ export default function AdminReviewPage({ params }: { params: { submissionId: st
                     <ReviewPanel
                         exam={exam}
                         submission={submission}
-                        reviewerRole="人事部"
+                        reviewerRole="人事室"
                     />
                 </TabsContent>
             </Tabs>

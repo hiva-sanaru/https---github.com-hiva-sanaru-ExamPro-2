@@ -116,7 +116,7 @@ export default function AdminDashboardPage() {
                     </CardHeader>
                     <CardContent>
                         {isLoading ? <div className="h-8 w-12 bg-muted rounded animate-pulse" /> : <div className="text-2xl font-bold">{dashboardStats.pendingReviewSubmissions}</div> }
-                        <p className="text-xs text-muted-foreground">人事部のレビュー待ち</p>
+                        <p className="text-xs text-muted-foreground">人事室のレビュー待ち</p>
                     </CardContent>
                 </Card>
                 <Card>

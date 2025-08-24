@@ -27,7 +27,7 @@ import { useRouter } from "next/navigation";
 interface ReviewPanelProps {
   exam: Exam;
   submission: Submission;
-  reviewerRole: "本部" | "人事部";
+  reviewerRole: "本部" | "人事室";
 }
 
 interface GradingResult {
@@ -63,7 +63,7 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
 
   useEffect(() => {
     // Initialize scores and feedback based on role and existing data
-    if (reviewerRole === "人事部" && submission.hqGrade) {
+    if (reviewerRole === "人事室" && submission.hqGrade) {
         setManualScores(submission.poGrade?.scores || submission.hqGrade.scores || {});
         setOverallFeedback(submission.poGrade?.justification || '');
         setFinalScore(submission.finalScore);
@@ -92,7 +92,7 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
   };
   
   const handleGradeAllQuestions = async () => {
-    if (reviewerRole === "人事部") return;
+    if (reviewerRole === "人事室") return;
     setIsBulkGrading(true);
     toast({ title: "全問題のAI採点を開始しました...", description: "完了まで数秒お待ちください。" });
 
@@ -199,7 +199,7 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
       setDate(newDate);
   }
 
-  const isPersonnelOfficeView = reviewerRole === "人事部";
+  const isPersonnelOfficeView = reviewerRole === "人事室";
 
   return (
     <Card>
@@ -400,7 +400,7 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
                                     <div className="space-y-1">
                                         <Label className="text-xs">終了</Label>
                                         <div className="flex gap-1">
-                                             <Select onValueChange={(val) => handleTimeChange(lessonReviewEndDate2, setLessonReviewEndDate2, 'hour', val)} value={lessonReviewEndDate2?.getHours().toString().padStart(2, '0')} disabled={isPersonnelOfficeView}>
+                                             <Select onValueChange={(val) => handleTimeChange(lessonReviewEndDate2, setLessonReviewEndDate2, 'hour', val)} value={lessonReviewEndDate2?.getHours().toString().padStart(2, '0 }^{\prime')} disabled={isPersonnelOfficeView}>
                                                 <SelectTrigger><SelectValue /></SelectTrigger>
                                                 <SelectContent>{hours.map(h => <SelectItem key={h} value={h}>{h}</SelectItem>)}</SelectContent>
                                             </Select>
@@ -420,7 +420,7 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
 
             <div className="w-full space-y-2 mt-4">
                 <Label htmlFor="overall-feedback">
-                    {isPersonnelOfficeView ? "人事部フィードバック (最終承認)" : "全体的なフィードバック"}
+                    {isPersonnelOfficeView ? "人事室フィードバック (最終承認)" : "全体的なフィードバック"}
                 </Label>
                 <Textarea 
                     id="overall-feedback" 
