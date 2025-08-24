@@ -14,7 +14,7 @@ interface QuestionCardProps {
     question: Question;
     index: number;
     answer: Answer | undefined;
-    onAnswerChange: (questionId: string, value: string) => void;
+    onAnswerChange: (questionId: string, value: string | Answer[]) => void;
 }
 
 const renderFillInTheBlank = (text: string, value: string, onChange: (value: string) => void) => {
@@ -44,8 +44,22 @@ const renderFillInTheBlank = (text: string, value: string, onChange: (value: str
 export const QuestionCard = ({ question, index, answer, onAnswerChange }: QuestionCardProps) => {
     
     const handleSubAnswerChange = (subQuestionId: string, value: string) => {
-        // This part would need a more complex state management, for now we just log it
-        console.log(`Sub-question ${subQuestionId} answer changed to: ${value}`);
+        const currentSubAnswers = answer?.subAnswers || [];
+        const existingAnswerIndex = currentSubAnswers.findIndex(a => a.questionId === subQuestionId);
+
+        let newSubAnswers;
+        if (existingAnswerIndex > -1) {
+            newSubAnswers = currentSubAnswers.map((a, i) => 
+                i === existingAnswerIndex ? { ...a, value } : a
+            );
+        } else {
+            newSubAnswers = [...currentSubAnswers, { questionId: subQuestionId, value }];
+        }
+        onAnswerChange(question.id!, newSubAnswers);
+    }
+
+    const getSubAnswerValue = (subQuestionId: string) => {
+        return answer?.subAnswers?.find(a => a.questionId === subQuestionId)?.value || '';
     }
     
     const hasSubQuestions = question.subQuestions && question.subQuestions.length > 0;
@@ -65,7 +79,7 @@ export const QuestionCard = ({ question, index, answer, onAnswerChange }: Questi
                 )}
             </CardHeader>
             <CardContent className="flex-grow space-y-4">
-                {question.type !== 'fill-in-the-blank' && <p className="text-lg whitespace-pre-wrap">{question.text}</p>}
+                 <div className="text-lg whitespace-pre-wrap">{question.type !== 'fill-in-the-blank' ? question.text : ''}</div>
                 
                 {!hasSubQuestions && (
                     <>
@@ -73,15 +87,15 @@ export const QuestionCard = ({ question, index, answer, onAnswerChange }: Questi
                             <Textarea 
                                 placeholder="あなたの答え..." 
                                 rows={8}
-                                value={answer?.value || ''}
+                                value={typeof answer?.value === 'string' ? answer.value : ''}
                                 onChange={(e) => onAnswerChange(question.id!, e.target.value)}
                             />
                         )}
                         {question.type === 'fill-in-the-blank' && (
-                            renderFillInTheBlank(question.text, answer?.value || '', (value) => onAnswerChange(question.id!, value))
+                            renderFillInTheBlank(question.text, typeof answer?.value === 'string' ? answer.value : '', (value) => onAnswerChange(question.id!, value))
                         )}
                         {question.type === 'selection' && question.options && (
-                            <RadioGroup value={answer?.value || ''} onValueChange={(value) => onAnswerChange(question.id!, value)}>
+                            <RadioGroup value={typeof answer?.value === 'string' ? answer.value : ''} onValueChange={(value) => onAnswerChange(question.id!, value)}>
                                 {question.options.map((option, index) => (
                                     <div key={index} className="flex items-center space-x-2">
                                         <RadioGroupItem value={option} id={`${question.id}-${index}`} />
@@ -102,6 +116,7 @@ export const QuestionCard = ({ question, index, answer, onAnswerChange }: Questi
                                  <Textarea 
                                     rows={3}
                                     className="mt-2"
+                                    value={getSubAnswerValue(subQ.id!)}
                                     onChange={(e) => handleSubAnswerChange(subQ.id!, e.target.value)}
                                     placeholder="答えを入力..."
                                 />
