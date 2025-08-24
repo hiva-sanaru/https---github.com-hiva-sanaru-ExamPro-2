@@ -93,7 +93,7 @@ export function UserList({ users, onUserDeleted, onUserUpdated, headquartersList
               <TableCell className="font-medium">
                 {user.name}
               </TableCell>
-              <TableCell>{user.employeeId}</TableCell>
+              <TableCell className="font-mono">{user.employeeId}</TableCell>
               <TableCell>
                 <Badge variant="outline" className={badgeVariants({ role: user.role })}>
                   {getRoleName(user.role)}
