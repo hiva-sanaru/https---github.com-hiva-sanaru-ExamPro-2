@@ -7,9 +7,10 @@ import { Button } from "../ui/button";
 interface ExamHeaderProps {
   title: string;
   timeLeft: number; // in seconds
+  questionTimeLeft?: number | null; // in seconds for current question
 }
 
-export function ExamHeader({ title, timeLeft }: ExamHeaderProps) {
+export function ExamHeader({ title, timeLeft, questionTimeLeft }: ExamHeaderProps) {
 
   const formatTime = (seconds: number) => {
     const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
@@ -26,6 +27,12 @@ export function ExamHeader({ title, timeLeft }: ExamHeaderProps) {
           <h1 className="text-lg font-semibold font-headline md:text-xl">{title}</h1>
         </div>
         <div className="flex items-center gap-4">
+          {questionTimeLeft != null && (
+            <div className="flex items-center gap-2 rounded-lg bg-card px-4 py-2 text-primary border">
+              <Timer className="h-5 w-5" />
+              <span className="text-xl font-bold tracking-wider font-code">{formatTime(questionTimeLeft)}</span>
+            </div>
+          )}
           <div className="flex items-center gap-2 rounded-lg bg-card px-4 py-2 text-primary border">
             <Timer className="h-5 w-5" />
             <span className="text-xl font-bold tracking-wider font-code">{formatTime(timeLeft)}</span>

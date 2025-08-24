@@ -29,6 +29,10 @@ export function ExamView({ exam }: ExamViewProps) {
   // Overall exam timer
   const [examTimeLeft, setExamTimeLeft] = useState(exam.duration * 60);
 
+  // Per-question timer
+  const [questionTimeLeft, setQuestionTimeLeft] = useState<number | null>(null);
+  const [questionEndTime, setQuestionEndTime] = useState<number | null>(null);
+
   // Load answers and initialize timer from localStorage on mount
   useEffect(() => {
     try {
@@ -125,15 +129,72 @@ export function ExamView({ exam }: ExamViewProps) {
     return () => clearInterval(timer);
   }, [examTimeLeft, handleTimeUp, isLoading]);
 
+  // Per-question countdown timer logic
+  useEffect(() => {
+    if (isLoading || current <= 0) return;
+    const qIndex = current - 1;
+    const question = exam.questions[qIndex];
+    if (!question.timeLimit) {
+      setQuestionEndTime(null);
+      setQuestionTimeLeft(null);
+      return;
+    }
+    const key = `exam-${exam.id}-question-${question.id}-endTime`;
+    try {
+      const stored = localStorage.getItem(key);
+      let endTime: number;
+      if (stored) {
+        endTime = parseInt(stored, 10);
+      } else {
+        endTime = Date.now() + question.timeLimit * 1000;
+        localStorage.setItem(key, endTime.toString());
+      }
+      setQuestionEndTime(endTime);
+    } catch (error) {
+      console.error("Failed to parse question end time from localStorage", error);
+      localStorage.removeItem(key);
+      const endTime = Date.now() + question.timeLimit * 1000;
+      localStorage.setItem(key, endTime.toString());
+      setQuestionEndTime(endTime);
+    }
+  }, [current, isLoading, exam.id, exam.questions]);
+
+  useEffect(() => {
+    if (isLoading || questionEndTime == null) return;
+    const tick = () => {
+      const remaining = Math.max(0, Math.floor((questionEndTime - Date.now()) / 1000));
+      setQuestionTimeLeft(remaining);
+    };
+    tick();
+    const timer = setInterval(tick, 1000);
+    return () => clearInterval(timer);
+  }, [questionEndTime, isLoading]);
+
+  const handleQuestionTimeUp = useCallback(() => {
+    toast({
+      title: "時間切れ！",
+      description: "この小問の制限時間が終了しました。次の問題に移動します。",
+      variant: "destructive",
+    });
+    handleNext();
+  }, [toast, handleNext]);
+
+  useEffect(() => {
+    if (questionTimeLeft === 0) {
+      handleQuestionTimeUp();
+    }
+  }, [questionTimeLeft, handleQuestionTimeUp]);
+
   if (isLoading) {
     return <div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>
   }
 
   return (
     <>
-      <ExamHeader 
-        title={exam.title} 
+      <ExamHeader
+        title={exam.title}
         timeLeft={examTimeLeft}
+        questionTimeLeft={questionTimeLeft}
       />
       <div className="container mx-auto max-w-4xl py-8">
         <div className="space-y-6">
