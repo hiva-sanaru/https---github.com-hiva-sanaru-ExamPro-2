@@ -14,10 +14,14 @@ interface ExamHeaderProps {
 export function ExamHeader({ title, timeLeft, questionTimeLeft }: ExamHeaderProps) {
 
   const formatTime = (seconds: number) => {
-    const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
+    const h = Math.floor(seconds / 3600);
     const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
     const s = (seconds % 60).toString().padStart(2, '0');
-    return `${h}:${m}:${s}`;
+    
+    if (h > 0) {
+        return `${h.toString().padStart(2, '0')}:${m}:${s}`;
+    }
+    return `${m}:${s}`;
   };
 
   return (
@@ -29,10 +33,10 @@ export function ExamHeader({ title, timeLeft, questionTimeLeft }: ExamHeaderProp
         </div>
         <div className="flex items-center gap-6">
           {questionTimeLeft != null && (
-            <div className="flex items-center gap-2 text-destructive-foreground">
+            <div className="flex items-center gap-2">
                <Clock className="h-5 w-5" />
                <div className="flex flex-col items-start">
-                    <span className="text-xs font-medium text-destructive-foreground/80">小問残り時間</span>
+                    <span className="text-xs font-medium text-primary-foreground/80">小問残り時間</span>
                     <span className="text-xl font-bold tracking-wider font-code">
                         {formatTime(questionTimeLeft)}
                     </span>
