@@ -21,20 +21,22 @@ import Link from "next/link";
 import { Eye, Loader2 } from "lucide-react";
 import { updateSubmission } from "@/services/submissionService";
 import { useToast } from "@/hooks/use-toast";
+import { format } from 'date-fns';
+
 
 interface SubmissionListProps {
     submissions: Submission[];
     exams: Exam[];
     users: User[];
-    isSystemAdmin: boolean;
 }
 
-export function SubmissionList({ submissions, exams, users, isSystemAdmin }: SubmissionListProps) {
+export function SubmissionList({ submissions, exams, users }: SubmissionListProps) {
     const [isLoading, setIsLoading] = useState(true);
     const { toast } = useToast();
 
     // Use a local state to manage submissions to reflect checkbox changes instantly
     const [localSubmissions, setLocalSubmissions] = useState(submissions);
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
 
     useEffect(() => {
         setLocalSubmissions(submissions);
@@ -159,8 +161,8 @@ export function SubmissionList({ submissions, exams, users, isSystemAdmin }: Sub
                     <TableRow key={submission.id}>
                         <TableCell className="font-medium">{exam?.title || 'N/A'}</TableCell>
                         <TableCell>{examinee?.name || 'N/A'}</TableCell>
-                        <TableCell>{submission.examineeHeadquarters}</TableCell>
-                        <TableCell>{formatInTimeZone(submission.submittedAt, 'Asia/Tokyo', "PPP p", { locale: ja })}</TableCell>
+                        <TableCell>{submission.examineeHeadquarters?.replace('本部', '')}</TableCell>
+                        <TableCell>{format(submission.submittedAt, 'yy/MM/dd')}</TableCell>
                         <TableCell>
                             <Badge variant="outline" className={badgeVariants({ status: submission.status as any })}>
                                 {getStatusName(submission.status)}
@@ -171,15 +173,14 @@ export function SubmissionList({ submissions, exams, users, isSystemAdmin }: Sub
                                 id={`comm-${submission.id}`}
                                 checked={!!submission.resultCommunicated}
                                 onCheckedChange={() => handleCheckboxChange(submission)}
-                                disabled={!isSystemAdmin}
+                                disabled={currentUser?.role !== 'system_administrator'}
                                 aria-label="結果伝達済み"
                             />
                         </TableCell>
                         <TableCell className="text-right">
                             <Link href={`/admin/review/${submission.id}`} passHref>
                                  <Button variant="outline" size="sm">
-                                    <Eye className="mr-2 h-4 w-4" />
-                                    採点する
+                                    採点
                                 </Button>
                             </Link>
                         </TableCell>
