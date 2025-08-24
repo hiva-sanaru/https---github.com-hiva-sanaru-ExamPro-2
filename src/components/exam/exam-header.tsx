@@ -3,6 +3,7 @@
 
 import { Timer, Clock, BookAIcon } from "lucide-react";
 import { Button } from "../ui/button";
+import { Separator } from "../ui/separator";
 
 interface ExamHeaderProps {
   title: string;
@@ -26,26 +27,29 @@ export function ExamHeader({ title, timeLeft, questionTimeLeft }: ExamHeaderProp
           <BookAIcon className="h-6 w-6 text-primary" />
           <h1 className="text-lg font-semibold font-headline md:text-xl">{title}</h1>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-6">
           {questionTimeLeft != null && (
-            <div className="flex flex-col items-center gap-1 rounded-lg bg-red-50 border border-red-200 px-4 pt-2 pb-3 text-red-700">
-              <span className="text-xs text-muted-foreground">小問残り時間</span>
-              <div className="flex items-center gap-2">
-                <Clock className="h-5 w-5" />
-                <span className="text-xl font-bold tracking-wider font-code">
-                  {formatTime(questionTimeLeft)}
-                </span>
-              </div>
+            <div className="flex items-center gap-2 text-destructive">
+               <Clock className="h-5 w-5" />
+               <div className="flex flex-col items-start">
+                    <span className="text-xs font-medium text-destructive/80">小問残り時間</span>
+                    <span className="text-xl font-bold tracking-wider font-code">
+                        {formatTime(questionTimeLeft)}
+                    </span>
+               </div>
             </div>
           )}
-          <div className="flex flex-col items-center gap-1 rounded-lg bg-blue-50 border border-blue-200 px-4 pt-2 pb-3 text-blue-700">
-            <span className="text-xs text-muted-foreground">試験残り時間</span>
-            <div className="flex items-center gap-2">
-              <Timer className="h-5 w-5" />
-              <span className="text-xl font-bold tracking-wider font-code">
-                {formatTime(timeLeft)}
-              </span>
-            </div>
+          
+          <Separator orientation="vertical" className="h-8" />
+
+          <div className="flex items-center gap-2 text-primary">
+             <Timer className="h-5 w-5" />
+             <div className="flex flex-col items-start">
+                <span className="text-xs font-medium text-primary/80">試験残り時間</span>
+                <span className="text-xl font-bold tracking-wider font-code">
+                    {formatTime(timeLeft)}
+                </span>
+             </div>
           </div>
         </div>
       </div>
