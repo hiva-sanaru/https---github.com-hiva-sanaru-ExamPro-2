@@ -1,13 +1,12 @@
 
 "use client";
 
-import { useState, useEffect, useCallback, Suspense } from "react";
-import type { Exam, Question, Answer } from "@/lib/types";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect, useCallback } from "react";
+import type { Exam, Answer } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { Progress } from "@/components/ui/progress";
 import { Carousel, CarouselApi, CarouselContent, CarouselItem } from "../ui/carousel";
-import { BookCheck, ArrowRight, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { ExamHeader } from "./exam-header";
 import { QuestionCard } from "./question-card";
 import { useToast } from "@/hooks/use-toast";
@@ -234,7 +233,7 @@ export function ExamView({ exam }: ExamViewProps) {
   }, [questionTimeLeft, handleQuestionTimeUp]);
 
   if (isLoading || !exam) {
-    return <div className="flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>
+    return <div className="flex items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin" /></div>
   }
 
   return (
@@ -262,27 +261,16 @@ export function ExamView({ exam }: ExamViewProps) {
                             <QuestionCard 
                                 question={question}
                                 index={index}
+                                isLastQuestion={index === count - 1}
                                 answer={answers.find(a => a.questionId === question.id)}
                                 onAnswerChange={handleAnswerChange}
+                                onNext={handleNext}
+                                onReview={handleReview}
                             />
                         </CarouselItem>
                     ))}
                 </CarouselContent>
             </Carousel>
-
-          <div className="flex justify-end">
-            {current < count ? (
-                <Button onClick={handleNext} size="lg">
-                    次の問題へ
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-            ) : (
-                <Button onClick={handleReview} size="lg" className="bg-accent hover:bg-accent/90">
-                    確認して提出
-                    <BookCheck className="ml-2 h-4 w-4" />
-                </Button>
-            )}
-          </div>
         </div>
       </div>
     </>

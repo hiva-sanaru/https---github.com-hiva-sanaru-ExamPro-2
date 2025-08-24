@@ -8,13 +8,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Clock } from "lucide-react";
+import { Clock, ArrowRight, BookCheck } from "lucide-react";
+import { Button } from "../ui/button";
 
 interface QuestionCardProps {
     question: Question;
     index: number;
     answer: Answer | undefined;
     onAnswerChange: (questionId: string, value: string | string[] | Answer[]) => void;
+    isLastQuestion: boolean;
+    onNext: () => void;
+    onReview: () => void;
 }
 
 const renderFillInTheBlank = (
@@ -41,7 +45,7 @@ const renderFillInTheBlank = (
   );
 };
 
-export const QuestionCard = ({ question, index, answer, onAnswerChange }: QuestionCardProps) => {
+export const QuestionCard = ({ question, index, answer, onAnswerChange, isLastQuestion, onNext, onReview }: QuestionCardProps) => {
     
     const handleSubAnswerChange = (subQuestionId: string, value: string) => {
         const currentSubAnswers = answer?.subAnswers || [];
@@ -84,7 +88,7 @@ export const QuestionCard = ({ question, index, answer, onAnswerChange }: Questi
                     </div>
                 )}
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent>
                  <div className="text-lg whitespace-pre-wrap">{question.type !== 'fill-in-the-blank' ? question.text : ''}</div>
                 
                 {!hasSubQuestions && (
@@ -131,8 +135,21 @@ export const QuestionCard = ({ question, index, answer, onAnswerChange }: Questi
                     </div>
                 )}
             </CardContent>
-             <CardFooter>
+             <CardFooter className="flex justify-between items-center">
                 <p className="text-xs text-muted-foreground">問題タイプ: {question.type === 'descriptive' ? '記述式' : question.type === 'fill-in-the-blank' ? '穴埋め' : '選択式'}</p>
+                <div className="flex justify-end">
+                    {!isLastQuestion ? (
+                        <Button onClick={onNext} size="lg">
+                            次の問題へ
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                        </Button>
+                    ) : (
+                        <Button onClick={onReview} size="lg" className="bg-accent hover:bg-accent/90">
+                            確認して提出
+                            <BookCheck className="ml-2 h-4 w-4" />
+                        </Button>
+                    )}
+                </div>
             </CardFooter>
         </Card>
     )
