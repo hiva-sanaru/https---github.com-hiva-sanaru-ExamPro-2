@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -16,7 +16,7 @@ import { addExam, getExam, updateExam } from '@/services/examService';
 import { v4 as uuidv4 } from 'uuid';
 
 
-export default function CreateExamPage() {
+function CreateExamPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
@@ -316,4 +316,12 @@ export default function CreateExamPage() {
         </div>
     </div>
   );
+}
+
+export default function CreateExamPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center h-full"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
+      <CreateExamPageContent />
+    </Suspense>
+  )
 }
