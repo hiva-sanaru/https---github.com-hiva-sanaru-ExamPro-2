@@ -1,3 +1,4 @@
+
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,14 +35,12 @@ async function ExamineeDashboard() {
                                             試験時間: {exam.duration}分 | 合計点: {exam.totalPoints}点
                                         </p>
                                     </div>
-                                    <Link href={`/exam/${exam.id}`} passHref>
-                                        <Button asChild>
-                                            <a>
-                                                試験を開始
-                                                <ArrowRight className="ml-2 h-4 w-4" />
-                                            </a>
-                                        </Button>
-                                    </Link>
+                                    <Button asChild>
+                                        <Link href={`/exam/${exam.id}`}>
+                                            試験を開始
+                                            <ArrowRight className="ml-2 h-4 w-4" />
+                                        </Link>
+                                    </Button>
                                 </div>
                             ))
                         ) : (
