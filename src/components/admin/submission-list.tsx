@@ -134,6 +134,7 @@ export function SubmissionList({ submissions, exams, users }: SubmissionListProp
               Submitted: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-700/40",
               Grading: "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-300 dark:border-yellow-700/40",
               "In Progress": "bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-900/20 dark:text-gray-400 dark:border-gray-700/40",
+              "不明": "bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-900/20 dark:text-gray-400 dark:border-gray-700/40",
             },
           },
         }
@@ -180,6 +181,7 @@ export function SubmissionList({ submissions, exams, users }: SubmissionListProp
             localSubmissions.map((submission) => {
                 const exam = examsMap[submission.examId];
                 const examinee = usersMap[submission.examineeId];
+                const statusName = getStatusName(submission.status);
                 return (
                     <TableRow key={submission.id}>
                         <TableCell className="font-medium">{exam?.title || '－'}</TableCell>
@@ -187,8 +189,8 @@ export function SubmissionList({ submissions, exams, users }: SubmissionListProp
                         <TableCell>{submission.examineeHeadquarters?.replace('本部', '') || '－'}</TableCell>
                         <TableCell>{format(submission.submittedAt, 'yy/MM/dd')}</TableCell>
                         <TableCell>
-                            <Badge variant="outline" className={badgeVariants({ status: submission.status as any })}>
-                                {getStatusName(submission.status)}
+                            <Badge variant="outline" className={badgeVariants({ status: statusName as any })}>
+                                {statusName}
                             </Badge>
                         </TableCell>
                          <TableCell className="text-center">
