@@ -12,7 +12,7 @@ export default {
       fontFamily: {
         body: ['Inter', 'sans-serif'],
         headline: ['Space Grotesk', 'sans-serif'],
-        code: ['Space Grotesk', 'monospace'],
+        code: ['monospace'],
       },
       colors: {
         background: 'hsl(var(--background))',
