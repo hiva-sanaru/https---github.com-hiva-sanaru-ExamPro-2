@@ -42,12 +42,19 @@ export function ExamView({ exam }: ExamViewProps) {
         }
 
         const examEndTime = localStorage.getItem(`exam-${exam.id}-endTime`);
+        const now = Date.now();
         if (examEndTime) {
             const endTime = parseInt(examEndTime, 10);
-            const remaining = Math.max(0, Math.floor((endTime - new Date().getTime()) / 1000));
-            setExamTimeLeft(remaining);
+            const remaining = Math.floor((endTime - now) / 1000);
+            if (remaining > 0) {
+                setExamTimeLeft(remaining);
+            } else {
+                const newEndTime = now + exam.duration * 60 * 1000;
+                localStorage.setItem(`exam-${exam.id}-endTime`, newEndTime.toString());
+                setExamTimeLeft(exam.duration * 60);
+            }
         } else {
-            const newEndTime = new Date().getTime() + exam.duration * 60 * 1000;
+            const newEndTime = now + exam.duration * 60 * 1000;
             localStorage.setItem(`exam-${exam.id}-endTime`, newEndTime.toString());
             setExamTimeLeft(exam.duration * 60);
         }
@@ -119,15 +126,20 @@ export function ExamView({ exam }: ExamViewProps) {
   // Exam-wide countdown timer logic
   useEffect(() => {
     if (isLoading) return; // Don't start timer until everything is loaded
-    if (examTimeLeft <= 0) {
-        handleTimeUp();
-        return;
-    }
+
     const timer = setInterval(() => {
-        setExamTimeLeft(prev => prev - 1);
+      setExamTimeLeft((prev) => {
+        if (prev <= 1) {
+          handleTimeUp();
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
     }, 1000);
+
     return () => clearInterval(timer);
-  }, [examTimeLeft, handleTimeUp, isLoading]);
+  }, [isLoading, handleTimeUp]);
 
   // Per-question countdown timer logic
   useEffect(() => {
@@ -142,20 +154,28 @@ export function ExamView({ exam }: ExamViewProps) {
     const key = `exam-${exam.id}-question-${question.id}-endTime`;
     try {
       const stored = localStorage.getItem(key);
+      const now = Date.now();
       let endTime: number;
       if (stored) {
-        endTime = parseInt(stored, 10);
+        const parsed = parseInt(stored, 10);
+        const remaining = Math.floor((parsed - now) / 1000);
+        if (remaining > 0) {
+          endTime = parsed;
+        } else {
+          endTime = now + question.timeLimit * 1000;
+          localStorage.setItem(key, endTime.toString());
+        }
       } else {
-        endTime = Date.now() + question.timeLimit * 1000;
+        endTime = now + question.timeLimit * 1000;
         localStorage.setItem(key, endTime.toString());
       }
       setQuestionEndTime(endTime);
     } catch (error) {
       console.error("Failed to parse question end time from localStorage", error);
       localStorage.removeItem(key);
-      const endTime = Date.now() + question.timeLimit * 1000;
-      localStorage.setItem(key, endTime.toString());
-      setQuestionEndTime(endTime);
+      const newEndTime = Date.now() + question.timeLimit * 1000;
+      localStorage.setItem(key, newEndTime.toString());
+      setQuestionEndTime(newEndTime);
     }
   }, [current, isLoading, exam.id, exam.questions]);
 
