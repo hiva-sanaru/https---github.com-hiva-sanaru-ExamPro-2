@@ -1,7 +1,7 @@
 
 "use client";
 
-import * as React from "react";
+import { Fragment } from "react";
 import type { Question, Answer } from "@/lib/types";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,29 +17,50 @@ interface QuestionCardProps {
     onAnswerChange: (questionId: string, value: string | Answer[]) => void;
 }
 
-const renderFillInTheBlank = (text: string, value: string, onChange: (value: string) => void) => {
-    const parts = text.split('___');
-    if (parts.length <= 1) {
-        return <Input placeholder="空欄を埋めてください..." value={value} onChange={(e) => onChange(e.target.value)} />;
-    }
+const renderFillInTheBlank = (
+  text: string,
+  value: string,
+  onChange: (value: string) => void
+) => {
+  const parts = text.split('___');
+  if (parts.length <= 1) {
     return (
-        <div className="flex items-baseline gap-x-2 flex-wrap text-lg leading-relaxed">
-            {parts.map((part, index) => (
-                <React.Fragment key={index}>
-                    {part && <span>{part}</span>}
-                    {index < parts.length - 1 && (
-                         <Input 
-                            placeholder="回答" 
-                            className="w-48 inline-block align-baseline"
-                            value={value || ''}
-                            onChange={(e) => onChange(e.target.value)}
-                        />
-                    )}
-                </React.Fragment>
-            ))}
-        </div>
-    )
-}
+const renderFillInTheBlank = (
+  text: string,
+  value: string,
+  onChange: (value: string) => void
+) => {
+  const parts = text.split('___');
+  if (parts.length <= 1) {
+    return (
+      <span className="inline-block border-b border-current min-w-[6ch] px-1 bg-transparent">
+        <Input
+          placeholder="空欄を埋めてください..."
+          className="bg-transparent border-none focus:ring-0"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      </span>
+    );
+  }
+  return (
+    <p
+      className="text-lg whitespace-pre-wrap"
+      contentEditable
+      suppressContentEditableWarning
+      onInput={(e) => onChange((e.currentTarget as HTMLElement).innerText)}
+    >
+      {parts.map((part, index) => (
+        <Fragment key={index}>
+          <span contentEditable={false}>{part}</span>
+          {index < parts.length - 1 && (
+            <span className="inline-block border-b border-current min-w-[6ch] px-1" />
+          )}
+        </Fragment>
+      ))}
+    </p>
+  );
+};
 
 export const QuestionCard = ({ question, index, answer, onAnswerChange }: QuestionCardProps) => {
     
