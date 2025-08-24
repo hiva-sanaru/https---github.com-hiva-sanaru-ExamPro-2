@@ -266,7 +266,7 @@ export function ExamView({ exam }: ExamViewProps) {
                 </CarouselContent>
             </Carousel>
 
-          <div className="flex justify-end mt-8">
+          <div className="flex justify-end">
             {current < count ? (
                 <Button onClick={handleNext} size="lg">
                     次の問題へ
