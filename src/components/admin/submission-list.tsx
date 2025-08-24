@@ -23,6 +23,7 @@ import { updateSubmission, deleteSubmission } from "@/services/submissionService
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../ui/alert-dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import { findUserByEmployeeId } from '@/services/userService';
 
 
 interface SubmissionListProps {
@@ -39,14 +40,20 @@ export function SubmissionList({ submissions, exams, users }: SubmissionListProp
     const [localSubmissions, setLocalSubmissions] = useState(submissions);
     const [currentUser, setCurrentUser] = useState<User | null>(null);
 
-    const fetchSubmissions = useCallback(async () => {
-        // This is a placeholder. In a real app, you'd fetch from the service.
-        setLocalSubmissions(submissions);
-    }, [submissions]);
+    useEffect(() => {
+        const fetchLoggedInUser = async () => {
+            const employeeId = localStorage.getItem('loggedInUserEmployeeId');
+            if (employeeId) {
+                const user = await findUserByEmployeeId(employeeId);
+                setCurrentUser(user);
+            }
+        };
+        fetchLoggedInUser();
+    }, []);
 
     useEffect(() => {
-        fetchSubmissions();
-    }, [fetchSubmissions]);
+        setLocalSubmissions(submissions);
+    }, [submissions]);
 
     useEffect(() => {
         if (submissions.length > 0 && exams.length > 0 && users.length > 0) {
