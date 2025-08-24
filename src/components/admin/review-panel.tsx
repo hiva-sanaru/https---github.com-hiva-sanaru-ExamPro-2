@@ -321,7 +321,7 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
                         {/* --- First Choice --- */}
                         <div className="space-y-2">
                             <Label>第一希望日時</Label>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:items-end">
                                 <Popover>
                                     <PopoverTrigger asChild>
                                         <Button
@@ -369,7 +369,7 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
                         {/* --- Second Choice --- */}
                         <div className="space-y-2">
                             <Label>第二希望日時</Label>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:items-end">
                                 <Popover>
                                     <PopoverTrigger asChild>
                                         <Button
