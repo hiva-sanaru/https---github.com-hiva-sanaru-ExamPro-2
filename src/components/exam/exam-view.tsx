@@ -16,6 +16,10 @@ interface ExamViewProps {
   exam: Exam | null;
 }
 
+const isSubAnswerArray = (value: any): value is Answer[] => {
+    return Array.isArray(value) && (value.length === 0 || (value[0] && typeof value[0].questionId !== 'undefined'));
+}
+
 export function ExamView({ exam }: ExamViewProps) {
   const router = useRouter();
   const { toast } = useToast();
@@ -120,8 +124,8 @@ export function ExamView({ exam }: ExamViewProps) {
       if (existingAnswerIndex > -1) {
         return prev.map((a, i) => {
           if (i === existingAnswerIndex) {
-            if (Array.isArray(value) && (value.length === 0 || typeof (value[0] as any).questionId !== 'undefined')) {
-              return { ...a, subAnswers: value as Answer[] };
+            if (isSubAnswerArray(value)) {
+              return { ...a, subAnswers: value };
             }
             return { ...a, value: value as string | string[] };
           }
@@ -130,8 +134,8 @@ export function ExamView({ exam }: ExamViewProps) {
       }
       
       // If a new answer is created
-      if (Array.isArray(value) && (value.length === 0 || typeof (value[0] as any).questionId !== 'undefined')) {
-        return [...prev, { questionId, value: '', subAnswers: value as Answer[] }];
+      if (isSubAnswerArray(value)) {
+        return [...prev, { questionId, value: '', subAnswers: value }];
       }
       return [...prev, { questionId, value: value as string | string[], subAnswers: [] }];
     });
@@ -284,5 +288,7 @@ export function ExamView({ exam }: ExamViewProps) {
     </>
   );
 }
+
+    
 
     
