@@ -21,18 +21,18 @@ export function ExamHeader({ title, timeLeft, questionTimeLeft }: ExamHeaderProp
   };
 
   return (
-    <header className="sticky top-0 z-10 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-10 w-full border-b bg-primary text-primary-foreground">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
         <div className="flex items-center gap-3">
-          <BookAIcon className="h-6 w-6 text-primary" />
+          <BookAIcon className="h-6 w-6" />
           <h1 className="text-lg font-semibold font-headline md:text-xl">{title}</h1>
         </div>
         <div className="flex items-center gap-6">
           {questionTimeLeft != null && (
-            <div className="flex items-center gap-2 text-destructive">
+            <div className="flex items-center gap-2 text-destructive-foreground">
                <Clock className="h-5 w-5" />
                <div className="flex flex-col items-start">
-                    <span className="text-xs font-medium text-destructive/80">小問残り時間</span>
+                    <span className="text-xs font-medium text-destructive-foreground/80">小問残り時間</span>
                     <span className="text-xl font-bold tracking-wider font-code">
                         {formatTime(questionTimeLeft)}
                     </span>
@@ -40,12 +40,12 @@ export function ExamHeader({ title, timeLeft, questionTimeLeft }: ExamHeaderProp
             </div>
           )}
           
-          <Separator orientation="vertical" className="h-8" />
+          <Separator orientation="vertical" className="h-8 bg-primary-foreground/20" />
 
-          <div className="flex items-center gap-2 text-primary">
+          <div className="flex items-center gap-2">
              <Timer className="h-5 w-5" />
              <div className="flex flex-col items-start">
-                <span className="text-xs font-medium text-primary/80">試験残り時間</span>
+                <span className="text-xs font-medium text-primary-foreground/80">試験残り時間</span>
                 <span className="text-xl font-bold tracking-wider font-code">
                     {formatTime(timeLeft)}
                 </span>
