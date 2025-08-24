@@ -2,7 +2,7 @@
 'use client';
 import { ReviewPanel } from "@/components/admin/review-panel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { notFound, useRouter } from "next/navigation";
+import { notFound, useRouter, useParams } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { User, Calendar, CheckCircle, AlertTriangle, ShieldCheck, Loader2 } from "lucide-react";
 import { formatInTimeZone } from 'date-fns-tz';
@@ -21,8 +21,11 @@ const MOCK_ADMIN_USER = {
     headquarters: 'Tokyo' // This is ignored if role is 'system_administrator'
 }
 
-export default function AdminReviewPage({ params }: { params: { submissionId: string } }) {
+export default function AdminReviewPage() {
     const router = useRouter();
+    const params = useParams();
+    const submissionId = params.submissionId as string;
+
     const [submission, setSubmission] = useState<Submission | null>(null);
     const [exam, setExam] = useState<Exam | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -30,9 +33,10 @@ export default function AdminReviewPage({ params }: { params: { submissionId: st
 
     useEffect(() => {
         const fetchSubmissionAndExam = async () => {
+            if (!submissionId) return;
             setIsLoading(true);
             try {
-                const sub = await getSubmission(params.submissionId);
+                const sub = await getSubmission(submissionId);
                 if (!sub) {
                     setError("Submission not found.");
                     return;
@@ -53,7 +57,7 @@ export default function AdminReviewPage({ params }: { params: { submissionId: st
         };
 
         fetchSubmissionAndExam();
-    }, [params.submissionId]);
+    }, [submissionId]);
 
     if (isLoading) {
         return (
