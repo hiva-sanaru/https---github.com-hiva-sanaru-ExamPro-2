@@ -84,7 +84,7 @@ export const QuestionCard = ({ question, index, answer, onAnswerChange, isLastQu
                 {question.timeLimit && (
                     <div className="flex items-center gap-2 rounded-lg bg-muted px-3 py-1.5 text-sm">
                         <Clock className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-mono font-semibold">目安時間: {Math.floor(question.timeLimit / 60)}分</span>
+                        <span className="font-mono font-semibold">制限時間: {Math.floor(question.timeLimit / 60)}分</span>
                     </div>
                 )}
             </CardHeader>
