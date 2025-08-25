@@ -44,8 +44,12 @@ export function SubmissionList({ submissions, exams, users }: SubmissionListProp
         const fetchLoggedInUser = async () => {
             const employeeId = localStorage.getItem('loggedInUserEmployeeId');
             if (employeeId) {
-                const user = await findUserByEmployeeId(employeeId);
-                setCurrentUser(user);
+                try {
+                    const user = await findUserByEmployeeId(employeeId);
+                    setCurrentUser(user);
+                } catch (error) {
+                    console.error("Failed to fetch user", error)
+                }
             }
         };
         fetchLoggedInUser();
@@ -161,13 +165,13 @@ export function SubmissionList({ submissions, exams, users }: SubmissionListProp
       <Table>
         <TableHeader>
           <TableRow className="bg-primary hover:bg-primary/90">
-            <TableHead className="text-primary-foreground">試験名</TableHead>
-            <TableHead className="text-primary-foreground">受験者名</TableHead>
-            <TableHead className="text-primary-foreground">本部</TableHead>
-            <TableHead className="text-primary-foreground">提出日時</TableHead>
-            <TableHead className="text-primary-foreground">ステータス</TableHead>
-            <TableHead className="text-primary-foreground">結果伝達</TableHead>
-            <TableHead className="text-right text-primary-foreground">アクション</TableHead>
+            <TableHead className="text-primary-foreground whitespace-nowrap">試験名</TableHead>
+            <TableHead className="text-primary-foreground whitespace-nowrap">受験者名</TableHead>
+            <TableHead className="text-primary-foreground whitespace-nowrap">本部</TableHead>
+            <TableHead className="text-primary-foreground whitespace-nowrap">提出日時</TableHead>
+            <TableHead className="text-primary-foreground whitespace-nowrap">ステータス</TableHead>
+            <TableHead className="text-primary-foreground whitespace-nowrap">結果伝達</TableHead>
+            <TableHead className="text-right text-primary-foreground whitespace-nowrap">アクション</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -190,16 +194,16 @@ export function SubmissionList({ submissions, exams, users }: SubmissionListProp
                 const statusName = getStatusName(submission.status);
                 return (
                     <TableRow key={submission.id}>
-                        <TableCell className="font-medium">{exam?.title || '－'}</TableCell>
-                        <TableCell>{examinee?.name || '－'}</TableCell>
-                        <TableCell>{submission.examineeHeadquarters?.replace('本部', '') || '－'}</TableCell>
-                        <TableCell>{formatInTimeZone(submission.submittedAt, 'Asia/Tokyo', "yy/MM/dd", { locale: ja })}</TableCell>
-                        <TableCell>
+                        <TableCell className="font-medium whitespace-nowrap">{exam?.title || '－'}</TableCell>
+                        <TableCell className="whitespace-nowrap">{examinee?.name || '－'}</TableCell>
+                        <TableCell className="whitespace-nowrap">{submission.examineeHeadquarters?.replace('本部', '') || '－'}</TableCell>
+                        <TableCell className="whitespace-nowrap">{formatInTimeZone(submission.submittedAt, 'Asia/Tokyo', "yy/MM/dd", { locale: ja })}</TableCell>
+                        <TableCell className="whitespace-nowrap">
                             <Badge variant="outline" className={badgeVariants({ status: statusName as any })}>
                                 {statusName}
                             </Badge>
                         </TableCell>
-                         <TableCell className="text-center">
+                         <TableCell className="text-center whitespace-nowrap">
                              <Checkbox 
                                 id={`comm-${submission.id}`}
                                 checked={!!submission.resultCommunicated}
@@ -208,7 +212,7 @@ export function SubmissionList({ submissions, exams, users }: SubmissionListProp
                                 aria-label="結果伝達済み"
                             />
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="text-right whitespace-nowrap">
                              <AlertDialog>
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
