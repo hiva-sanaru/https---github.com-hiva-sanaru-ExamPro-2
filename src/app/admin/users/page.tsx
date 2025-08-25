@@ -86,7 +86,7 @@ export default function AdminUsersPage() {
                             </div>
                             <Dialog open={isAddUserOpen} onOpenChange={setAddUserOpen}>
                                 <DialogTrigger asChild>
-                                    <Button className="w-full sm:w-auto mt-2 sm:mt-0 bg-chart-5 hover:bg-chart-5/90">
+                                    <Button className="w-full sm:w-auto mt-2 sm:mt-0 bg-chart-1 hover:bg-chart-1/90">
                                         <PlusCircle className="mr-2 h-4 w-4" />
                                         ユーザーを追加
                                     </Button>
