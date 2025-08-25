@@ -8,9 +8,16 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, React.ComponentProps<'tex
       <textarea
         className={cn(
           'flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
+          'resize-none', // Disable manual resizing
           className
         )}
         ref={ref}
+        rows={1} // Start with a single row
+        onInput={(e) => {
+            const textarea = e.currentTarget;
+            textarea.style.height = 'auto'; // Reset height
+            textarea.style.height = `${textarea.scrollHeight}px`; // Set height to scroll height
+        }}
         {...props}
       />
     );
