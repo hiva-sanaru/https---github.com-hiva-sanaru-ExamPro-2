@@ -387,7 +387,7 @@ function CreateExamPageContent() {
         </Card>
       </div>
 
-       <div className="flex justify-end mt-6">
+       <div className="flex justify-center mt-6">
             <Button size="lg" onClick={handleSaveExam} disabled={isSaving}>
                 {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                 {isSaving ? "保存中..." : "試験を保存"}
