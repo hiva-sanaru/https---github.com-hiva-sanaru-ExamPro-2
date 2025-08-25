@@ -159,7 +159,7 @@ export default function AdminReviewPage() {
                     </div>
                     <div className="flex items-center gap-2">
                         <Calendar className="w-4 h-4 text-muted-foreground" />
-                        <strong>提出日時:</strong> <span>{formatInTimeZone(submission.submittedAt, 'Asia/Tokyo', "PPP p", { locale: ja })}</span>
+                        <strong>提出日時:</strong> <span>{formatInTimeZone(submission.submittedAt, 'Asia/Tokyo', "PPP", { locale: ja })}</span>
                     </div>
                      <div className="flex items-center gap-2">
                         <CheckCircle className="w-4 h-4 text-muted-foreground" />
