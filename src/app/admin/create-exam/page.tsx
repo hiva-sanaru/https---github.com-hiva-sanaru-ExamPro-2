@@ -131,6 +131,14 @@ function CreateExamPageContent() {
   }
   
   const handleSaveExam = async () => {
+      if (!title) {
+        toast({
+            title: "保存エラー",
+            description: "試験タイトルは必須です。",
+            variant: "destructive"
+        });
+        return;
+      }
       setIsSaving(true);
       const totalPoints = questions.reduce((acc, q) => {
         const mainPoints = q.points || 0;
