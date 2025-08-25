@@ -94,7 +94,7 @@ export default function ReviewListPage() {
             <CardTitle>提出物リスト</CardTitle>
             <CardDescription>提出物を選択してレビューを開始してください。</CardDescription>
           </div>
-          <Button variant="outline" onClick={handleExportSubmissions}>
+          <Button onClick={handleExportSubmissions} className="bg-chart-1 hover:bg-chart-1/90">
               <FileText className="mr-2 h-4 w-4" />
               提出物をエクスポート
           </Button>
