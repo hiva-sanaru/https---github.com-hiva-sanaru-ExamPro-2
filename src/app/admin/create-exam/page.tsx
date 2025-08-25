@@ -288,7 +288,7 @@ function CreateExamPageContent() {
                                         </div>
                                        <div className="space-y-2">
                                            <Label htmlFor={`q-text-${index}`}>問題文 {index + 1}</Label>
-                                           <Textarea id={`q-text-${index}`} value={q.text} onChange={(e) => handleQuestionChange(index, 'text', e.target.value)} placeholder={`問題 ${index + 1} の内容を記述...`} />
+                                           <Textarea id={`q-text-${index}`} value={q.text} onChange={(e) => handleQuestionChange(index, 'text', e.target.value)} placeholder={`問題 ${index + 1} の内容を記述...`} className="bg-white dark:bg-gray-950" />
                                        </div>
                                         {q.type === 'selection' && (
                                           <div className="space-y-2">
@@ -299,6 +299,7 @@ function CreateExamPageContent() {
                                                   onChange={(e) => handleQuestionChange(index, 'options', e.target.value)} 
                                                   placeholder={'選択肢A\n選択肢B\n選択肢C'}
                                                   rows={4}
+                                                  className="bg-white dark:bg-gray-950"
                                               />
                                           </div>
                                         )}
@@ -315,13 +316,14 @@ function CreateExamPageContent() {
                                                         value={Array.isArray(q.modelAnswer) ? (q.modelAnswer[i] || '') : ''}
                                                         onChange={(e) => handleQuestionChange(index, 'modelAnswer', { index: i, value: e.target.value })}
                                                         placeholder={`空欄 ${i + 1} の答え`}
+                                                        className="bg-white dark:bg-gray-950"
                                                     />
                                                     </div>
                                                 ))}
                                                 {blankCount === 0 && <p className="text-xs text-muted-foreground">問題文に「___」（アンダースコア3つ）を追加して空欄を作成してください。</p>}
                                                 </div>
                                             ) : (
-                                                <Textarea id={`q-model-answer-${index}`} value={typeof q.modelAnswer === 'string' ? q.modelAnswer : ''} onChange={(e) => handleQuestionChange(index, 'modelAnswer', e.target.value)} placeholder={`問題 ${index + 1} の模範解答を記述...`} rows={3} />
+                                                <Textarea id={`q-model-answer-${index}`} value={typeof q.modelAnswer === 'string' ? q.modelAnswer : ''} onChange={(e) => handleQuestionChange(index, 'modelAnswer', e.target.value)} placeholder={`問題 ${index + 1} の模範解答を記述...`} rows={3} className="bg-white dark:bg-gray-950" />
                                             )}
                                             </div>
                                         )}
@@ -406,3 +408,5 @@ export default function CreateExamPage() {
     </Suspense>
   )
 }
+
+    
