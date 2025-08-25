@@ -224,9 +224,9 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
       </CardHeader>
       <CardContent className="space-y-6">
         {isPersonnelOfficeView && submission.hqGrade && (
-            <Card className="bg-muted/50">
+            <Card className="bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800">
                 <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2"><Building className="w-5 h-5 text-muted-foreground" />本部採点結果</CardTitle>
+                    <CardTitle className="text-lg flex items-center gap-2 text-green-800 dark:text-green-300"><Building className="w-5 h-5" />本部採点結果</CardTitle>
                     <CardDescription>
                         本部担当者 ({submission.hqGrade.reviewer}) による採点結果です。
                     </CardDescription>
