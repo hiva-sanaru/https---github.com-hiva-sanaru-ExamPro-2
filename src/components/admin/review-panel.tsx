@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bot, Wand2, User, Check, GitCommitHorizontal, Loader2, Calendar as CalendarIcon, Shield, Building } from "lucide-react";
+import { Bot, Wand2, User, Check, GitCommitHorizontal, Loader2, Calendar as CalendarIcon, Shield, Building, ThumbsUp, ThumbsDown } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Calendar } from "../ui/calendar";
@@ -20,7 +20,6 @@ import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { format, setHours, setMinutes } from "date-fns";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { updateSubmission } from "@/services/submissionService";
 import { useRouter } from "next/navigation";
 
@@ -319,16 +318,24 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
             {isPersonnelOfficeView && (
               <div className="space-y-4 my-4">
                 <Label>最終的な合否</Label>
-                <RadioGroup value={finalOutcome} onValueChange={(value: 'Passed' | 'Failed') => setFinalOutcome(value)} className="flex gap-4">
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Passed" id="outcome-passed" />
-                    <Label htmlFor="outcome-passed" className="font-bold text-green-600">合格</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Failed" id="outcome-failed" />
-                    <Label htmlFor="outcome-failed" className="font-bold text-destructive">不合格</Label>
-                  </div>
-                </RadioGroup>
+                <div className="flex gap-4">
+                    <Button 
+                        onClick={() => setFinalOutcome('Passed')}
+                        variant={finalOutcome === 'Passed' ? 'default' : 'outline'}
+                        className={cn("flex-1", finalOutcome === 'Passed' && "bg-green-600 hover:bg-green-700")}
+                    >
+                        <ThumbsUp className="mr-2 h-4 w-4" />
+                        合格
+                    </Button>
+                    <Button 
+                        onClick={() => setFinalOutcome('Failed')}
+                        variant={finalOutcome === 'Failed' ? 'destructive' : 'outline'}
+                         className="flex-1"
+                    >
+                        <ThumbsDown className="mr-2 h-4 w-4" />
+                        不合格
+                    </Button>
+                </div>
               </div>
             )}
 
