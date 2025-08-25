@@ -335,11 +335,11 @@ function CreateExamPageContent() {
                                                             <div className="flex-grow space-y-4 pr-4">
                                                                 <div className="space-y-2">
                                                                     <Label htmlFor={`subq-text-${index}-${subIndex}`}>サブ問題文 {subIndex + 1}</Label>
-                                                                    <Textarea id={`subq-text-${index}-${subIndex}`} value={subQ.text} onChange={(e) => handleSubQuestionChange(index, subIndex, 'text', e.target.value)} placeholder={`サブ問題 ${subIndex + 1} の内容...`} />
+                                                                    <Textarea id={`subq-text-${index}-${subIndex}`} value={subQ.text} onChange={(e) => handleSubQuestionChange(index, subIndex, 'text', e.target.value)} placeholder={`サブ問題 ${subIndex + 1} の内容...`} className="bg-white dark:bg-gray-950" />
                                                                 </div>
                                                                 <div className="space-y-2">
                                                                     <Label htmlFor={`subq-model-answer-${index}-${subIndex}`}>模範解答</Label>
-                                                                    <Textarea id={`subq-model-answer-${index}-${subIndex}`} value={typeof subQ.modelAnswer === 'string' ? subQ.modelAnswer : ''} onChange={(e) => handleSubQuestionChange(index, subIndex, 'modelAnswer', e.target.value)} placeholder={`サブ問題 ${subIndex + 1} の模範解答...`} rows={2} />
+                                                                    <Textarea id={`subq-model-answer-${index}-${subIndex}`} value={typeof subQ.modelAnswer === 'string' ? subQ.modelAnswer : ''} onChange={(e) => handleSubQuestionChange(index, subIndex, 'modelAnswer', e.target.value)} placeholder={`サブ問題 ${subIndex + 1} の模範解答...`} rows={2} className="bg-white dark:bg-gray-950" />
                                                                 </div>
                                                                 <div className="flex gap-4">
                                                                     <div className="w-1/2 space-y-2">
