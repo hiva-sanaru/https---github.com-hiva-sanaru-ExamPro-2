@@ -4,7 +4,7 @@ import { ReviewPanel } from "@/components/admin/review-panel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { notFound, useRouter, useParams } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { User as UserIcon, Calendar, CheckCircle, AlertTriangle, ShieldCheck, Loader2 } from "lucide-react";
+import { User as UserIcon, Calendar, CheckCircle, AlertTriangle, ShieldCheck, Loader2, Building } from "lucide-react";
 import { formatInTimeZone } from 'date-fns-tz';
 import { ja } from 'date-fns/locale';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -154,7 +154,7 @@ export default function AdminReviewPage() {
                         <strong>受験者:</strong> <span>{examinee?.name || '不明なユーザー'}</span>
                     </div>
                      <div className="flex items-center gap-2">
-                        <UserIcon className="w-4 h-4 text-muted-foreground" />
+                        <Building className="w-4 h-4 text-muted-foreground" />
                         <strong>本部:</strong> <span>{submission.examineeHeadquarters}</span>
                     </div>
                     <div className="flex items-center gap-2">
