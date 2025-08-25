@@ -143,7 +143,7 @@ export default function AdminDashboardPage() {
                         </Button>
                         {currentUser?.role === 'system_administrator' && (
                             <Link href="/admin/create-exam" passHref>
-                                <Button>
+                                <Button variant="destructive">
                                     <PlusCircle />
                                     試験を作成
                                 </Button>
