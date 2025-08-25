@@ -261,10 +261,6 @@ function CreateExamPageContent() {
                                 </div>
                                 <AccordionContent className="pt-4">
                                    <div className="flex-grow space-y-4 pr-4">
-                                       <div className="space-y-2">
-                                           <Label htmlFor={`q-text-${index}`}>問題文 {index + 1}</Label>
-                                           <Textarea id={`q-text-${index}`} value={q.text} onChange={(e) => handleQuestionChange(index, 'text', e.target.value)} placeholder={`問題 ${index + 1} の内容を記述...`} />
-                                       </div>
                                        <div className="flex gap-4">
                                             <div className="w-1/3 space-y-2">
                                                <Label htmlFor={`q-type-${index}`}>問題タイプ</Label>
@@ -287,6 +283,10 @@ function CreateExamPageContent() {
                                                <Label htmlFor={`q-time-${index}`}>制限時間(秒)</Label>
                                                <Input id={`q-time-${index}`} type="number" value={q.timeLimit} onChange={(e) => handleQuestionChange(index, 'timeLimit', Number(e.target.value))} placeholder="例: 300" />
                                            </div>
+                                       </div>
+                                       <div className="space-y-2">
+                                           <Label htmlFor={`q-text-${index}`}>問題文 {index + 1}</Label>
+                                           <Textarea id={`q-text-${index}`} value={q.text} onChange={(e) => handleQuestionChange(index, 'text', e.target.value)} placeholder={`問題 ${index + 1} の内容を記述...`} />
                                        </div>
                                         {q.type === 'selection' && (
                                           <div className="space-y-2">
