@@ -211,29 +211,29 @@ function CreateExamPageContent() {
                 <CardTitle>試験詳細</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+                <div className="space-y-2">
+                    <Label htmlFor="exam-title">試験タイトル</Label>
+                    <Input id="exam-title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="例: 2024年下期 昇進試験" className="bg-white dark:bg-gray-950" />
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="space-y-2 md:col-span-2">
-                        <Label htmlFor="exam-title">試験タイトル</Label>
-                        <Input id="exam-title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="例: 2024年下期 昇進試験" className="bg-white dark:bg-gray-950" />
+                    <div className="space-y-2">
+                        <Label htmlFor="exam-status">試験ステータス</Label>
+                        <Select value={status} onValueChange={(value: Exam['status']) => setStatus(value)}>
+                            <SelectTrigger id="exam-status" className="w-[200px] bg-white dark:bg-gray-950">
+                                <SelectValue placeholder="ステータスを選択" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="Draft">下書き</SelectItem>
+                                <SelectItem value="Published">公開済み</SelectItem>
+                                <SelectItem value="Archived">アーカイブ済み</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <p className="text-xs text-muted-foreground">「公開済み」に設定すると、受験者が試験を受けられるようになります。</p>
                     </div>
-                     <div className="space-y-2">
+                    <div className="space-y-2">
                         <Label htmlFor="exam-duration">試験時間（分）</Label>
                         <Input id="exam-duration" type="number" value={duration} onChange={(e) => setDuration(Number(e.target.value))} className="bg-white dark:bg-gray-950" />
                     </div>
-                </div>
-                 <div className="space-y-2">
-                    <Label htmlFor="exam-status">試験ステータス</Label>
-                    <Select value={status} onValueChange={(value: Exam['status']) => setStatus(value)}>
-                        <SelectTrigger id="exam-status" className="w-[200px] bg-white dark:bg-gray-950">
-                            <SelectValue placeholder="ステータスを選択" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="Draft">下書き</SelectItem>
-                            <SelectItem value="Published">公開済み</SelectItem>
-                            <SelectItem value="Archived">アーカイブ済み</SelectItem>
-                        </SelectContent>
-                    </Select>
-                    <p className="text-xs text-muted-foreground">「公開済み」に設定すると、受験者が試験を受けられるようになります。</p>
                 </div>
             </CardContent>
         </Card>
@@ -404,5 +404,3 @@ export default function CreateExamPage() {
     </Suspense>
   )
 }
-
-    
