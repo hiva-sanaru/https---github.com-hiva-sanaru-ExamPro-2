@@ -50,10 +50,12 @@ export default function AdminUsersPage() {
     }, [fetchUsersAndHqs]);
     
     const filteredUsers = useMemo(() => users.filter((user: User) => {
-        const nameMatch = user.name.toLowerCase().includes(searchTerm.toLowerCase());
+        const lowercasedSearchTerm = searchTerm.toLowerCase();
+        const nameMatch = user.name.toLowerCase().includes(lowercasedSearchTerm);
+        const employeeIdMatch = user.employeeId.includes(lowercasedSearchTerm);
         const roleMatch = roleFilter === 'all' || user.role === roleFilter;
         const hqMatch = hqFilter === 'all' || user.headquarters === hqFilter;
-        return nameMatch && roleMatch && hqMatch;
+        return (nameMatch || employeeIdMatch) && roleMatch && hqMatch;
     }), [users, searchTerm, roleFilter, hqFilter]);
 
     const handleUserAdded = (newUser: User) => {
@@ -108,7 +110,7 @@ export default function AdminUsersPage() {
                             <div className="relative w-full sm:w-auto">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                                 <Input 
-                                    placeholder="名前で検索..." 
+                                    placeholder="名前または社員番号で検索..." 
                                     className="pl-10 w-full"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
