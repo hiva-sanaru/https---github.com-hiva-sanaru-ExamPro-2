@@ -145,10 +145,7 @@ export default function AdminReviewPage() {
             )}
 
             <Card>
-                <CardHeader>
-                    <CardTitle>提出詳細</CardTitle>
-                </CardHeader>
-                <CardContent className="grid md:grid-cols-3 gap-4 text-sm">
+                <CardContent className="grid md:grid-cols-3 gap-4 text-sm pt-6">
                     <div className="flex items-center gap-2">
                         <UserIcon className="w-4 h-4 text-muted-foreground" />
                         <strong>受験者:</strong> <span>{examinee?.name || '不明なユーザー'}</span>
