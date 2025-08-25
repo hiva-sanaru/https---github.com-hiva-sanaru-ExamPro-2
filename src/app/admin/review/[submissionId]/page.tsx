@@ -11,7 +11,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useState, useEffect } from "react";
 import { getSubmission } from "@/services/submissionService";
 import { getExam } from "@/services/examService";
-import { findUserByEmployeeId } from "@/services/userService";
+import { findUserByEmployeeId, getUsers } from "@/services/userService";
 import type { Submission, Exam, User } from "@/lib/types";
 
 
@@ -23,6 +23,7 @@ export default function AdminReviewPage() {
     const [submission, setSubmission] = useState<Submission | null>(null);
     const [exam, setExam] = useState<Exam | null>(null);
     const [currentUser, setCurrentUser] = useState<User | null>(null);
+    const [examinee, setExaminee] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -45,6 +46,10 @@ export default function AdminReviewPage() {
                     return;
                 }
                 
+                const allUsers = await getUsers();
+                const examineeUser = allUsers.find(u => u.id === sub.examineeId);
+                setExaminee(examineeUser || null);
+
                 const employeeId = localStorage.getItem('loggedInUserEmployeeId');
                 if (employeeId) {
                     const user = await findUserByEmployeeId(employeeId);
@@ -146,7 +151,7 @@ export default function AdminReviewPage() {
                 <CardContent className="grid md:grid-cols-3 gap-4 text-sm">
                     <div className="flex items-center gap-2">
                         <UserIcon className="w-4 h-4 text-muted-foreground" />
-                        <strong>受験者:</strong> <span>受験者ユーザー (ID: {submission.examineeId})</span>
+                        <strong>受験者:</strong> <span>{examinee?.name || '不明なユーザー'}</span>
                     </div>
                      <div className="flex items-center gap-2">
                         <UserIcon className="w-4 h-4 text-muted-foreground" />
