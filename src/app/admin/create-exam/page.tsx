@@ -383,10 +383,6 @@ function CreateExamPageContent() {
                        )
                     })}
                 </Accordion>
-                <Button variant="outline" onClick={() => handleAddQuestion()} className="mt-4">
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    問題を追加
-                </Button>
             </CardContent>
         </Card>
       </div>
