@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { format, setHours, setMinutes } from "date-fns";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { updateSubmission } from "@/services/submissionService";
 import { useRouter } from "next/navigation";
 
@@ -61,24 +62,27 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
   const [finalScore, setFinalScore] = useState<number | undefined>(submission.finalScore);
 
 
+  const totalScore = useMemo(() => {
+    return Object.values(manualScores).reduce((acc, score) => acc + (score || 0), 0);
+  }, [manualScores]);
+  
+  const [finalOutcome, setFinalOutcome] = useState<'Passed' | 'Failed'>(
+    submission.finalOutcome || (totalScore >= 80 ? 'Passed' : 'Failed')
+  );
+
   useEffect(() => {
     // Initialize scores and feedback based on role and existing data
     if (reviewerRole === "人事室" && submission.hqGrade) {
         setManualScores(submission.poGrade?.scores || submission.hqGrade.scores || {});
         setOverallFeedback(submission.poGrade?.justification || '');
         setFinalScore(submission.finalScore);
+        setFinalOutcome(submission.finalOutcome || (totalScore >= 80 ? 'Passed' : 'Failed'))
     } else {
         setManualScores(submission.hqGrade?.scores || {});
         setOverallFeedback(submission.hqGrade?.justification || '');
     }
-  }, [submission, reviewerRole]);
+  }, [submission, reviewerRole, totalScore]);
 
-
-  const totalScore = useMemo(() => {
-    return Object.values(manualScores).reduce((acc, score) => acc + (score || 0), 0);
-  }, [manualScores]);
-  
-  const isPassed = totalScore >= 80;
 
   const handleManualScoreChange = (questionId: string, score: string) => {
     const newScore = Number(score);
@@ -162,10 +166,11 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
             scores: manualScores
         };
         dataToUpdate.finalScore = totalScore;
+        dataToUpdate.finalOutcome = finalOutcome;
         newStatus = "Completed";
     }
     
-    if (isPassed) {
+    if (finalOutcome === 'Passed') {
         dataToUpdate.lessonReviewDate1 = lessonReviewDate1;
         dataToUpdate.lessonReviewEndDate1 = lessonReviewEndDate1;
         dataToUpdate.lessonReviewDate2 = lessonReviewDate2;
@@ -311,7 +316,23 @@ export function ReviewPanel({ exam, submission, reviewerRole }: ReviewPanelProps
                 </div>
             </div>
 
-            {isPassed && (
+            {isPersonnelOfficeView && (
+              <div className="space-y-4 my-4">
+                <Label>最終的な合否</Label>
+                <RadioGroup value={finalOutcome} onValueChange={(value: 'Passed' | 'Failed') => setFinalOutcome(value)} className="flex gap-4">
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Passed" id="outcome-passed" />
+                    <Label htmlFor="outcome-passed" className="font-bold text-green-600">合格</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Failed" id="outcome-failed" />
+                    <Label htmlFor="outcome-failed" className="font-bold text-destructive">不合格</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+            )}
+
+            {finalOutcome === 'Passed' && (
                  <Card className="bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800 mt-4">
                     <CardHeader>
                          <CardTitle className="text-green-800 dark:text-green-300">合格 - 授業審査へ</CardTitle>

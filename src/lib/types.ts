@@ -48,6 +48,7 @@ export interface Submission {
   hqGrade?: Grade;
   poGrade?: Grade;
   finalScore?: number;
+  finalOutcome?: 'Passed' | 'Failed';
   lessonReviewDate1?: any; // Firestore Timestamp
   lessonReviewEndDate1?: any; // Firestore Timestamp
   lessonReviewDate2?: any; // Firestore Timestamp
