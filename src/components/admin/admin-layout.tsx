@@ -42,7 +42,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     }, []);
 
     const menuItems = [
-        { href: "/admin/dashboard", label: "ダッシュボード", icon: LayoutDashboard },
+        { href: "/admin/dashboard", label: "試験管理", icon: LayoutDashboard },
         { href: "/admin/review", label: "提出物", icon: FileCheck2 },
         { href: "/admin/users", label: "ユーザー", icon: Users },
         { href: "/admin/headquarters", label: "本部管理", icon: Building },

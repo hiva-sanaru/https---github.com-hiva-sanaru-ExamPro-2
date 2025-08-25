@@ -80,7 +80,7 @@ export default function AdminDashboardPage() {
     return (
         <div className="space-y-6">
             <div>
-                <h1 className="text-3xl font-bold font-headline">管理者ダッシュボード</h1>
+                <h1 className="text-3xl font-bold font-headline">試験管理</h1>
                  {isLoading ? (
                     <div className="h-6 w-48 bg-muted rounded animate-pulse" />
                 ) : (
