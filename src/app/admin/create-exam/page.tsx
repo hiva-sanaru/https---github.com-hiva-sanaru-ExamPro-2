@@ -261,7 +261,7 @@ function CreateExamPageContent() {
                                 </div>
                                 <AccordionContent className="pt-4">
                                    <div className="flex-grow space-y-4 pr-4">
-                                        <div className="space-y-4 p-4 border rounded-lg bg-muted/50">
+                                        <div className="space-y-4 p-4 border rounded-lg bg-yellow-100 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800">
                                             <div className="flex gap-4">
                                                     <div className="w-1/3 space-y-2">
                                                     <Label htmlFor={`q-type-${index}`}>問題タイプ</Label>
