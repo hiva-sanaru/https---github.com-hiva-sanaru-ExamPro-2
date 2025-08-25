@@ -329,7 +329,6 @@ function CreateExamPageContent() {
                                        {/* Sub Questions */}
                                        {q.subQuestions && q.subQuestions.length > 0 && (
                                            <div className="space-y-4 pl-6 border-l-2 border-primary/20">
-                                               <h4 className="font-bold text-md text-muted-foreground pt-2">サブ問題</h4>
                                                {q.subQuestions.map((subQ, subIndex) => (
                                                    <Card key={subQ.id || subIndex} className="p-4 bg-background">
                                                         <div className="flex justify-between items-start">
