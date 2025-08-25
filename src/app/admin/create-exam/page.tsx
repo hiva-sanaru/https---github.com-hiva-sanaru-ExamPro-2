@@ -302,27 +302,29 @@ function CreateExamPageContent() {
                                               />
                                           </div>
                                         )}
-                                        <div className="space-y-2">
-                                           <Label>模範解答</Label>
-                                           {q.type === 'fill-in-the-blank' ? (
-                                             <div className="space-y-2 pl-4 border-l-2">
-                                               {Array.from({ length: blankCount }).map((_, i) => (
-                                                 <div key={i} className="flex items-center gap-2">
-                                                   <Label htmlFor={`q-model-answer-${index}-${i}`} className="w-16">空欄 {i + 1}</Label>
-                                                   <Input
-                                                     id={`q-model-answer-${index}-${i}`}
-                                                     value={Array.isArray(q.modelAnswer) ? (q.modelAnswer[i] || '') : ''}
-                                                     onChange={(e) => handleQuestionChange(index, 'modelAnswer', { index: i, value: e.target.value })}
-                                                     placeholder={`空欄 ${i + 1} の答え`}
-                                                   />
-                                                 </div>
-                                               ))}
-                                               {blankCount === 0 && <p className="text-xs text-muted-foreground">問題文に「___」（アンダースコア3つ）を追加して空欄を作成してください。</p>}
-                                             </div>
-                                           ) : (
-                                             <Textarea id={`q-model-answer-${index}`} value={typeof q.modelAnswer === 'string' ? q.modelAnswer : ''} onChange={(e) => handleQuestionChange(index, 'modelAnswer', e.target.value)} placeholder={`問題 ${index + 1} の模範解答を記述...`} rows={3} />
-                                           )}
-                                       </div>
+                                        {(!q.subQuestions || q.subQuestions.length === 0) && (
+                                            <div className="space-y-2">
+                                            <Label>模範解答</Label>
+                                            {q.type === 'fill-in-the-blank' ? (
+                                                <div className="space-y-2 pl-4 border-l-2">
+                                                {Array.from({ length: blankCount }).map((_, i) => (
+                                                    <div key={i} className="flex items-center gap-2">
+                                                    <Label htmlFor={`q-model-answer-${index}-${i}`} className="w-16">空欄 {i + 1}</Label>
+                                                    <Input
+                                                        id={`q-model-answer-${index}-${i}`}
+                                                        value={Array.isArray(q.modelAnswer) ? (q.modelAnswer[i] || '') : ''}
+                                                        onChange={(e) => handleQuestionChange(index, 'modelAnswer', { index: i, value: e.target.value })}
+                                                        placeholder={`空欄 ${i + 1} の答え`}
+                                                    />
+                                                    </div>
+                                                ))}
+                                                {blankCount === 0 && <p className="text-xs text-muted-foreground">問題文に「___」（アンダースコア3つ）を追加して空欄を作成してください。</p>}
+                                                </div>
+                                            ) : (
+                                                <Textarea id={`q-model-answer-${index}`} value={typeof q.modelAnswer === 'string' ? q.modelAnswer : ''} onChange={(e) => handleQuestionChange(index, 'modelAnswer', e.target.value)} placeholder={`問題 ${index + 1} の模範解答を記述...`} rows={3} />
+                                            )}
+                                            </div>
+                                        )}
 
                                        {/* Sub Questions */}
                                        {q.subQuestions && q.subQuestions.length > 0 && (
@@ -405,7 +407,3 @@ export default function CreateExamPage() {
     </Suspense>
   )
 }
-
-    
-
-    
